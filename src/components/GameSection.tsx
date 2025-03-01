@@ -1,5 +1,5 @@
-import { fetchGames } from "@/services/gameService";
 import GameList from "./GameList";
+import { publicApi } from '@/utils/api';
 
 interface Game {
   id: number;
@@ -18,8 +18,14 @@ interface Game {
 }
 
 export default async function GameSection() {
-  // Fetch games from the API
-  const gamesData = await fetchGames();
+  // Fetch games from the API using axios
+  const response = await publicApi.getGames()
+    .catch(error => {
+      console.error('Error fetching games:', error);
+      return { data: { past: [], upcoming: [] } };
+    });
+
+  const gamesData = response.data;
 
   return (
     <section className="py-20 px-4">

@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'assets.mixkit.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.popularairsoft.com'
+      }
     ],
   },
 };

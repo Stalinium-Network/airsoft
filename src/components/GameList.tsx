@@ -41,7 +41,7 @@ export default function GameList({ pastGames, upcomingGames }: GameListProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
         {filteredGames.map((game) => (
-          <GameCard key={game.id} game={game} />
+          <GameCard key={game._id} game={game} />
         ))}
       </div>
     </motion.div>
@@ -75,10 +75,10 @@ function GameCard({ game }: { game: Game }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-4 w-full">
-          <div className="flex items-center space-x-2 mb-1">
+          {/* <div className="flex items-center space-x-2 mb-1">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
             <p className="text-sm font-medium text-green-400">{game.isPast ? 'Completed' : 'Live Event'}</p>
-          </div>
+          </div> */}
           <h3 className="text-2xl font-bold text-white">{game.name}</h3>
           <p className="text-green-500 flex items-center">
             <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">

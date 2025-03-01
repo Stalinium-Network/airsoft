@@ -1,5 +1,5 @@
 export interface Game {
-  id: number;
+  _id: any;
   name: string;
   date: string;
   location: string;
@@ -23,7 +23,7 @@ export interface GamesResponse {
 const mockGames: GamesResponse = {
   past: [
     {
-      id: 4,
+      _id: 4,
       name: "Clearsky Offensive",
       date: "September 12, 2023",
       location: "Urban Zone, Kharkiv",
@@ -37,7 +37,7 @@ const mockGames: GamesResponse = {
   ],
   upcoming: [
     {
-      id: 1,
+      _id: 1,
       name: "Operation: Red Forest",
       date: "October 15, 2023",
       location: "Abandoned Factory, Kiev",
@@ -49,7 +49,7 @@ const mockGames: GamesResponse = {
       isPast: false
     },
     {
-      id: 2,
+      _id: 2,
       name: "Raid on Pripyat",
       date: "November 5, 2023",
       location: "Woodland Arena, Odessa",
@@ -61,7 +61,7 @@ const mockGames: GamesResponse = {
       isPast: false
     },
     {
-      id: 3,
+      _id: 3,
       name: "Monolith Rising",
       date: "November 20, 2023",
       location: "Military Base, Lviv",
