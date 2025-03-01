@@ -21,11 +21,11 @@ const pagesObj: PagesType = {
     priority: 1,
     changeFrequency: 'daily',
   },
-  'rules': {
+  '/rules': {
     priority: 0.8,
     changeFrequency: 'weekly',
   },
-  'waiver': {
+  '/waiver': {
     priority: 0.8,
     changeFrequency: 'weekly',
   }

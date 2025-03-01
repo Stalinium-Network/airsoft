@@ -1,20 +1,80 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 export default function HeroSection() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  // Effect to handle video playback
+  useEffect(() => {
+    const video = videoRef.current;
+    
+    if (!video) return;
+    
+    // Helper function to start playing the video
+    const playVideo = () => {
+      // Promise-based play() request needed for iOS Safari
+      const playPromise = video.play();
+      
+      // Catch and handle play() rejection
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            // Video playback started successfully
+            console.log('Video playback started');
+          })
+          .catch(error => {
+            // Auto-play was prevented
+            console.log('Auto-play prevented:', error);
+            
+            // Add event listener for user interaction to trigger play
+            const handleUserInteraction = () => {
+              video.play()
+                .then(() => {
+                  console.log('Video playback started after user interaction');
+                  // Remove event listeners once video is playing
+                  document.removeEventListener('click', handleUserInteraction);
+                  document.removeEventListener('touchstart', handleUserInteraction);
+                })
+                .catch(err => console.error('Failed to play even after interaction:', err));
+            };
+            
+            document.addEventListener('click', handleUserInteraction);
+            document.addEventListener('touchstart', handleUserInteraction);
+          });
+      }
+    };
+    
+    // Initialize playback
+    playVideo();
+    
+    // Clean up event listeners
+    return () => {
+      document.removeEventListener('click', () => {});
+      document.removeEventListener('touchstart', () => {});
+    };
+  }, []);
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden w-screen">
       {/* Video background */}
       <div className="absolute inset-0 z-0 overflow-hidden w-screen">
+        {/* Poster image that shows while video is loading */}
+        {!isVideoLoaded && (
+          <div className="absolute w-full h-full bg-gray-900"></div>
+        )}
+        
         <video 
+          ref={videoRef}
           autoPlay 
           muted 
           loop 
+          playsInline // Important for iOS
+          preload="auto" // Try to preload the video
           className="absolute w-screen min-h-full object-cover"
           onLoadedData={() => setIsVideoLoaded(true)}
+          poster="/video-poster.jpg" // Add a poster image as fallback
           style={{ 
             filter: 'brightness(0.5)',
             left: '50%',

@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Admin Agent API Guide
 
-## Getting Started
+## Authentication
+All requests to the `/api/admin/ask-agent` endpoint require authentication:
+- Include a valid JWT token in the Authorization header
+- Format: `Authorization: Bearer your_jwt_token`
 
-First, run the development server:
+## Making Requests
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Endpoint
+```
+POST /api/admin/ask-agent
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Headers
+```
+Content-Type: application/json
+Authorization: Bearer your_jwt_token
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Request Body
+```json
+{
+  "message": "Your question or prompt here",
+  "chatId": "optional-chat-id-for-continuing-conversation"
+}
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- For a new conversation, omit `chatId` or pass an empty string
+- For continuing a conversation, include the `chatId` received from a previous response
 
-## Learn More
+## Handling Responses
 
-To learn more about Next.js, take a look at the following resources:
+Responses are streamed using Server-Sent Events (SSE) format:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Response Types
+1. **New Chat Notification**: Sent when a new chat session is created
+   ```
+   data: [new_chat] chat-uuid-here
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **AI Response Chunks**: Sent as individual tokens during generation
+   ```
+   data: token text here
+   ```
 
-## Deploy on Vercel
+3. **End of Stream Marker**: Indicates the response is complete
+   ```
+   data: [DONE]
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Example Client Implementation (JavaScript)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```javascript
+async function askAgent(message, chatId = null) {
+  const response = await fetch('/api/admin/ask-agent', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${yourAuthToken}`
+    },
+    body: JSON.stringify({ message, chatId })
+  });
+
+  // Create a new event source from the response
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let currentChatId = chatId;
+  let fullResponse = '';
+
+  // Process the stream
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    
+    const chunk = decoder.decode(value);
+    const lines = chunk.split('\n\n');
+    
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = line.substring(6);
+        
+        // Handle new chat ID
+        if (data.startsWith('[new_chat]')) {
+          currentChatId = data.substring(10).trim();
+          console.log(`New chat created with ID: ${currentChatId}`);
+          continue;
+        }
+        
+        // Handle end of stream
+        if (data === '[DONE]') {
+          console.log('Response complete');
+          break;
+        }
+        
+        // Handle normal response text
+        console.log(data); // Text token
+        fullResponse += data;
+        
+        // Update your UI here with each token for a typing effect
+        updateUI(data);
+      }
+    }
+  }
+  
+  return {
+    chatId: currentChatId,
+    response: fullResponse
+  };
+}
+
+// Example usage
+const result = await askAgent("What's the weather like today?");
+console.log(`Chat ID: ${result.chatId}`);
+console.log(`Full response: ${result.response}`);
+
+// For continuing the conversation later:
+const followup = await askAgent("How about tomorrow?", result.chatId);
+```
+
+## Notes
+
+- Chat sessions expire after 2 hours of inactivity
+- For security reasons, always validate the user's authentication before making requests
+- The streaming format allows for creating a natural typing effect in the UI

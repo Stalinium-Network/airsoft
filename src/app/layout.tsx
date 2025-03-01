@@ -13,10 +13,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+const meta = {
   title: "ZONE 37",
-  description: "STALKER-inspired airsoft events",
+  description:
+    "Airsoft Arena: STALKER Zone is a meeting place for all who seek real adventures in the Zone. Join the ranks of stalkers, obtain valuable artifacts, complete tasks and beware of enemies. Our scenario games recreate the atmosphere of the STALKER world. Choose your path in the Exclusion Zone.",
+  images: ["/open-graph.jpg"],
+};
+
+export const metadata: Metadata = {
+  title: meta.title,
+  description: meta.description,
   robots: "index, follow",
+  openGraph: {
+    title: meta.title,
+    description: meta.description,
+    images: meta.images,
+    url: "https://browsenchat.com",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: meta.title,
+    description: meta.description,
+    images: meta.images,
+  },
 };
 
 export default function RootLayout({

@@ -2,4 +2,4 @@ User-agent: *
 Disallow: /admin/  # Запрещаем индексировать админку
 Disallow: /api/    # Запрещаем индексировать API
 
-Sitemap: /sitemap.xml
+Sitemap: https://browsenchat.com/sitemap.xml
