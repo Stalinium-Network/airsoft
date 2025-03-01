@@ -8,7 +8,6 @@ import CreateGameModal from './components/CreateGameModal'
 import EditGameModal from './components/EditGameModal'
 import AuthRequired from './components/AuthRequired'
 import { adminApi } from '@/utils/api'
-import AgentChat from './components/AgentChat'
 
 export default function AdminConsole() {
   const router = useRouter()
@@ -211,7 +210,6 @@ export default function AdminConsole() {
           }}
         />
       )}
-      <AgentChat />
     </div>
   )
 }
