@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import GameList from "./GameList";
 import { publicApi } from '@/utils/api';
 

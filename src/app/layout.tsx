@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ZONE 37",
   description: "STALKER-inspired airsoft events",
+  robots: "index, follow",
 };
 
 export default function RootLayout({
@@ -27,10 +28,6 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <head>
-
-        <link rel="icon" href="/logo.webp" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-900 to-black text-white`}
       >
@@ -38,8 +35,13 @@ export default function RootLayout({
         {children}
 
         <div className="mb-10 border-t border-gray-800 pt-6 text-center text-gray-400">
-          <p>&copy; {currentYear} Zone 37. All rights reserved. Inspired by STALKER 2.</p>
-          <p className="mt-2 text-sm">This is a fan project and is not affiliated with GSC Game World.</p>
+          <p>
+            &copy; {currentYear} Zone 37. All rights reserved. Inspired by
+            STALKER 2.
+          </p>
+          <p className="mt-2 text-sm">
+            This is a fan project and is not affiliated with GSC Game World.
+          </p>
         </div>
       </body>
     </html>

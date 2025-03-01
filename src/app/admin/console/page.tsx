@@ -186,7 +186,6 @@ export default function AdminConsole() {
       {/* Create Game Modal */}
       {isCreateModalOpen && (
         <CreateGameModal
-          token={token}
           onClose={() => setIsCreateModalOpen(false)}
           onGameCreated={handleGameCreated}
           onError={(errorMessage) => {
@@ -200,7 +199,6 @@ export default function AdminConsole() {
       {isEditModalOpen && editingGame && (
         <EditGameModal
           game={editingGame}
-          token={token}
           onClose={() => {
             setIsEditModalOpen(false)
             setEditingGame(null)
