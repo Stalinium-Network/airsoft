@@ -142,13 +142,13 @@ export default function AgentChat() {
 
     return (
       <ReactMarkdown
-        className="markdown-content whitespace-pre-wrap"
+        // className="markdown-content whitespace-pre-wrap"
         components={{
-          code({ node, inline, className, children, ...props }) {
+          code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || "");
             return !inline && match ? (
               <SyntaxHighlighter
-                {...props}
+                {...props as any}
                 style={atomDark}
                 language={match[1]}
                 PreTag="div"
