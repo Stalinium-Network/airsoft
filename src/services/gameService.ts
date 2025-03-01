@@ -78,7 +78,7 @@ const mockGames: GamesResponse = {
 export async function fetchGames(): Promise<GamesResponse> {
   try {
     // In a true server component, this runs on the server during build or request time
-    const response = await fetch('http://localhost:3113/games', { 
+    const response = await fetch(`${process.env.API_LOCAL_URL}/games`, { 
       cache: 'no-store' // For SSR it's better to use no-store and handle your own cache strategy
     });
     

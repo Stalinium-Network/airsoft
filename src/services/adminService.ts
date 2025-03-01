@@ -52,7 +52,7 @@ export const adminFetch = async <T>(
 // Admin API functions
 export const createGame = async (gameData: Omit<Game, '_id'>): Promise<Game> => {
   return await adminFetch<Game>(
-    'http://localhost:3113/admin/create-game',
+    `${process.env.NEXT_PUBLIC_API_URL}/admin/create-game`,
     'POST',
     gameData
   );
@@ -60,7 +60,7 @@ export const createGame = async (gameData: Omit<Game, '_id'>): Promise<Game> => 
 
 export const updateGame = async (gameId: string | number, gameData: Partial<Game>): Promise<Game> => {
   return await adminFetch<Game>(
-    `http://localhost:3113/admin/update-game/${gameId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/admin/update-game/${gameId}`,
     'PUT',
     gameData
   );
@@ -68,14 +68,14 @@ export const updateGame = async (gameId: string | number, gameData: Partial<Game
 
 export const deleteGame = async (gameId: string | number): Promise<void> => {
   return await adminFetch<void>(
-    `http://localhost:3113/admin/delete-game/${gameId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/admin/delete-game/${gameId}`,
     'DELETE'
   );
 };
 
 export const verifyToken = async (): Promise<{email: string; isAdmin: boolean}> => {
   return await adminFetch<{email: string; isAdmin: boolean}>(
-    'http://localhost:3113/admin/verify-token',
+    `${process.env.NEXT_PUBLIC_API_URL}/admin/verify-token`,
     'GET'
   );
 };

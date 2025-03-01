@@ -22,7 +22,7 @@ export const removeAdminToken = (): void => {
 
 export const isTokenValid = async (token: string): Promise<AdminTokenData | null> => {
   try {
-    const response = await fetch('http://localhost:3113/admin/verify-token', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/verify-token`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`

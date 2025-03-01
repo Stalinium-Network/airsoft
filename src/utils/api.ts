@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base API URL
-const API_URL = 'http://localhost:3113';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Create axios instance
 export const api = axios.create({
@@ -31,11 +31,11 @@ export const adminApi = {
   // Game management
   getGames: () => api.get('/admin/game-list'),
   createGame: (gameData: any) => api.post('/admin/create-game', gameData),
-  updateGame: (gameId: string | number, gameData: any) => 
+  updateGame: (gameId: string | number, gameData: any) =>
     api.put(`/admin/update-game/${gameId}`, gameData),
-  deleteGame: (gameId: string | number) => 
+  deleteGame: (gameId: string | number) =>
     api.delete(`/admin/delete-game/${gameId}`),
-  
+
   // Authentication
   verifyToken: () => api.get('/admin/verify-token'),
 };

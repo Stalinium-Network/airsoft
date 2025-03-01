@@ -51,7 +51,7 @@ export default function AdminLogin() {
         // Verify existing token
         const verifyToken = async () => {
           try {
-            const response = await fetch('http://localhost:3113/admin/verify-token', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/verify-token`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${existingToken}`
@@ -77,7 +77,7 @@ export default function AdminLogin() {
   
   const handleGoogleLogin = () => {
     // Redirect to Google OAuth endpoint
-    window.location.href = 'http://localhost:3113/admin/google'
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/admin/google`
   }
   
   return (

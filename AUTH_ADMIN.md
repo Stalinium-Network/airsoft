@@ -26,7 +26,7 @@ The admin authentication system uses Google OAuth 2.0 for secure login. Only ema
 3. Navigate to "APIs & Services" > "Credentials"
 4. Click "Create Credentials" and select "OAuth client ID"
 5. Select "Web application" as application type
-6. Add the following Authorized redirect URI: `http://localhost:3113/admin/google/callback`
+6. Add the following Authorized redirect URI: `http://localhost:3113/api/admin/google/callback`
 7. Click "Create" and note your Client ID and Client Secret
 
 ### Environment Configuration
@@ -36,7 +36,7 @@ Create a `.env` file in the root of your project with the following variables:
 ```
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_CALLBACK_URL=http://localhost:3113/admin/google/callback
+GOOGLE_CALLBACK_URL=http://localhost:3113/api/admin/google/callback
 JWT_SECRET=your_secure_random_string
 MONGODB_URI=mongodb://localhost:27017/airsoft
 ```
