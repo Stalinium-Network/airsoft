@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 import { Game } from "@/services/gameService";
-import {
-  isPastGame,
-  formatDateForInput,
-  formatDateForDisplay,
-} from "@/services/adminService";
+import { isPastGame, formatDateForDisplay } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
+import { createImagePreview } from "@/utils/imageUtils";
+
+// Components
+import ImageUploadSection from "./game-form/ImageUploadSection";
+import GameFormFields from "./game-form/GameFormFields";
+import ProgressBar from "./game-form/ProgressBar";
 
 // Default game data template
 const defaultGameData = {
@@ -15,7 +17,7 @@ const defaultGameData = {
   location: "",
   coordinates: "",
   description: "",
-  image: "https://images.unsplash.com/photo-1518407613690-d9fc990e795f",
+  image: "",
   capacity: {
     total: 30,
     filled: 0,
@@ -37,6 +39,9 @@ export default function CreateGameModal({
 }: CreateGameModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [newGame, setNewGame] = useState<Omit<Game, "_id">>(defaultGameData);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Handle input changes for new game
   const handleInputChange = (
@@ -77,11 +82,41 @@ export default function CreateGameModal({
     }
   };
 
-  // Create a new game using axios
+  // Handle image file selection
+  const handleImageSelected = async (file: File) => {
+    try {
+      // Generate preview immediately for better UX
+      const preview = await createImagePreview(file);
+      setImagePreview(preview);
+      setImageFile(file);
+
+      // Update the game state to indicate we have an image
+      setNewGame((prev) => ({
+        ...prev,
+        image: "file_upload", // This will be replaced by the server with the actual URL
+      }));
+    } catch (error) {
+      console.error("Error handling image:", error);
+      onError("Failed to process image. Please try another file.");
+    }
+  };
+
+  // Remove selected image
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setNewGame((prev) => ({
+      ...prev,
+      image: "",
+    }));
+  };
+
+  // Create a new game using FormData to support file upload
   const createGame = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setIsLoading(true);
+    setUploadProgress(0);
 
     // Validate form
     if (
@@ -89,32 +124,65 @@ export default function CreateGameModal({
       !newGame.location ||
       !newGame.coordinates ||
       !newGame.description ||
-      !newGame.image
+      (!imageFile && !newGame.image)
     ) {
-      onError("Please fill in all required fields");
+      onError("Please fill in all required fields and provide an image");
       setIsLoading(false);
       return;
     }
 
-    // Ensure isPast is correctly set based on date and format date for display
-    const gameToCreate = {
-      ...newGame,
-      isPast: isPastGame(newGame.date),
-      date: formatDateForDisplay(newGame.date), // Format date for display
-    };
-
     try {
-      await adminApi.createGame(gameToCreate);
+      // Create FormData for multipart/form-data submission
+      const formData = new FormData();
+
+      // Append individual form fields directly
+      formData.append("name", newGame.name);
+      formData.append("date", newGame.date);
+      formData.append("location", newGame.location);
+      formData.append("coordinates", newGame.coordinates);
+      formData.append("description", newGame.description);
+      formData.append("price", newGame.price.toString());
+      formData.append("isPast", newGame.isPast.toString());
+
+      // Append capacity as individual fields
+      formData.append("totalCapacity", newGame.capacity.total.toString());
+      formData.append("filledCapacity", newGame.capacity.filled.toString());
+
+      // IMPORTANT FIX: Image handling
+      // Only include the image file if it exists, otherwise use the URL
+      if (imageFile) {
+        // Append as 'file', not as 'image'
+        formData.append("file", imageFile);
+      }
+
+      // Simulate upload progress (for demo)
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          const newProgress = prev + 10;
+          if (newProgress >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return newProgress;
+        });
+      }, 300);
+
+      // Submit the form data
+      await adminApi.createGameWithImage(formData);
+
+      // Clear interval and finish progress
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
       onGameCreated();
     } catch (error: any) {
       console.error("Error creating game:", error);
-
-      // Extract error message from axios error
       const errorMessage =
         error.response?.data?.message || error.message || "Unknown error";
       onError(`Failed to create game: ${errorMessage}`);
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -147,150 +215,34 @@ export default function CreateGameModal({
         <div className="p-6">
           <form onSubmit={createGame}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Game Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={newGame.name}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  placeholder="Operation Blackout"
-                  required
-                />
-              </div>
+              {/* Game info fields */}
+              <GameFormFields
+                game={newGame}
+                onChange={handleInputChange}
+                isLoading={isLoading}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formatDateForInput(newGame.date)}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  required
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Status:{" "}
-                  {isPastGame(newGame.date) ? "Past Event" : "Upcoming Event"}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={newGame.location}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  placeholder="Forest Base, Kiev"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Coordinates
-                </label>
-                <input
-                  type="text"
-                  name="coordinates"
-                  value={newGame.coordinates}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  placeholder="50.4501,30.5234"
-                  required
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={newGame.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  placeholder="An intense tactical mission through challenging terrain..."
-                  required
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Image URL
-                </label>
-                <input
-                  type="text"
-                  name="image"
-                  value={newGame.image}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  placeholder="https://example.com/image.jpg"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Total Capacity
-                </label>
-                <input
-                  type="number"
-                  name="capacity.total"
-                  value={newGame.capacity.total}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  required
-                  min="1"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Current Registrations
-                </label>
-                <input
-                  type="number"
-                  name="capacity.filled"
-                  value={newGame.capacity.filled}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  required
-                  min="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Price
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={newGame.price}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  required
-                  min="0"
-                />
-              </div>
+              {/* Image upload section */}
+              <ImageUploadSection
+                imagePreview={imagePreview}
+                onImageChange={handleImageSelected}
+                onImageRemove={handleRemoveImage}
+                fileInputDisabled={isLoading}
+              />
             </div>
+
+            {/* Upload progress indicator */}
+            <ProgressBar
+              progress={uploadProgress}
+              show={isLoading && uploadProgress > 0}
+            />
 
             <div className="flex gap-3 justify-end">
               <button
                 type="button"
                 onClick={onClose}
                 className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                disabled={isLoading}
               >
                 Cancel
               </button>

@@ -46,7 +46,7 @@ export default function AgentChat() {
     try {
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3113"
+          process.env.NEXT_PUBLIC_API_URL
         }/admin/ask-agent`,
         {
           method: "POST",

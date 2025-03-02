@@ -2,19 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['images.unsplash.com', 'assets.mixkit.co'],
+    domains: ['localhost', 'browsenchat.com'],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
+        protocol: 'http',
+        hostname: 'localhost',
       },
       {
         protocol: 'https',
-        hostname: 'assets.mixkit.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.popularairsoft.com'
+        hostname: 'browsenchat.com',
       }
     ],
   },

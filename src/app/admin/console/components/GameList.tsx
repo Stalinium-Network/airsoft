@@ -62,7 +62,7 @@ export default function GameList({
             {/* Game image */}
             <div className="h-40 relative">
               <Image
-                src={game.image}
+                src={process.env.NEXT_PUBLIC_IMAGES_URL + game.image}
                 alt={game.name}
                 fill
                 className="object-cover"
