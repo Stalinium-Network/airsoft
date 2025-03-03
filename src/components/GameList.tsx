@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Game } from "@/services/gameService";
+import { formatDateTime } from "@/utils/time-format";
 
 interface GameListProps {
   pastGames: Game[];
@@ -86,10 +87,6 @@ function GameCard({ game }: { game: Game }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-4 w-full">
-          {/* <div className="flex items-center space-x-2 mb-1">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <p className="text-sm font-medium text-green-400">{game.isPast ? 'Completed' : 'Live Event'}</p>
-          </div> */}
           <h3 className="text-2xl font-bold text-white">{game.name}</h3>
           <p className="text-green-500 flex items-center">
             <svg
@@ -103,8 +100,9 @@ function GameCard({ game }: { game: Game }) {
                 clipRule="evenodd"
               />
             </svg>
-            {game.date}
+            {formatDateTime(game.date)}
           </p>
+          <p className="text-gray-400 text-sm">Duration: {game.duration} hours</p>
         </div>
       </div>
 

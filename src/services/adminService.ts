@@ -80,33 +80,18 @@ export const verifyToken = async (): Promise<{email: string; isAdmin: boolean}> 
   );
 };
 
-// Enhanced date handling functions
-export const isPastGame = (dateStr: string): boolean => {
-  // Handle various date formats
-  let gameDate: Date;
-  
-  if (!dateStr) return false;
+// Update isPastGame to work with date as Date object
+export const isPastGame = (date: Date | string): boolean => {
+  if (!date) return false;
   
   try {
-    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      // YYYY-MM-DD format
-      gameDate = new Date(dateStr);
-    } else if (dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-      // MM/DD/YYYY format
-      const [month, day, year] = dateStr.split('/').map(Number);
-      gameDate = new Date(year, month - 1, day);
-    } else {
-      // Try to parse month name format (e.g., "December 15, 2023")
-      gameDate = new Date(dateStr);
-    }
+    // Convert to Date object if it's a string
+    const gameDate = typeof date === 'string' ? new Date(date) : date;
   
     // If date is invalid, default to future date
     if (isNaN(gameDate.getTime())) {
       return false;
     }
-    
-    // Set game date to end of day to consider it as past only after the day is over
-    gameDate.setHours(23, 59, 59);
     
     return gameDate < new Date();
   } catch (error) {
@@ -115,69 +100,48 @@ export const isPastGame = (dateStr: string): boolean => {
   }
 };
 
-export const formatDateForInput = (dateStr: string): string => {
-  // Handle empty or null input
-  if (!dateStr) return '';
+// Format date for input (handles both string and Date)
+export const formatDateForInput = (date: Date | string): string => {
+  if (!date) return '';
   
   try {
-    // Try to parse the date
-    let date: Date;
-    
-    // Check if already in YYYY-MM-DD format
-    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return dateStr;
-    }
-    
-    // Parse other formats
-    date = new Date(dateStr);
+    // Convert string to Date if needed
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
     
     // If the date is invalid, return empty string
-    if (isNaN(date.getTime())) {
-      console.warn("Invalid date format:", dateStr);
+    if (isNaN(dateObj.getTime())) {
+      console.warn("Invalid date format:", date);
       return '';
     }
     
-    // Format as YYYY-MM-DD for input type="date"
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}`;
+    // Format as YYYY-MM-DDThh:mm for datetime-local input
+    const pad = (n: number) => n < 10 ? '0' + n : n;
+    return `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
   } catch (error) {
     console.error("Error formatting date for input:", error);
     return '';
   }
 };
 
-export const formatDateForDisplay = (dateStr: string): string => {
-  // Handle empty or null input
-  if (!dateStr) return '';
+export const formatDateForDisplay = (date: Date | string): string => {
+  if (!date) return '';
   
   try {
-    // If already looks like a display format (contains text month), return as is
-    if (dateStr.match(/[a-zA-Z]+ \d{1,2}, \d{4}/)) {
-      return dateStr;
-    }
+    // Convert string to Date if needed
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
     
-    // Try to parse the date
-    const date = new Date(dateStr);
+    if (isNaN(dateObj.getTime())) return '';
     
-    // If the date is invalid, return original string
-    if (isNaN(date.getTime())) {
-      console.warn("Invalid date format:", dateStr);
-      return dateStr;
-    }
-    
-    // Format as Month Day, Year (e.g. "December 15, 2023")
-    const options: Intl.DateTimeFormatOptions = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    };
-    
-    return date.toLocaleDateString('en-US', options);
+    // Format as a human-readable string
+    return dateObj.toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
   } catch (error) {
-    console.error("Error formatting date for display:", error);
-    return dateStr;
+    console.error("Error formatting date:", error);
+    return '';
   }
 };

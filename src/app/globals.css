@@ -67,7 +67,7 @@ html {
 
 /* Code block styles */
 .markdown-content pre {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: 0.85rem;
   line-height: 1.4;
   scrollbar-width: thin;
@@ -109,4 +109,17 @@ html {
   font-size: 0.85rem;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.video-main {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }

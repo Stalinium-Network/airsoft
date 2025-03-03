@@ -30,7 +30,7 @@ export default async function GameSection() {
   const gamesData = response.data;
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-20 px-4 w-screen">
       <h2 className="text-4xl font-bold text-center mb-12">
         OUR <span className="text-green-500">EVENTS</span>
       </h2>

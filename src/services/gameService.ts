@@ -1,7 +1,8 @@
 export interface Game {
   _id: any;
   name: string;
-  date: string;
+  date: Date;
+  duration: number;   // Duration in hours
   location: string;
   coordinates: string;
   description: string;

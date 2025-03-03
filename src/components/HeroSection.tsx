@@ -72,7 +72,7 @@ export default function HeroSection() {
           loop 
           playsInline // Important for iOS
           preload="auto" // Try to preload the video
-          className="absolute w-screen min-h-full object-cover"
+          className="absolute w-screen min-h-full object-cover video-main"
           onLoadedData={() => setIsVideoLoaded(true)}
           poster="/video-poster.jpg" // Add a poster image as fallback
           style={{ 

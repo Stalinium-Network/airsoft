@@ -1,13 +1,11 @@
 'use client'
-import { motion } from 'framer-motion';
-import Link from 'next/link';
 
 export default function Footer() {
   
   return (
     <footer className="py-10 border-t border-gray-800 px-4">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h4 className="text-xl font-bold text-green-500 mb-4">ZONE 37</h4>
             <p className="text-gray-400">
@@ -15,7 +13,7 @@ export default function Footer() {
             </p>
           </div>
           
-          <div>
+          {/* <div>
             <h4 className="text-lg font-bold mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li><Link href="/" className="text-gray-400 hover:text-green-500 transition-colors">Home</Link></li>
@@ -24,14 +22,14 @@ export default function Footer() {
               <li><Link href="/rules" className="text-gray-400 hover:text-green-500 transition-colors">Rules</Link></li>
               <li><Link href="/waiver" className="text-gray-400 hover:text-green-500 transition-colors">Waiver</Link></li>
             </ul>
-          </div>
+          </div> */}
           
           <div>
             <h4 className="text-lg font-bold mb-4">Contact Us</h4>
             <ul className="space-y-2">
-              <li className="text-gray-400">info@zone37.com</li>
-              <li className="text-gray-400">+380 123 456 789</li>
-              <li className="text-gray-400">Chernobyl Exclusion Zone, Ukraine</li>
+              <li className="text-gray-400">devdeveloper433@gmail.com</li>
+              <li className="text-gray-400">+1 916 *** ****</li>
+              <li className="text-gray-400">Chernobyl Exclusion Zone</li>
             </ul>
           </div>
           

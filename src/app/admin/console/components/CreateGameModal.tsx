@@ -10,10 +10,11 @@ import ImageUploadSection from "./game-form/ImageUploadSection";
 import GameFormFields from "./game-form/GameFormFields";
 import ProgressBar from "./game-form/ProgressBar";
 
-// Default game data template
+// Default game data template with Date object
 const defaultGameData = {
   name: "",
-  date: new Date().toISOString().split("T")[0],
+  date: new Date(), // Use actual Date object instead of string
+  duration: 3, // Default to 3 hours
   location: "",
   coordinates: "",
   description: "",
@@ -22,7 +23,7 @@ const defaultGameData = {
     total: 30,
     filled: 0,
   },
-  price: 50,
+  price: 25,
   isPast: false,
 };
 
@@ -43,12 +44,8 @@ export default function CreateGameModal({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  // Handle input changes for new game
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+  // Handle input changes for new game, including start date that affects end date
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     if (name.includes(".")) {
@@ -67,13 +64,20 @@ export default function CreateGameModal({
         price: parseInt(value, 10) || 0,
       }));
     } else if (name === "date") {
-      // Set isPast based on the date
+      // When start date changes, update isPast automatically
       const isPastValue = isPastGame(value);
       setNewGame((prev) => ({
         ...prev,
         date: value,
         isPast: isPastValue,
+        // Note: we no longer update endDate here because it will be calculated from duration
       }));
+    } else if (name === "endDate") {
+      // Update end date when it's changed (either manually or via duration)
+      setNewGame((prev) => ({
+        ...prev,
+        endDate: value,
+      })); 
     } else {
       setNewGame((prev) => ({
         ...prev,
@@ -89,11 +93,11 @@ export default function CreateGameModal({
       const preview = await createImagePreview(file);
       setImagePreview(preview);
       setImageFile(file);
-
+      
       // Update the game state to indicate we have an image
-      setNewGame((prev) => ({
+      setNewGame(prev => ({
         ...prev,
-        image: "file_upload", // This will be replaced by the server with the actual URL
+        image: 'file_upload' // This will be replaced by the server with the actual URL
       }));
     } catch (error) {
       console.error("Error handling image:", error);
@@ -101,13 +105,21 @@ export default function CreateGameModal({
     }
   };
 
+  // Handle image URL change
+  const handleImageUrlChange = (url: string) => {
+    setNewGame(prev => ({
+      ...prev,
+      image: url
+    }));
+  };
+
   // Remove selected image
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(null);
-    setNewGame((prev) => ({
+    setNewGame(prev => ({
       ...prev,
-      image: "",
+      image: ""
     }));
   };
 
@@ -121,6 +133,8 @@ export default function CreateGameModal({
     // Validate form
     if (
       !newGame.name ||
+      !newGame.date ||
+      !newGame.duration ||
       !newGame.location ||
       !newGame.coordinates ||
       !newGame.description ||
@@ -134,30 +148,36 @@ export default function CreateGameModal({
     try {
       // Create FormData for multipart/form-data submission
       const formData = new FormData();
-
+      
+      // Convert Date object to ISO string for API
+      const dateString = newGame.date instanceof Date 
+        ? newGame.date.toISOString() 
+        : newGame.date;
+      
       // Append individual form fields directly
-      formData.append("name", newGame.name);
-      formData.append("date", newGame.date);
-      formData.append("location", newGame.location);
-      formData.append("coordinates", newGame.coordinates);
-      formData.append("description", newGame.description);
-      formData.append("price", newGame.price.toString());
-      formData.append("isPast", newGame.isPast.toString());
-
+      formData.append('name', newGame.name);
+      formData.append('date', dateString);
+      formData.append('duration', newGame.duration.toString());
+      formData.append('location', newGame.location);
+      formData.append('coordinates', newGame.coordinates);
+      formData.append('description', newGame.description);
+      formData.append('price', newGame.price.toString());
+      formData.append('isPast', newGame.isPast.toString());
+      
       // Append capacity as individual fields
-      formData.append("totalCapacity", newGame.capacity.total.toString());
-      formData.append("filledCapacity", newGame.capacity.filled.toString());
-
-      // IMPORTANT FIX: Image handling
-      // Only include the image file if it exists, otherwise use the URL
+      formData.append('totalCapacity', newGame.capacity.total.toString());
+      formData.append('filledCapacity', newGame.capacity.filled.toString());
+      
+      // Image handling
       if (imageFile) {
-        // Append as 'file', not as 'image'
-        formData.append("file", imageFile);
+        formData.append('file', imageFile);
+      } else if (newGame.image) {
+        formData.append('imageUrl', newGame.image);
       }
-
+      
       // Simulate upload progress (for demo)
       const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
+        setUploadProgress(prev => {
           const newProgress = prev + 10;
           if (newProgress >= 90) {
             clearInterval(progressInterval);
@@ -166,19 +186,18 @@ export default function CreateGameModal({
           return newProgress;
         });
       }, 300);
-
+      
       // Submit the form data
       await adminApi.createGameWithImage(formData);
-
+      
       // Clear interval and finish progress
       clearInterval(progressInterval);
       setUploadProgress(100);
-
+      
       onGameCreated();
     } catch (error: any) {
       console.error("Error creating game:", error);
-      const errorMessage =
-        error.response?.data?.message || error.message || "Unknown error";
+      const errorMessage = error.response?.data?.message || error.message || "Unknown error";
       onError(`Failed to create game: ${errorMessage}`);
     } finally {
       setIsLoading(false);
@@ -216,14 +235,14 @@ export default function CreateGameModal({
           <form onSubmit={createGame}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {/* Game info fields */}
-              <GameFormFields
-                game={newGame}
-                onChange={handleInputChange}
+              <GameFormFields 
+                game={newGame} 
+                onChange={handleInputChange} 
                 isLoading={isLoading}
               />
 
               {/* Image upload section */}
-              <ImageUploadSection
+              <ImageUploadSection 
                 imagePreview={imagePreview}
                 onImageChange={handleImageSelected}
                 onImageRemove={handleRemoveImage}
@@ -232,10 +251,7 @@ export default function CreateGameModal({
             </div>
 
             {/* Upload progress indicator */}
-            <ProgressBar
-              progress={uploadProgress}
-              show={isLoading && uploadProgress > 0}
-            />
+            <ProgressBar progress={uploadProgress} show={isLoading && uploadProgress > 0} />
 
             <div className="flex gap-3 justify-end">
               <button
