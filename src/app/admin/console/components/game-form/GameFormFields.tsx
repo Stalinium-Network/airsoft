@@ -76,157 +76,227 @@ export default function GameFormFields({ game, onChange, isLoading = false }: Ga
   
   return (
     <>
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">
-          Game Name
-        </label>
-        <input
-          type="text"
-          name="name"
-          value={game.name || ''}
-          onChange={onChange}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-          placeholder="Operation Blackout"
-          required
-          disabled={isLoading}
-        />
+      {/* Basic info section */}
+      <div className="md:col-span-2 bg-gray-750 p-4 rounded-lg border border-gray-700 mb-4">
+        <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Basic Information
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Game Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={game.name || ''}
+              onChange={onChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              placeholder="Operation Blackout"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Location
+            </label>
+            <input
+              type="text"
+              name="location"
+              value={game.location || ''}
+              onChange={onChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              placeholder="Forest Base, Kiev"
+              required
+              disabled={isLoading}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Coordinates
+            </label>
+            <input
+              type="text"
+              name="coordinates"
+              value={game.coordinates || ''}
+              onChange={onChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              placeholder="50.4501,30.5234"
+              required
+              disabled={isLoading}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Price
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-300">
+                $
+              </span>
+              <input
+                type="number"
+                name="price"
+                value={game.price || 0}
+                onChange={onChange}
+                className="w-full bg-gray-700 border border-gray-600 rounded-md pl-7 px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                required
+                min="0"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Start Date & Time
-          </label>
-          <input
-            type="datetime-local"
-            name="date"
-            value={formatDateTimeForInput(game.date)}
-            onChange={handleDateChange}
-            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-            required
-            disabled={isLoading}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            {game.date ? (typeof game.date === 'string' ? new Date(game.date) : game.date).toLocaleString() : 'Select start date'}
-          </p>
+      {/* Timing section */}
+      <div className="md:col-span-2 bg-gray-750 p-4 rounded-lg border border-gray-700 mb-4">
+        <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Date & Time
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Start Date & Time
+            </label>
+            <input
+              type="datetime-local"
+              name="date"
+              value={formatDateTimeForInput(game.date)}
+              onChange={handleDateChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              required
+              disabled={isLoading}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {game.date ? (typeof game.date === 'string' ? new Date(game.date) : game.date).toLocaleString() : 'Select start date'}
+            </p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Duration (hours)
+            </label>
+            <input
+              type="number"
+              name="duration"
+              value={game.duration || 3} // Default 3 hours if not set
+              onChange={onChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              step="0.5"
+              min="0.5"
+              max="72"
+              required
+              disabled={isLoading}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              End time: {calculateEndTime(game.date, game.duration || 3)}
+            </p>
+          </div>
         </div>
+      </div>
+      
+      {/* Capacity section */}
+      <div className="md:col-span-2 bg-gray-750 p-4 rounded-lg border border-gray-700 mb-4">
+        <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Capacity
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Total Capacity
+            </label>
+            <input
+              type="number"
+              name="capacity.total"
+              value={game.capacity?.total || 0}
+              onChange={onChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              required
+              min="1"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Current Registrations
+            </label>
+            <input
+              type="number"
+              name="capacity.filled"
+              value={game.capacity?.filled || 0}
+              onChange={onChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              required
+              min="0"
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+      </div>
+      
+      {/* Description section */}
+      <div className="md:col-span-2 bg-gray-750 p-4 rounded-lg border border-gray-700 mb-4">
+        <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Description
+        </h3>
         
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">
-            Duration (hours)
+            Public Description <span className="text-gray-400">(visible to all users)</span>
           </label>
-          <input
-            type="number"
-            name="duration"
-            value={game.duration || 3} // Default 3 hours if not set
+          <textarea
+            name="description"
+            value={game.description || ''}
             onChange={onChange}
-            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-            step="0.5"
-            min="0.5"
-            max="72"
+            rows={3}
+            className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            placeholder="An intense tactical mission through challenging terrain..."
             required
             disabled={isLoading}
           />
           <p className="text-xs text-gray-500 mt-1">
-            End time: {calculateEndTime(game.date, game.duration || 3)}
+            This description will be visible to all users on the public site.
           </p>
         </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">
-          Location
-        </label>
-        <input
-          type="text"
-          name="location"
-          value={game.location || ''}
-          onChange={onChange}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-          placeholder="Forest Base, Kiev"
-          required
-          disabled={isLoading}
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">
-          Coordinates
-        </label>
-        <input
-          type="text"
-          name="coordinates"
-          value={game.coordinates || ''}
-          onChange={onChange}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-          placeholder="50.4501,30.5234"
-          required
-          disabled={isLoading}
-        />
-      </div>
-
-      <div className="md:col-span-2">
-        <label className="block text-sm font-medium text-gray-300 mb-1">
-          Description
-        </label>
-        <textarea
-          name="description"
-          value={game.description || ''}
-          onChange={onChange}
-          rows={3}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-          placeholder="An intense tactical mission through challenging terrain..."
-          required
-          disabled={isLoading}
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">
-          Total Capacity
-        </label>
-        <input
-          type="number"
-          name="capacity.total"
-          value={game.capacity?.total || 0}
-          onChange={onChange}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-          required
-          min="1"
-          disabled={isLoading}
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">
-          Current Registrations
-        </label>
-        <input
-          type="number"
-          name="capacity.filled"
-          value={game.capacity?.filled || 0}
-          onChange={onChange}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-          required
-          min="0"
-          disabled={isLoading}
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">
-          Price
-        </label>
-        <input
-          type="number"
-          name="price"
-          value={game.price || 0}
-          onChange={onChange}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-          required
-          min="0"
-          disabled={isLoading}
-        />
+        
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Additional Notes <span className="text-green-400">(admin only)</span>
+          </label>
+          <textarea
+            name="additional"
+            value={game.additional || ''}
+            onChange={onChange}
+            rows={3}
+            className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            placeholder="Additional notes for admins only..."
+            disabled={isLoading}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            These notes are visible only to admins and not shown on the public site.
+          </p>
+        </div>
       </div>
     </>
   );

@@ -18,6 +18,7 @@ const defaultGameData = {
   location: "",
   coordinates: "",
   description: "",
+  additional: "", // Admin-only additional description
   image: "",
   capacity: {
     total: 30,
@@ -68,7 +69,7 @@ export default function CreateGameModal({
       const isPastValue = isPastGame(value);
       setNewGame((prev) => ({
         ...prev,
-        date: value,
+        date: new Date(value),
         isPast: isPastValue,
         // Note: we no longer update endDate here because it will be calculated from duration
       }));
@@ -161,6 +162,12 @@ export default function CreateGameModal({
       formData.append('location', newGame.location);
       formData.append('coordinates', newGame.coordinates);
       formData.append('description', newGame.description);
+      
+      // Append additional admin-only description
+      if (newGame.additional) {
+        formData.append('additional', newGame.additional);
+      }
+      
       formData.append('price', newGame.price.toString());
       formData.append('isPast', newGame.isPast.toString());
       
@@ -206,34 +213,40 @@ export default function CreateGameModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-700">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Create New Game</h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-white"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
+    <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-gray-800 to-gray-700 p-6 border-b border-gray-700 flex justify-between items-center">
+          <h3 className="text-xl font-bold text-white flex items-center">
+            <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Create New Game
+          </h3>
+          <button 
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+            disabled={isLoading}
+            aria-label="Close"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
+        
         <div className="p-6">
+          {isLoading && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+              <div className="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+                <div className="w-12 h-12 border-4 border-t-green-500 border-gray-700 rounded-full animate-spin mb-4"></div>
+                <p className="text-white">Creating game...</p>
+              </div>
+            </div>
+          )}
+          
           <form onSubmit={createGame}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 gap-6">
               {/* Game info fields */}
               <GameFormFields 
                 game={newGame} 
@@ -242,22 +255,31 @@ export default function CreateGameModal({
               />
 
               {/* Image upload section */}
-              <ImageUploadSection 
-                imagePreview={imagePreview}
-                onImageChange={handleImageSelected}
-                onImageRemove={handleRemoveImage}
-                fileInputDisabled={isLoading}
-              />
+              <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+                <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Event Image
+                </h3>
+                
+                <ImageUploadSection 
+                  imagePreview={imagePreview}
+                  onImageChange={handleImageSelected}
+                  onImageRemove={handleRemoveImage}
+                  fileInputDisabled={isLoading}
+                />
+              </div>
             </div>
-
+            
             {/* Upload progress indicator */}
             <ProgressBar progress={uploadProgress} show={isLoading && uploadProgress > 0} />
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-3 justify-end mt-6 sticky bottom-0 pt-4 bg-gradient-to-t from-gray-800 to-transparent">
               <button
                 type="button"
                 onClick={onClose}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-md transition-colors flex items-center"
                 disabled={isLoading}
               >
                 Cancel
@@ -265,7 +287,7 @@ export default function CreateGameModal({
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded
+                className={`bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded
                   ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
               >
                 {isLoading ? "Creating..." : "Create Game"}

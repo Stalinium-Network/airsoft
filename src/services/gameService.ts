@@ -5,7 +5,8 @@ export interface Game {
   duration: number;   // Duration in hours
   location: string;
   coordinates: string;
-  description: string;
+  description: string;  // Public description
+  additional?: string;  // Additional description visible only to admins
   image: string;
   capacity: {
     total: number;

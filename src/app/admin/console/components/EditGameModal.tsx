@@ -57,10 +57,9 @@ export default function EditGameModal({
         price: parseInt(value, 10) || 0
       })
     } else if (name === 'date') {
-      // When start date changes, update isPast automatically
       setEditingGame({
         ...editingGame,
-        date: value,
+        date: new Date(value), 
         isPast: isPastGame(value)
       });
     } else if (name === 'isPast') {
@@ -138,6 +137,11 @@ export default function EditGameModal({
       formData.append('totalCapacity', editingGame.capacity.total.toString());
       formData.append('filledCapacity', editingGame.capacity.filled.toString());
       
+      // Append additional admin-only description
+      if (editingGame.additional) {
+        formData.append('additional', editingGame.additional);
+      }
+      
       // IMPORTANT FIX: Image handling
       // Only include the image file if it exists
       if (imageFile) {
@@ -199,26 +203,40 @@ export default function EditGameModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-700">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Edit Game</h3>
-            <button 
-              onClick={onClose}
-              className="text-gray-400 hover:text-white"
-              disabled={isLoading}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+    <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-gray-800 to-gray-700 p-6 border-b border-gray-700 flex justify-between items-center">
+          <h3 className="text-xl font-bold text-white flex items-center">
+            <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            Edit Game
+          </h3>
+          <button 
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+            disabled={isLoading}
+            aria-label="Close"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
         
         <div className="p-6">
+          {isLoading && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+              <div className="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+                <div className="w-12 h-12 border-4 border-t-green-500 border-gray-700 rounded-full animate-spin mb-4"></div>
+                <p className="text-white">Saving changes...</p>
+              </div>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 gap-6">
               {/* Game info fields */}
               <GameFormFields 
                 game={editingGame} 
@@ -227,38 +245,78 @@ export default function EditGameModal({
               />
 
               {/* Status field (only in Edit mode) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Status</label>
-                <select
-                  name="isPast"
-                  value={editingGame.isPast.toString()}
-                  onChange={handleInputChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
-                  required
-                  disabled={isLoading}
-                >
-                  <option value="false">Upcoming</option>
-                  <option value="true">Past</option>
-                </select>
+              <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+                <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Event Status
+                </h3>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Current Status</label>
+                  <div className="flex items-center space-x-4">
+                    <label className={`flex items-center p-3 rounded-md border ${editingGame.isPast ? 'bg-gray-700 border-gray-600' : 'bg-green-900/20 border-green-500 ring-2 ring-green-500'} cursor-pointer transition-all`}>
+                      <input
+                        type="radio"
+                        name="isPast"
+                        value="false"
+                        checked={!editingGame.isPast}
+                        onChange={handleInputChange}
+                        className="sr-only"
+                        disabled={isLoading}
+                      />
+                      <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Upcoming</span>
+                    </label>
+                    
+                    <label className={`flex items-center p-3 rounded-md border ${!editingGame.isPast ? 'bg-gray-700 border-gray-600' : 'bg-red-900/20 border-red-500 ring-2 ring-red-500'} cursor-pointer transition-all`}>
+                      <input
+                        type="radio"
+                        name="isPast"
+                        value="true"
+                        checked={editingGame.isPast}
+                        onChange={handleInputChange}
+                        className="sr-only"
+                        disabled={isLoading}
+                      />
+                      <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Past</span>
+                    </label>
+                  </div>
+                </div>
               </div>
 
-              {/* Image upload section - fixing the props that were cut off */}
-              <ImageUploadSection 
-                imagePreview={imagePreview}
-                onImageChange={handleImageSelected}
-                onImageRemove={handleRemoveImage}
-                fileInputDisabled={isLoading}
-              />
+              {/* Image upload section */}
+              <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+                <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Event Image
+                </h3>
+                
+                <ImageUploadSection 
+                  imagePreview={imagePreview}
+                  onImageChange={handleImageSelected}
+                  onImageRemove={handleRemoveImage}
+                  fileInputDisabled={isLoading}
+                />
+              </div>
             </div>
             
-            {/* Upload progress indicator - moved inside the form */}
+            {/* Upload progress indicator */}
             <ProgressBar progress={uploadProgress} show={isLoading && uploadProgress > 0} />
 
-            <div className="flex gap-3 justify-end mt-4">
+            <div className="flex gap-3 justify-end mt-6 sticky bottom-0 pt-4 bg-gradient-to-t from-gray-800 to-transparent">
               <button
                 type="button"
                 onClick={onClose}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-md transition-colors flex items-center"
                 disabled={isLoading}
               >
                 Cancel
@@ -266,10 +324,25 @@ export default function EditGameModal({
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded
+                className={`bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition-colors flex items-center
                   ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {isLoading ? 'Saving...' : 'Save Changes'}
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save Changes
+                  </>
+                )}
               </button>
             </div>
           </form>
