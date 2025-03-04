@@ -15,8 +15,6 @@ export default function AdminLogin() {
     const token = urlParams.get('token')
     
     if (token) {
-      console.log('Token received from redirect, saving to localStorage')
-      
       // Store token in localStorage
       try {
         localStorage.setItem('adminToken', token)
@@ -24,8 +22,6 @@ export default function AdminLogin() {
         // Check if token was actually saved
         const savedToken = localStorage.getItem('adminToken')
         if (savedToken === token) {
-          console.log('Token successfully saved to localStorage')
-          
           // Remove token from URL for security
           window.history.replaceState({}, document.title, window.location.pathname)
           
@@ -46,8 +42,6 @@ export default function AdminLogin() {
       // Check if user is already logged in
       const existingToken = localStorage.getItem('adminToken')
       if (existingToken) {
-        console.log('Existing token found, verifying...')
-        
         // Verify existing token
         const verifyToken = async () => {
           try {
@@ -59,10 +53,8 @@ export default function AdminLogin() {
             })
             
             if (response.ok) {
-              console.log('Existing token is valid, redirecting to console')
               router.push('/admin/console')
             } else {
-              console.log('Existing token is invalid, removing')
               localStorage.removeItem('adminToken')
             }
           } catch (error) {

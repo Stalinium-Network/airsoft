@@ -2,10 +2,14 @@
 import { useEffect } from "react";
 import { isPastGame } from "@/services/adminService";
 import { Game } from "@/services/gameService";
+import { Location } from "@/services/locationService";
+import LocationSelector from "./LocationSelector";
 
 interface GameFormFieldsProps {
   game: Partial<Game>;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | {
+    target: { name: string; value: any };
+  }) => void;
   isLoading?: boolean;
 }
 
@@ -63,15 +67,31 @@ export default function GameFormFields({ game, onChange, isLoading = false }: Ga
     
     // Create a synthetic event with the Date object
     const syntheticEvent = {
-      ...e,
       target: {
-        ...e.target,
         name: 'date',
         value: new Date(dateValue)
       }
     };
     
-    onChange(syntheticEvent as any);
+    onChange(syntheticEvent);
+  };
+  
+  // Handle single location selection
+  const handleLocationChange = (location: Location | string) => {
+    // Single location is always selected, never multiple
+    console.log("GameFormFields: Single location selected:", 
+      typeof location === 'object' ? location._id : location);
+    
+    // Create a synthetic event with the location
+    const syntheticEvent = {
+      target: {
+        name: 'location',
+        // If it's a Location object, we just need to send the ID (name)
+        value: typeof location === 'string' ? location : location._id
+      }
+    };
+    
+    onChange(syntheticEvent);
   };
   
   return (
@@ -103,34 +123,10 @@ export default function GameFormFields({ game, onChange, isLoading = false }: Ga
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              value={game.location || ''}
-              onChange={onChange}
-              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="Forest Base, Kiev"
-              required
-              disabled={isLoading}
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Coordinates
-            </label>
-            <input
-              type="text"
-              name="coordinates"
-              value={game.coordinates || ''}
-              onChange={onChange}
-              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="50.4501,30.5234"
-              required
-              disabled={isLoading}
+            <LocationSelector
+              selectedLocation={game.location || null}
+              onChange={handleLocationChange}
+              isLoading={isLoading}
             />
           </div>
           
@@ -282,7 +278,7 @@ export default function GameFormFields({ game, onChange, isLoading = false }: Ga
         
         <div className="mt-4">
           <label className="block text-sm font-medium text-gray-300 mb-1">
-            Additional Notes <span className="text-green-400">(admin only)</span>
+            Detailed Description <span className="text-gray-400">(admin only)</span>
           </label>
           <textarea
             name="additional"

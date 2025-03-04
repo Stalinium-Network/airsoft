@@ -107,16 +107,14 @@ export default function EditGameModal({
     }));
   };
 
-  // Update game with FormData to support file upload
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    setIsLoading(true)
-    setUploadProgress(0)
+  // Update game with FormData - now just a button click handler
+  const handleUpdateGame = async () => {    
+    setIsLoading(true);
+    setUploadProgress(0);
     
     try {
       // Create FormData for multipart/form-data submission
-      const formData = new FormData()
+      const formData = new FormData();
       
       // Convert Date object to ISO string for API
       const dateString = editingGame.date instanceof Date 
@@ -127,8 +125,15 @@ export default function EditGameModal({
       formData.append('name', editingGame.name);
       formData.append('date', dateString);
       formData.append('duration', editingGame.duration.toString());
-      formData.append('location', editingGame.location);
-      formData.append('coordinates', editingGame.coordinates);
+      
+      // Send location as string (location name/ID)
+      // Only one location is ever set
+      if (typeof editingGame.location === 'object' && editingGame.location !== null) {
+        formData.append('location', editingGame.location._id); // Single location ID
+      } else {
+        formData.append('location', editingGame.location as string); // Single location ID as string
+      }
+      
       formData.append('description', editingGame.description);
       formData.append('price', editingGame.price.toString());
       formData.append('isPast', isPastGame(editingGame.date).toString());
@@ -137,7 +142,6 @@ export default function EditGameModal({
       formData.append('totalCapacity', editingGame.capacity.total.toString());
       formData.append('filledCapacity', editingGame.capacity.filled.toString());
       
-      // Append additional admin-only description
       if (editingGame.additional) {
         formData.append('additional', editingGame.additional);
       }
@@ -176,7 +180,7 @@ export default function EditGameModal({
       }, 300);
       
       // Submit the form
-      await adminApi.updateGameWithImage(editingGame._id, formData)
+      const response = await adminApi.updateGameWithImage(editingGame._id, formData);
       
       // Finish progress bar
       clearInterval(progressInterval);
@@ -189,18 +193,18 @@ export default function EditGameModal({
       };
       
       // Call the callback with the updated game
-      onGameUpdated(updatedGame)
+      onGameUpdated(updatedGame);
     } catch (error: any) {
-      console.error('Error updating game:', error)
+      console.error('Error updating game:', error);
       
       // Extract error message from axios error
-      const errorMessage = error.response?.data?.message || error.message || 'Unknown error'
-      onError(`Failed to update game: ${errorMessage}`)
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
+      onError(`Failed to update game: ${errorMessage}`);
     } finally {
-      setIsLoading(false)
-      setUploadProgress(0)
+      setIsLoading(false);
+      setUploadProgress(0);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -235,117 +239,116 @@ export default function EditGameModal({
             </div>
           )}
           
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-6">
-              {/* Game info fields */}
-              <GameFormFields 
-                game={editingGame} 
-                onChange={handleInputChange} 
-                isLoading={isLoading}
-              />
+          {/* Removed the form element */}
+          <div className="grid grid-cols-1 gap-6">
+            {/* Game info fields */}
+            <GameFormFields 
+              game={editingGame} 
+              onChange={handleInputChange} 
+              isLoading={isLoading}
+            />
 
-              {/* Status field (only in Edit mode) */}
-              <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
-                <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                  Event Status
-                </h3>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Current Status</label>
-                  <div className="flex items-center space-x-4">
-                    <label className={`flex items-center p-3 rounded-md border ${editingGame.isPast ? 'bg-gray-700 border-gray-600' : 'bg-green-900/20 border-green-500 ring-2 ring-green-500'} cursor-pointer transition-all`}>
-                      <input
-                        type="radio"
-                        name="isPast"
-                        value="false"
-                        checked={!editingGame.isPast}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                        disabled={isLoading}
-                      />
-                      <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>Upcoming</span>
-                    </label>
-                    
-                    <label className={`flex items-center p-3 rounded-md border ${!editingGame.isPast ? 'bg-gray-700 border-gray-600' : 'bg-red-900/20 border-red-500 ring-2 ring-red-500'} cursor-pointer transition-all`}>
-                      <input
-                        type="radio"
-                        name="isPast"
-                        value="true"
-                        checked={editingGame.isPast}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                        disabled={isLoading}
-                      />
-                      <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>Past</span>
-                    </label>
-                  </div>
+            {/* Status field (only in Edit mode) */}
+            <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+              <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Event Status
+              </h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Current Status</label>
+                <div className="flex items-center space-x-4">
+                  <label className={`flex items-center p-3 rounded-md border ${editingGame.isPast ? 'bg-gray-700 border-gray-600' : 'bg-green-900/20 border-green-500 ring-2 ring-green-500'} cursor-pointer transition-all`}>
+                    <input
+                      type="radio"
+                      name="isPast"
+                      value="false"
+                      checked={!editingGame.isPast}
+                      onChange={handleInputChange}
+                      className="sr-only"
+                      disabled={isLoading}
+                    />
+                    <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Upcoming</span>
+                  </label>
+                  
+                  <label className={`flex items-center p-3 rounded-md border ${!editingGame.isPast ? 'bg-gray-700 border-gray-600' : 'bg-red-900/20 border-red-500 ring-2 ring-red-500'} cursor-pointer transition-all`}>
+                    <input
+                      type="radio"
+                      name="isPast"
+                      value="true"
+                      checked={editingGame.isPast}
+                      onChange={handleInputChange}
+                      className="sr-only"
+                      disabled={isLoading}
+                    />
+                    <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Past</span>
+                  </label>
                 </div>
               </div>
+            </div>
 
-              {/* Image upload section */}
-              <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
-                <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            {/* Image upload section */}
+            <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+              <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Event Image
+              </h3>
+              
+              <ImageUploadSection 
+                imagePreview={imagePreview}
+                onImageChange={handleImageSelected}
+                onImageRemove={handleRemoveImage}
+                fileInputDisabled={isLoading}
+              />
+            </div>
+          </div>
+          
+          {/* Upload progress indicator */}
+          <ProgressBar progress={uploadProgress} show={isLoading && uploadProgress > 0} />
+
+          <div className="flex gap-3 justify-end mt-6 sticky bottom-0 pt-4 bg-gradient-to-t from-gray-800 to-transparent">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-md transition-colors flex items-center"
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleUpdateGame}
+              disabled={isLoading}
+              className={`bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition-colors flex items-center
+                ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Event Image
-                </h3>
-                
-                <ImageUploadSection 
-                  imagePreview={imagePreview}
-                  onImageChange={handleImageSelected}
-                  onImageRemove={handleRemoveImage}
-                  fileInputDisabled={isLoading}
-                />
-              </div>
-            </div>
-            
-            {/* Upload progress indicator */}
-            <ProgressBar progress={uploadProgress} show={isLoading && uploadProgress > 0} />
-
-            <div className="flex gap-3 justify-end mt-6 sticky bottom-0 pt-4 bg-gradient-to-t from-gray-800 to-transparent">
-              <button
-                type="button"
-                onClick={onClose}
-                className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-md transition-colors flex items-center"
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition-colors flex items-center
-                  ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Save Changes
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

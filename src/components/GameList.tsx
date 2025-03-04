@@ -61,6 +61,22 @@ function GameCard({ game }: { game: Game }) {
   );
   const spotsLeft = game.capacity.total - game.capacity.filled;
 
+  // Helper to get location data
+  const getLocationInfo = () => {
+    if (!game.location) return { name: "TBD", coordinates: "" };
+    
+    if (typeof game.location === 'string') {
+      return { name: game.location, coordinates: "" };
+    }
+    
+    return { 
+      name: game.location._id, 
+      coordinates: game.location.coordinates 
+    };
+  };
+  
+  const location = getLocationInfo();
+
   return (
     <motion.div
       className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-green-500/20 transition-all border border-gray-700"
@@ -128,12 +144,12 @@ function GameCard({ game }: { game: Game }) {
             />
           </svg>
           <a
-            href={`https://maps.google.com/?q=${game.coordinates}`}
+            href={location.coordinates ? `https://maps.google.com/?q=${location.coordinates}` : '#'}
             target="_blank"
             rel="noreferrer"
             className="text-gray-300 hover:text-green-500 transition-colors"
           >
-            {game.location}
+            {location.name}
           </a>
         </div>
 

@@ -1,10 +1,11 @@
+import { Location } from './locationService';
+
 export interface Game {
   _id: any;
   name: string;
   date: Date;
   duration: number;   // Duration in hours
-  location: string;
-  coordinates: string;
+  location: Location | string; // Can be a full Location object or just a location ID (name)
   description: string;  // Public description
   additional?: string;  // Additional description visible only to admins
   image: string;

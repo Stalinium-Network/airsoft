@@ -26,42 +26,48 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Public API methods
+export const publicApi = {
+  getGames: () => api.get('/games'),
+  getLocations: () => api.get('/locations'),
+  getLocation: (id: string) => api.get(`/locations/${id}`),
+};
+
 // Admin-specific API methods
 export const adminApi = {
   // Game management
   getGames: () => api.get('/admin/game-list'),
+  getGame: (id: string) => api.get(`/admin/game/${id}`),
   createGame: (gameData: any) => api.post('/admin/create-game', gameData),
+  createGameWithImage: (formData: FormData) => {
+    return api.post('/admin/create-game', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
   updateGame: (gameId: string | number, gameData: any) => 
     api.put(`/admin/update-game/${gameId}`, gameData),
-  deleteGame: (gameId: string | number) => 
-    api.delete(`/admin/delete-game/${gameId}`),
-  
-  // Updated methods for handling file uploads
-  createGameWithImage: (formData: FormData) => {
-    // Make sure the auth interceptor will add the token
-    return api.post('/admin/create-game', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        // Authorization header will be added by interceptor
-      }
+  updateGameWithImage: (id: string | number, formData: FormData) => {
+    return api.put(`/admin/update-game/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
+  deleteGame: (id: string | number) => api.delete(`/admin/delete-game/${id}`),
   
-  updateGameWithImage: (gameId: string | number, formData: FormData) => {
-    // Make sure the game ID is included in the URL
-    return api.put(`/admin/update-game/${gameId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        // Authorization header will be added by interceptor
-      }
+  // Location endpoints
+  getLocations: () => api.get('/admin/locations'),
+  getLocation: (id: string) => api.get(`/admin/location/${id}`),
+  createLocation: (formData: FormData) => {
+    return api.post('/admin/create-location', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
+  updateLocation: (id: string, formData: FormData) => {
+    return api.put(`/admin/update-location/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  deleteLocation: (id: string) => api.delete(`/admin/delete-location/${id}`),
   
   // Authentication
   verifyToken: () => api.get('/admin/verify-token'),
-};
-
-// Public API methods
-export const publicApi = {
-  getGames: () => api.get('/games'),
 };
