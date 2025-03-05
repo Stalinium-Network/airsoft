@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function RegistrationPage({ params }: { params: { gameId: string } }) {
+type RegistrationPageProps = {
+  params: any; // Using 'any' to match Next.js expected type
+}
+
+export default function RegistrationPage({ params }: RegistrationPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [gameName, setGameName] = useState<string>('');

@@ -31,11 +31,18 @@ interface GameDetails {
   duration: number;
 }
 
+// // Fix the params type to match Next.js expectations
+// interface GamePageParams {
+//   params: {
+//     id: string;
+//   };
+// }
+
 // Fetch game data from API
 async function getGameById(id: string): Promise<GameDetails> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/games/${id}`, {
-      next: { revalidate },
+      next: { revalidate }
     });
 
     if (!res.ok) {
@@ -49,12 +56,10 @@ async function getGameById(id: string): Promise<GameDetails> {
   }
 }
 
-// Fix the metadata function signature to match Next.js expectations
-export async function generateMetadata({
-  params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
+// Fix the metadata function signature
+export async function generateMetadata(
+  { params }: any
+): Promise<Metadata> {
   try {
     const game = await getGameById(params.id);
     return {
@@ -73,11 +78,9 @@ export async function generateMetadata({
 }
 
 // Fix the component props type to match Next.js expectations
-export default async function GameDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function GameDetailPage(
+  { params }: any
+) {
   let game: GameDetails;
 
   try {
@@ -273,7 +276,7 @@ export default async function GameDetailPage({
             {/* Location map and details */}
             <div className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
               <h3 className="text-xl font-bold mb-4">Location</h3>
-
+              
               {/* Display location image if available */}
               {game.location.image && (
                 <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
@@ -285,38 +288,21 @@ export default async function GameDetailPage({
                   />
                 </div>
               )}
-
+              
               {/* Location details */}
               <div className="space-y-2">
                 <h4 className="font-bold text-lg">{game.location._id}</h4>
-
+                
                 {game.location.description && (
-                  <p className="text-gray-300 text-sm mb-3">
-                    {game.location.description}
-                  </p>
+                  <p className="text-gray-300 text-sm mb-3">{game.location.description}</p>
                 )}
-
+                
                 <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2 text-green-400 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
+                  <svg className="w-5 h-5 mr-2 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <a
+                  <a 
                     href={`https://maps.google.com/?q=${game.location.coordinates}`}
                     target="_blank"
                     rel="noreferrer"

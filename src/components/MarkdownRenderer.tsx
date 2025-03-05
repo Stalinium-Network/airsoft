@@ -47,7 +47,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
               {alt && <p className="text-center text-sm text-gray-500 mt-2">{alt}</p>}
             </div>
           ),
-          code: ({ node, inline, className, children, ...props }) => {
+          code: ({ node, inline, className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
             return !inline && match ? (
               <SyntaxHighlighter
