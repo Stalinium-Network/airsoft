@@ -79,16 +79,6 @@ export default function CreateLocationModal({
         formData.append('file', imageFile);
       }
       
-      if (imageFile) {
-        console.log('Image:', {
-          name: imageFile.name,
-          type: imageFile.type,
-          size: Math.round(imageFile.size / 1024) + 'KB'
-        });
-      } else {
-        console.log('Image: None');
-      }
-      
       // Simulate upload progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
@@ -102,40 +92,20 @@ export default function CreateLocationModal({
       }, 300);
       
       // Submit the form data
-      console.log('Submitting location to API...');
+      const response = await createLocation(formData);
       
       // Complete progress
       clearInterval(progressInterval);
       setUploadProgress(100);
       
-      console.log('=== LOCATION CREATED SUCCESSFULLY ===');
-      console.log('Response data:', response.data);
-      
       // Call the callback with the new location
       onLocationCreated(response.data);
     } catch (error: any) {
-      console.error('=== ERROR CREATING LOCATION ===');
-      console.error('Error object:', error);
-      console.error('Message:', error.message);
-      
-      if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', error.response.data);
-      }
-      
       setError(error.response?.data?.message || error.message || 'Failed to create location');
     } finally {
       setIsLoading(false);
     }
   };
-  
-  // Add console logs to track modal rendering and state
-  console.log('CreateLocationModal rendering, current state:', { 
-    location, 
-    imageFile: imageFile ? `${imageFile.name} (${Math.round(imageFile.size / 1024)}KB)` : 'none',
-    isLoading,
-    error: error || 'none'
-  });
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -150,10 +120,7 @@ export default function CreateLocationModal({
           </h3>
           <button
             type="button"
-            onClick={() => {
-              console.log('Close button clicked');
-              onClose();
-            }}
+            onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
             disabled={isLoading}
             aria-label="Close"
@@ -287,21 +254,18 @@ export default function CreateLocationModal({
           <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
-              onClick={() => {
-                console.log('Cancel button clicked');
-                onClose();
-              }}
+              onClick={onClose}
               className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-md transition-colors"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
-              type="button" // Changed from submit to button
+              type="button" 
               className={`px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center
                 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
               disabled={isLoading}
-              onClick={handleCreateLocation} // Call the handler directly
+              onClick={handleCreateLocation}
             >
               {isLoading ? (
                 <>

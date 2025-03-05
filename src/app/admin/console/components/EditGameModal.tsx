@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { Game } from '@/services/gameService'
-import { isPastGame, formatDateForDisplay } from '@/services/adminService'
+import { isPastGame } from '@/services/adminService'
 import { adminApi } from '@/utils/api'
 import { createImagePreview } from '@/utils/imageUtils'
 
@@ -142,8 +142,8 @@ export default function EditGameModal({
       formData.append('totalCapacity', editingGame.capacity.total.toString());
       formData.append('filledCapacity', editingGame.capacity.filled.toString());
       
-      if (editingGame.additional) {
-        formData.append('additional', editingGame.additional);
+      if (editingGame.detailedDescription) {
+        formData.append('detailedDescription', editingGame.detailedDescription);
       }
       
       // IMPORTANT FIX: Image handling
@@ -152,11 +152,11 @@ export default function EditGameModal({
         // Append as 'file', not as 'image'
         formData.append('file', imageFile);
       } else if (editingGame.image && !imageChanged) {
-        // Only send imageUrl if we're using an external URL and not uploading a file
-        formData.append('imageUrl', editingGame.image);
+        // Only send image if we're using an external URL and not uploading a file
+        formData.append('image', editingGame.image);
       } else if (imageChanged && !imageFile) {
-        // If image was deleted (changed but no new file), explicitly set empty imageUrl
-        formData.append('imageUrl', '');
+        // If image was deleted (changed but no new file), explicitly set empty image
+        formData.append('image', '');
       }
       
       // Flag if the image was changed (including removal)

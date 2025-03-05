@@ -39,8 +39,8 @@ export default function EditLocationModal({
   useEffect(() => {
     if (initialLocation.image) {
       // Create URL for the image - this assumes the image path needs to be constructed
-      const imageUrl = `${process.env.NEXT_PUBLIC_API_URL}/locations/image/${initialLocation.image}`;
-      setImagePreview(imageUrl);
+      const image = `${process.env.NEXT_PUBLIC_API_URL}/locations/image/${initialLocation.image}`;
+      setImagePreview(image);
     }
   }, [initialLocation]);
 

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Game } from "@/services/gameService";
 import { formatDateTime } from "@/utils/time-format";
 
@@ -56,6 +58,7 @@ export default function GameList({ pastGames, upcomingGames }: GameListProps) {
 }
 
 function GameCard({ game }: { game: Game }) {
+  const router = useRouter();
   const percentFilled = Math.round(
     (game.capacity.filled / game.capacity.total) * 100
   );
@@ -77,6 +80,24 @@ function GameCard({ game }: { game: Game }) {
   
   const location = getLocationInfo();
 
+  // Navigate to game details
+  const navigateToGameDetails = (e: React.MouseEvent) => {
+    e.preventDefault();
+    router.push(`/games/${game._id}`);
+  };
+
+  // Navigate to location on map
+  const navigateToLocation = (e: React.MouseEvent) => {
+    e.preventDefault(); 
+    window.open(`https://maps.google.com/?q=${location.coordinates}`, '_blank');
+  };
+
+  // Handle registration button click
+  const handleRegister = (e: React.MouseEvent) => {
+    e.preventDefault();
+    router.push(`/games/${game._id}?register=true`);
+  };
+
   return (
     <motion.div
       className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-green-500/20 transition-all border border-gray-700"
@@ -88,6 +109,7 @@ function GameCard({ game }: { game: Game }) {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
+      // Card is no longer clickable as a whole
     >
       <div className="h-56 relative">
         <Image
@@ -123,9 +145,13 @@ function GameCard({ game }: { game: Game }) {
       </div>
 
       <div className="p-5">
-        <div className="flex items-center mb-3">
+        {/* Location button */}
+        <button
+          onClick={navigateToLocation}
+          className="flex items-center mb-3 hover:text-green-400 transition-colors w-auto text-left"
+        >
           <svg
-            className="w-5 h-5 text-green-500 mr-2"
+            className="w-5 h-5 text-green-500 mr-2 flex-shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -143,17 +169,18 @@ function GameCard({ game }: { game: Game }) {
               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
-          <a
-            href={location.coordinates ? `https://maps.google.com/?q=${location.coordinates}` : '#'}
-            target="_blank"
-            rel="noreferrer"
-            className="text-gray-300 hover:text-green-500 transition-colors"
-          >
+          <span className="text-gray-300">
             {location.name}
-          </a>
-        </div>
+          </span>
+        </button>
 
-        <p className="text-gray-400 mb-5 line-clamp-2">{game.description}</p>
+        {/* Only description is clickable to navigate to details */}
+        <button
+          onClick={navigateToGameDetails}
+          className="text-gray-400 mb-5 line-clamp-2 cursor-pointer hover:underline transition-colors text-left w-full"
+        >
+          {game.description}
+        </button>
 
         <div className="mb-5">
           <div className="flex justify-between text-sm mb-1">
@@ -181,45 +208,51 @@ function GameCard({ game }: { game: Game }) {
           </div>
         </div>
 
-        {game.isPast ? (
-          <button className="w-full py-3 bg-gray-700 text-white rounded-md font-medium flex items-center justify-center gap-2">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
-            View Details
-          </button>
-        ) : (
-          <button className="w-full py-3 bg-green-500 hover:bg-green-600 text-gray-900 rounded-md transition-colors font-bold flex items-center justify-center gap-2 group">
-            <svg
-              className="w-5 h-5 transition-transform group-hover:translate-x-1"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Register Now
-          </button>
-        )}
+        {/* Registration/View details button */}
+        <button
+          onClick={game.isPast ? navigateToGameDetails : handleRegister}
+          className="w-full py-3 bg-green-500 hover:bg-green-600 text-gray-900 rounded-md transition-colors font-bold flex items-center justify-center gap-2 group"
+        >
+          {game.isPast ? (
+            <>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 12a3 3 0 11-6 0 3 3 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+              View Details
+            </>
+          ) : (
+            <>
+              <svg
+                className="w-5 h-5 transition-transform group-hover:translate-x-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Register Now
+            </>
+          )}
+        </button>
       </div>
     </motion.div>
   );

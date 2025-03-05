@@ -419,7 +419,7 @@ A lockbox can be bought from the Trader. There is a limited number of lockboxes 
 Artifacts are collectibles that can be found in Zone 37. These artifacts can be used to complete contracts, fulfill missions, or for the sake of exploiting its power. Artifacts can be sold to the Trader for Doubloons.
 
 - **Slime**  
-  Slime is a flat yellow disc with a slight thickening in the center. If a player has this artifact, their bleed-out time is extended by an additional one minute, giving the player a higher chance of getting revived.  
+  Slime is a flat yellow disc with a slight thickening in the center. If a player has this artifact, their bleed-out time is extended by an detailedDescription one minute, giving the player a higher chance of getting revived.  
   **Tier**: 1  
   **Cost**: 5 DB
 

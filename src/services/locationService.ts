@@ -8,55 +8,35 @@ export interface Location {
 }
 
 export async function fetchLocations(): Promise<Location[]> {
-  console.log("locationService: Fetching locations...");
   try {
     const response = await publicApi.getLocations();
-    console.log("locationService: Fetched locations successfully", response.data);
     return response.data;
   } catch (error) {
-    console.error('locationService: Error fetching locations:', error);
+    console.error('Error fetching locations:', error);
     return [];
   }
 }
 
-export function getLocation(id: string) {
-  console.log(`locationService: Getting location ${id}`);
-  return adminApi.getLocation(id);
-}
-
 export function createLocation(formData: FormData) {
-  console.log("locationService: Creating location");
-  
-  // Basic form data inspection
-  console.log("locationService: Form data contains:", Array.from(formData.entries()).map(([key, value]) => {
-    if (key === 'file') {
-      const file = value as File;
-      return `${key}: File (${file.name}, ${file.type}, ${Math.round(file.size / 1024)}KB)`;
-    }
-    return `${key}: ${value}`;
-  }));
-  
   return adminApi.createLocation(formData);
 }
 
-export function updateLocation(locationId: string, formData: FormData) {
-  console.log(`locationService: Updating location ${locationId}`);
+export async function deleteLocation(locationId: string) {
+  if (!locationId) {
+    throw new Error('Location ID is required');
+  }
   
-  // Basic form data inspection
-  console.log("locationService: Update form data contains:", Array.from(formData.entries()).map(([key, value]) => {
-    if (key === 'file') {
-      const file = value as File;
-      return `${key}: File (${file.name}, ${file.type}, ${Math.round(file.size / 1024)}KB)`;
+  try {
+    const response = await adminApi.deleteLocation(locationId);
+    return response.data;
+  } catch (error: any) {
+    // Throw the error with a more specific message
+    if (error.response?.status === 409) {
+      throw new Error(`Location "${locationId}" cannot be deleted because it's in use by one or more games.`);
     }
-    return `${key}: ${value}`;
-  }));
-  
-  return adminApi.updateLocation(locationId, formData);
-}
-
-export function deleteLocation(locationId: string) {
-  console.log("locationService: Deleting location:", locationId);
-  return adminApi.deleteLocation(locationId);
+    
+    throw error;
+  }
 }
 
 export function getLocationImageUrl(filename: string): string {

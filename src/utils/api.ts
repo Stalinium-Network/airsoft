@@ -66,7 +66,10 @@ export const adminApi = {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
-  deleteLocation: (id: string) => api.delete(`/admin/delete-location/${id}`),
+  deleteLocation: (id: string) => {
+    console.log(`API: Sending DELETE request to /admin/delete-location/${id}`);
+    return api.delete(`/admin/delete-location/${id}`);
+  },
   
   // Authentication
   verifyToken: () => api.get('/admin/verify-token'),

@@ -272,25 +272,25 @@ export default function GameFormFields({ game, onChange, isLoading = false }: Ga
             disabled={isLoading}
           />
           <p className="text-xs text-gray-500 mt-1">
-            This description will be visible to all users on the public site.
+            This description will be visible on game preview.
           </p>
         </div>
         
         <div className="mt-4">
           <label className="block text-sm font-medium text-gray-300 mb-1">
-            Detailed Description <span className="text-gray-400">(admin only)</span>
+            Detailed Description
           </label>
           <textarea
-            name="additional"
-            value={game.additional || ''}
+            name="detailedDescription"
+            value={game.detailedDescription || ''}
             onChange={onChange}
             rows={3}
             className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-            placeholder="Additional notes for admins only..."
+            placeholder="Detailed description..."
             disabled={isLoading}
           />
           <p className="text-xs text-gray-500 mt-1">
-            These notes are visible only to admins and not shown on the public site.
+            Detailed description in MARKDOWN form.
           </p>
         </div>
       </div>

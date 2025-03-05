@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Game } from "@/services/gameService";
-import { isPastGame, formatDateForDisplay } from "@/services/adminService";
+import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
 
@@ -18,7 +18,7 @@ const defaultGameData = {
   location: "",
   coordinates: "",
   description: "",
-  additional: "", // Admin-only additional description
+  detailedDescription: "", // Admin-only detailedDescription description
   image: "",
   capacity: {
     total: 30,
@@ -46,7 +46,11 @@ export default function CreateGameModal({
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Handle input changes for new game, including start date that affects end date
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
 
     if (name.includes(".")) {
@@ -78,7 +82,7 @@ export default function CreateGameModal({
       setNewGame((prev) => ({
         ...prev,
         endDate: value,
-      })); 
+      }));
     } else {
       setNewGame((prev) => ({
         ...prev,
@@ -94,11 +98,11 @@ export default function CreateGameModal({
       const preview = await createImagePreview(file);
       setImagePreview(preview);
       setImageFile(file);
-      
+
       // Update the game state to indicate we have an image
-      setNewGame(prev => ({
+      setNewGame((prev) => ({
         ...prev,
-        image: 'file_upload' // This will be replaced by the server with the actual URL
+        image: "file_upload", // This will be replaced by the server with the actual URL
       }));
     } catch (error) {
       console.error("Error handling image:", error);
@@ -110,9 +114,9 @@ export default function CreateGameModal({
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(null);
-    setNewGame(prev => ({
+    setNewGame((prev) => ({
       ...prev,
-      image: ""
+      image: "",
     }));
   };
 
@@ -138,41 +142,39 @@ export default function CreateGameModal({
     try {
       // Create FormData for multipart/form-data submission
       const formData = new FormData();
-      
+
       // Convert Date object to ISO string for API
-      const dateString = newGame.date instanceof Date 
-        ? newGame.date.toISOString() 
-        : newGame.date;
-      
+      const dateString =
+        newGame.date instanceof Date
+          ? newGame.date.toISOString()
+          : newGame.date;
+
       // Append individual form fields directly
-      formData.append('name', newGame.name);
-      formData.append('date', dateString);
-      formData.append('duration', newGame.duration.toString());
-      formData.append('location', newGame.location as string);
-      formData.append('description', newGame.description);
-      
-      // Append additional admin-only description
-      if (newGame.additional) {
-        formData.append('additional', newGame.additional);
-      }
-      
-      formData.append('price', newGame.price.toString());
-      formData.append('isPast', newGame.isPast.toString());
-      
+      formData.append("name", newGame.name);
+      formData.append("date", dateString);
+      formData.append("duration", newGame.duration.toString());
+      formData.append("location", newGame.location as string);
+      formData.append("description", newGame.description);
+
+      formData.append("detailedDescription", newGame.detailedDescription);
+
+      formData.append("price", newGame.price.toString());
+      formData.append("isPast", newGame.isPast.toString());
+
       // Append capacity as individual fields
-      formData.append('totalCapacity', newGame.capacity.total.toString());
-      formData.append('filledCapacity', newGame.capacity.filled.toString());
-      
+      formData.append("totalCapacity", newGame.capacity.total.toString());
+      formData.append("filledCapacity", newGame.capacity.filled.toString());
+
       // Image handling
       if (imageFile) {
-        formData.append('file', imageFile);
+        formData.append("file", imageFile);
       } else if (newGame.image) {
-        formData.append('imageUrl', newGame.image);
+        formData.append("image", newGame.image);
       }
-      
+
       // Simulate upload progress (for demo)
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
+        setUploadProgress((prev) => {
           const newProgress = prev + 10;
           if (newProgress >= 90) {
             clearInterval(progressInterval);
@@ -181,18 +183,19 @@ export default function CreateGameModal({
           return newProgress;
         });
       }, 300);
-      
+
       // Submit the form data
       const response = await adminApi.createGameWithImage(formData);
-      
+
       // Clear interval and finish progress
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
       onGameCreated();
     } catch (error: any) {
       console.error("Error creating game:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Unknown error";
+      const errorMessage =
+        error.response?.data?.message || error.message || "Unknown error";
       onError(`Failed to create game: ${errorMessage}`);
     } finally {
       setIsLoading(false);
@@ -206,23 +209,43 @@ export default function CreateGameModal({
         {/* Header */}
         <div className="sticky top-0 z-10 bg-gradient-to-r from-gray-800 to-gray-700 p-6 border-b border-gray-700 flex justify-between items-center">
           <h3 className="text-xl font-bold text-white flex items-center">
-            <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <svg
+              className="w-5 h-5 mr-2 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
             </svg>
             Create New Game
           </h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
             disabled={isLoading}
             aria-label="Close"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
-        
+
         <div className="p-6">
           {isLoading && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
@@ -232,26 +255,36 @@ export default function CreateGameModal({
               </div>
             </div>
           )}
-          
+
           {/* Remove the form element and keep just the div */}
           <div className="grid grid-cols-1 gap-6">
             {/* Game info fields */}
-            <GameFormFields 
-              game={newGame} 
-              onChange={handleInputChange} 
+            <GameFormFields
+              game={newGame}
+              onChange={handleInputChange}
               isLoading={isLoading}
             />
 
             {/* Image upload section */}
             <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
               <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
                 Event Image
               </h3>
-              
-              <ImageUploadSection 
+
+              <ImageUploadSection
                 imagePreview={imagePreview}
                 onImageChange={handleImageSelected}
                 onImageRemove={handleRemoveImage}
@@ -259,9 +292,12 @@ export default function CreateGameModal({
               />
             </div>
           </div>
-          
+
           {/* Upload progress indicator */}
-          <ProgressBar progress={uploadProgress} show={isLoading && uploadProgress > 0} />
+          <ProgressBar
+            progress={uploadProgress}
+            show={isLoading && uploadProgress > 0}
+          />
 
           <div className="flex gap-3 justify-end mt-6 sticky bottom-0 pt-4 bg-gradient-to-t from-gray-800 to-transparent">
             <button
@@ -281,16 +317,42 @@ export default function CreateGameModal({
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-4 w-4 mr-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Creating...
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  <svg
+                    className="w-5 h-5 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
                   </svg>
                   Create Game
                 </>

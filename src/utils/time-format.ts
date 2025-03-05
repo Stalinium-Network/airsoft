@@ -1,27 +1,57 @@
 /**
- * Format a date for display in the UI
+ * Format a date string or Date object into a human-readable format
  */
-export function formatDateTime(date: Date | string): string {
-  if (!date) return 'TBD';
+export function formatDateTime(date: string | Date): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   
-  try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
-    if (isNaN(dateObj.getTime())) {
-      return 'Invalid date';
-    }
-    
-    // Format as "Month DD, YYYY - HH:MM AM/PM"
-    return dateObj.toLocaleString('en-US', {
-      month: 'long', 
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
-    });
-  } catch (err) {
-    console.error("Date formatting error:", err);
+  // Ensure the date is valid
+  if (isNaN(dateObj.getTime())) {
     return 'Invalid date';
+  }
+  
+  // Format options
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+  
+  return dateObj.toLocaleString('en-US', options);
+}
+
+/**
+ * Get relative time string (e.g. "2 days ago" or "in 3 hours")
+ */
+export function getRelativeTimeString(date: string | Date): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Ensure the date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date';
+  }
+  
+  const now = new Date();
+  const diffInSeconds = Math.floor((dateObj.getTime() - now.getTime()) / 1000);
+  const absDiffInSeconds = Math.abs(diffInSeconds);
+  
+  const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  
+  // Convert to appropriate unit
+  if (absDiffInSeconds < 60) {
+    return formatter.format(Math.sign(diffInSeconds) * absDiffInSeconds, 'second');
+  } else if (absDiffInSeconds < 3600) {
+    return formatter.format(Math.sign(diffInSeconds) * Math.floor(absDiffInSeconds / 60), 'minute');
+  } else if (absDiffInSeconds < 86400) {
+    return formatter.format(Math.sign(diffInSeconds) * Math.floor(absDiffInSeconds / 3600), 'hour');
+  } else if (absDiffInSeconds < 2592000) {
+    return formatter.format(Math.sign(diffInSeconds) * Math.floor(absDiffInSeconds / 86400), 'day');
+  } else if (absDiffInSeconds < 31536000) {
+    return formatter.format(Math.sign(diffInSeconds) * Math.floor(absDiffInSeconds / 2592000), 'month');
+  } else {
+    return formatter.format(Math.sign(diffInSeconds) * Math.floor(absDiffInSeconds / 31536000), 'year');
   }
 }
 

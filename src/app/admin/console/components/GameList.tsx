@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Game } from "@/services/gameService";
 import { formatDateTime } from "@/utils/time-format";
+import { Location } from "@/services/locationService";
 
 interface GameListProps {
   games: Game[];
@@ -101,7 +102,7 @@ export default function GameList({
               </p>
 
               <div className="text-xs text-gray-400 mb-3">
-                <div>Location: {game.location}</div>
+                <div>Location: {(game.location as Location)._id}</div>
                 <div>
                   Capacity: {game.capacity.filled}/{game.capacity.total}
                 </div>
