@@ -9,6 +9,7 @@ import { createImagePreview } from "@/utils/imageUtils";
 import ImageUploadSection from "./game-form/ImageUploadSection";
 import GameFormFields from "./game-form/GameFormFields";
 import ProgressBar from "./game-form/ProgressBar";
+import { Location } from "@/services/locationService";
 
 // Default game data template with Date object
 const defaultGameData = {
@@ -28,6 +29,13 @@ const defaultGameData = {
   isPast: false,
 };
 
+// Define the mixed event type for consistent typing
+type MixedChangeEvent =
+  | React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  | { target: { name: string; value: any } };
+
 interface CreateGameModalProps {
   onClose: () => void;
   onGameCreated: () => void;
@@ -46,11 +54,7 @@ export default function CreateGameModal({
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Handle input changes for new game, including start date that affects end date
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+  const handleInputChange = (e: MixedChangeEvent) => {
     const { name, value } = e.target;
 
     if (name.includes(".")) {
@@ -153,10 +157,13 @@ export default function CreateGameModal({
       formData.append("name", newGame.name);
       formData.append("date", dateString);
       formData.append("duration", newGame.duration.toString());
-      formData.append("location", newGame.location as string);
+      formData.append("location", (newGame.location as Location)._id);
       formData.append("description", newGame.description);
 
-      formData.append("detailedDescription", newGame.detailedDescription);
+      formData.append(
+        "detailedDescription",
+        newGame.detailedDescription as string
+      );
 
       formData.append("price", newGame.price.toString());
       formData.append("isPast", newGame.isPast.toString());
@@ -256,9 +263,8 @@ export default function CreateGameModal({
             </div>
           )}
 
-          {/* Remove the form element and keep just the div */}
           <div className="grid grid-cols-1 gap-6">
-            {/* Game info fields */}
+            {/* Game form fields (now grouped) */}
             <GameFormFields
               game={newGame}
               onChange={handleInputChange}
@@ -281,7 +287,7 @@ export default function CreateGameModal({
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                Event Image
+                Event Image <span className="text-red-500">*</span>
               </h3>
 
               <ImageUploadSection
@@ -309,8 +315,8 @@ export default function CreateGameModal({
               Cancel
             </button>
             <button
-              type="button" // Changed from "submit" to "button"
-              onClick={handleCreateGame} // Call the handler directly instead of through form submission
+              type="button"
+              onClick={handleCreateGame}
               disabled={isLoading}
               className={`bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition-colors flex items-center
                 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}

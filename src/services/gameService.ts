@@ -7,7 +7,7 @@ export interface Game {
   duration: number;   // Duration in hours
   location: Location | string; // Can be a full Location object or just a location ID (name)
   description: string;  // Short description
-  detailedDescription: string;  // Detailed description
+  detailedDescription?: string;  // Detailed description
   image: string;
   capacity: {
     total: number;

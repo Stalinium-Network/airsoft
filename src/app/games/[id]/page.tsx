@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { formatDateTime } from "@/utils/time-format";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import Link from "next/link";
+import { Metadata } from "next";
 
 // Enable revalidation every 1 hour (3600 seconds)
 export const revalidate = 3600;
@@ -22,15 +23,37 @@ interface GameDetails {
   location: {
     _id: string;
     coordinates: string;
-    image?: string;       // New field
-    description?: string; // New field
+    image?: string;
+    description?: string;
   };
   detailedDescription: string;
   duration: number;
 }
 
-// Generate metadata for the page
-export async function generateMetadata({ params }: { params: { id: string } }) {
+// Fetch game data from API
+async function getGameById(id: string): Promise<GameDetails> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/games/${id}`, {
+      next: { revalidate },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch game: ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching game details:", error);
+    throw error;
+  }
+}
+
+// Fix the metadata function signature to match Next.js expectations
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
   try {
     const game = await getGameById(params.id);
     return {
@@ -48,24 +71,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   }
 }
 
-// Fetch game data from API
-async function getGameById(id: string): Promise<GameDetails> {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/games/${id}`, {
-      next: { revalidate }, // Use the revalidation period defined above
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch game: ${res.status}`);
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error("Error fetching game details:", error);
-    throw error;
-  }
-}
-
+// Fix the component props type to match Next.js expectations
 export default async function GameDetailPage({
   params,
 }: {
@@ -204,13 +210,7 @@ export default async function GameDetailPage({
           <div className="md:col-span-2">
             <div className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700 mb-8">
               <h2 className="text-2xl font-bold mb-4">Event Details</h2>
-              <div className="mb-6">
-                <p className="text-gray-300">{game.description}</p>
-              </div>
-
-              {game.detailedDescription && (
-                <MarkdownRenderer content={game.detailedDescription} />
-              )}
+              <MarkdownRenderer content={game.detailedDescription} />
             </div>
           </div>
 
@@ -277,7 +277,7 @@ export default async function GameDetailPage({
             {/* Location map and details */}
             <div className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
               <h3 className="text-xl font-bold mb-4">Location</h3>
-              
+
               {/* Display location image if available */}
               {game.location.image && (
                 <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
@@ -289,21 +289,38 @@ export default async function GameDetailPage({
                   />
                 </div>
               )}
-              
+
               {/* Location details */}
               <div className="space-y-2">
                 <h4 className="font-bold text-lg">{game.location._id}</h4>
-                
+
                 {game.location.description && (
-                  <p className="text-gray-300 text-sm mb-3">{game.location.description}</p>
+                  <p className="text-gray-300 text-sm mb-3">
+                    {game.location.description}
+                  </p>
                 )}
-                
+
                 <div className="flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <svg
+                    className="w-5 h-5 mr-2 text-green-400 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
-                  <a 
+                  <a
                     href={`https://maps.google.com/?q=${game.location.coordinates}`}
                     target="_blank"
                     rel="noreferrer"

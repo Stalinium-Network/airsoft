@@ -69,21 +69,16 @@ export default function EditLocationModal({
     setImageFile(null);
     setImagePreview(null);
     setImageChanged(true);
-    console.log('DEBUG: Image removed during edit');
   };
   
   // Handle save changes (update location)
-  const handleUpdateLocation = async () => {    
-    console.log('=== UPDATE LOCATION BUTTON CLICKED ===');
-    console.log('Current location values:', location);
-    
+  const handleUpdateLocation = async () => {        
     setError('');
     setIsLoading(true);
     setUploadProgress(0);
     
     // Validate data
     if (!location.name || !location.coordinates) {
-      console.log('Validation failed: Missing name or coordinates');
       setError('Location name and coordinates are required');
       setIsLoading(false);
       return;
