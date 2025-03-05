@@ -4,6 +4,7 @@ import { formatDateTime } from "@/utils/time-format";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import Link from "next/link";
 import { Metadata } from "next";
+import RegisterButton from "@/components/RegisterButton";
 
 // Enable revalidation every 1 hour (3600 seconds)
 export const revalidate = 3600;
@@ -89,6 +90,7 @@ export default async function GameDetailPage({
     (game.capacity.filled / game.capacity.total) * 100
   );
   const spotsLeft = game.capacity.total - game.capacity.filled;
+  const isFull = spotsLeft <= 0;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -258,20 +260,14 @@ export default async function GameDetailPage({
                 </div>
               )}
 
-              {/* Action button */}
-              {game.isPast ? (
-                <div className="bg-gray-700 text-white py-3 rounded-md text-center font-medium">
-                  This event has ended
-                </div>
-              ) : spotsLeft <= 0 ? (
-                <div className="bg-red-900/50 text-white py-3 rounded-md text-center font-medium border border-red-700">
-                  Fully booked
-                </div>
-              ) : (
-                <button className="w-full bg-green-500 hover:bg-green-600 text-gray-900 py-3 rounded-md transition-colors font-bold">
-                  Register Now
-                </button>
-              )}
+              {/* Registration button */}
+              <RegisterButton
+                gameId={game._id}
+                gameName={game.name}
+                isPast={game.isPast}
+                isFull={isFull}
+                className="w-full"
+              />
             </div>
 
             {/* Location map and details */}

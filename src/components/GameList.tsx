@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Game } from "@/services/gameService";
 import { formatDateTime } from "@/utils/time-format";
+import RegisterButton from "./RegisterButton";
 
 interface GameListProps {
   pastGames: Game[];
@@ -63,6 +64,7 @@ function GameCard({ game }: { game: Game }) {
     (game.capacity.filled / game.capacity.total) * 100
   );
   const spotsLeft = game.capacity.total - game.capacity.filled;
+  const isFull = spotsLeft <= 0;
 
   // Helper to get location data
   const getLocationInfo = () => {
@@ -92,12 +94,6 @@ function GameCard({ game }: { game: Game }) {
     window.open(`https://maps.google.com/?q=${location.coordinates}`, '_blank');
   };
 
-  // Handle registration button click
-  const handleRegister = (e: React.MouseEvent) => {
-    e.preventDefault();
-    router.push(`/games/${game._id}?register=true`);
-  };
-
   return (
     <motion.div
       className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-green-500/20 transition-all border border-gray-700"
@@ -109,7 +105,6 @@ function GameCard({ game }: { game: Game }) {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
-      // Card is no longer clickable as a whole
     >
       <div className="h-56 relative">
         <Image
@@ -208,13 +203,13 @@ function GameCard({ game }: { game: Game }) {
           </div>
         </div>
 
-        {/* Registration/View details button */}
-        <button
-          onClick={game.isPast ? navigateToGameDetails : handleRegister}
-          className="w-full py-3 bg-green-500 hover:bg-green-600 text-gray-900 rounded-md transition-colors font-bold flex items-center justify-center gap-2 group"
-        >
+        {/* Registration button */}
+        <div className="w-full">
           {game.isPast ? (
-            <>
+            <button
+              onClick={navigateToGameDetails}
+              className="w-full py-3 bg-gray-700 text-white rounded-md transition-colors font-bold flex items-center justify-center gap-2"
+            >
               <svg
                 className="w-5 h-5"
                 fill="none"
@@ -235,24 +230,17 @@ function GameCard({ game }: { game: Game }) {
                 />
               </svg>
               View Details
-            </>
+            </button>
           ) : (
-            <>
-              <svg
-                className="w-5 h-5 transition-transform group-hover:translate-x-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Register Now
-            </>
+            <RegisterButton
+              gameId={game._id.toString()}
+              gameName={game.name}
+              isPast={game.isPast}
+              isFull={isFull}
+              className="w-full"
+            />
           )}
-        </button>
+        </div>
       </div>
     </motion.div>
   );
