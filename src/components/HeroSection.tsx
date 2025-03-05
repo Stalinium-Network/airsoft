@@ -6,53 +6,100 @@ export default function HeroSection() {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   
-  // Effect to handle video playback
+  // Effect to handle video playback with better iOS support
   useEffect(() => {
     const video = videoRef.current;
     
     if (!video) return;
     
-    // Helper function to start playing the video
-    const playVideo = () => {
-      // Promise-based play() request needed for iOS Safari
-      const playPromise = video.play();
-      
-      // Catch and handle play() rejection
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // Video playback started successfully
-            console.log('Video playback started');
-          })
-          .catch(error => {
-            // Auto-play was prevented
-            console.log('Auto-play prevented:', error);
-            
-            // Add event listener for user interaction to trigger play
-            const handleUserInteraction = () => {
-              video.play()
-                .then(() => {
-                  console.log('Video playback started after user interaction');
-                  // Remove event listeners once video is playing
-                  document.removeEventListener('click', handleUserInteraction);
-                  document.removeEventListener('touchstart', handleUserInteraction);
-                })
-                .catch(err => console.error('Failed to play even after interaction:', err));
-            };
-            
-            document.addEventListener('click', handleUserInteraction);
-            document.addEventListener('touchstart', handleUserInteraction);
+    // Make sure video is definitely muted (important for iOS)
+    video.muted = true;
+    
+    // Function to safely attempt video playback
+    const attemptPlay = async () => {
+      try {
+        // First, ensure video is ready by loading metadata
+        if (video.readyState === 0) {
+          await new Promise((resolve) => {
+            video.addEventListener('loadedmetadata', resolve, { once: true });
           });
+        }
+        
+        // Try to play
+        await video.play();
+        console.log('Video playback started successfully');
+        setIsVideoLoaded(true);
+      } catch (err) {
+        console.log('Autoplay prevented:', err);
+        
+        // Handle autoplay prevention with user interaction handler
+        const userInteractionHandler = () => {
+          video.play()
+            .then(() => {
+              console.log('Video started after user interaction');
+              setIsVideoLoaded(true);
+              
+              // Clean up event listeners
+              ['click', 'touchstart', 'keydown'].forEach(event => {
+                document.removeEventListener(event, userInteractionHandler);
+              });
+            })
+            .catch(error => console.error('Failed to play after interaction:', error));
+        };
+        
+        // Add multiple event listeners for better coverage
+        ['click', 'touchstart', 'keydown'].forEach(event => {
+          document.addEventListener(event, userInteractionHandler);
+        });
+        
+        // Create a visible play button for iOS
+        const playButton = document.createElement('button');
+        playButton.textContent = 'Tap to Play Video';
+        playButton.style.position = 'absolute';
+        playButton.style.zIndex = '20';
+        playButton.style.top = '50%';
+        playButton.style.left = '50%';
+        playButton.style.transform = 'translate(-50%, -50%)';
+        playButton.style.padding = '12px 24px';
+        playButton.style.backgroundColor = '#22c55e'; // green-500
+        playButton.style.color = '#111827'; // gray-900
+        playButton.style.borderRadius = '6px';
+        playButton.style.fontWeight = 'bold';
+        playButton.style.cursor = 'pointer';
+        playButton.style.border = 'none';
+        
+        playButton.addEventListener('click', () => {
+          userInteractionHandler();
+          playButton.remove();
+        });
+        
+        // Only add the button if video isn't playing
+        if (video.paused) {
+          document.body.appendChild(playButton);
+          
+          // Remove button after 10 seconds to prevent UI clutter
+          setTimeout(() => {
+            if (document.body.contains(playButton)) {
+              playButton.remove();
+            }
+          }, 10000);
+        }
       }
     };
     
-    // Initialize playback
-    playVideo();
+    // Start the playback attempt
+    attemptPlay();
     
-    // Clean up event listeners
+    // Cleanup function
     return () => {
-      document.removeEventListener('click', () => {});
-      document.removeEventListener('touchstart', () => {});
+      ['click', 'touchstart', 'keydown'].forEach(event => {
+        document.removeEventListener(event, () => {});
+      });
+      
+      // Stop video playback on unmount
+      if (video && !video.paused) {
+        video.pause();
+      }
     };
   }, []);
 
@@ -60,7 +107,6 @@ export default function HeroSection() {
     <section className="relative h-screen flex items-center justify-center overflow-hidden w-screen">
       {/* Video background */}
       <div className="absolute inset-0 z-0 overflow-hidden w-screen">
-        {/* Poster image that shows while video is loading */}
         {!isVideoLoaded && (
           <div className="absolute w-full h-full bg-gray-900"></div>
         )}
@@ -70,11 +116,11 @@ export default function HeroSection() {
           autoPlay 
           muted 
           loop 
-          playsInline // Important for iOS
-          preload="auto" // Try to preload the video
+          playsInline
+          preload="auto"
           className="absolute w-screen min-h-full object-cover video-main"
-          onLoadedData={() => setIsVideoLoaded(true)}
-          poster="/video-poster.jpg" // Add a poster image as fallback
+          onCanPlayThrough={() => setIsVideoLoaded(true)}
+          poster="/video-poster.jpg"
           style={{ 
             filter: 'brightness(0.5)',
             left: '50%',
