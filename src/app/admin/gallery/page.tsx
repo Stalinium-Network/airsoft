@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import AdminLayout from '@/components/admin/AdminLayout';
-import ImageUploadForm from '@/components/gallery/ImageUploadForm';
 import { motion } from 'framer-motion';
 import { FaTrash, FaSpinner } from 'react-icons/fa';
+
+import useAdminAuth from '@/hooks/useAdminAuth';
+import AuthRequired from '@/components/admin/AuthRequired';
+import AdminLayout from '@/components/admin/AdminLayout';
+import ImageUploadForm from '@/components/gallery/ImageUploadForm';
 
 interface GalleryImage {
   filename: string;
@@ -14,15 +16,16 @@ interface GalleryImage {
 }
 
 export default function AdminGallery() {
+  const { token, isLoading: authLoading, message, isError, setMessage, setIsError } = useAdminAuth();
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [deletingImage, setDeletingImage] = useState<string | null>(null);
-  const router = useRouter();
 
   // Fetch gallery images
   const fetchImages = async () => {
+    if (!token) return;
+    
     setIsLoading(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/preview`);
@@ -34,7 +37,8 @@ export default function AdminGallery() {
       const data = await response.json();
       setImages(data);
     } catch (err) {
-      setError('Failed to load gallery images. Please try again.');
+      setIsError(true);
+      setMessage('Failed to load gallery images. Please try again.');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -49,10 +53,8 @@ export default function AdminGallery() {
     
     setDeletingImage(filename);
     try {
-      const token = localStorage.getItem('token');
       if (!token) {
-        router.push('/admin/login');
-        return;
+        throw new Error('Authentication required');
       }
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/${filename}`, {
@@ -73,7 +75,8 @@ export default function AdminGallery() {
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
-      setError('Failed to delete image. Please try again.');
+      setIsError(true);
+      setMessage('Failed to delete image. Please check your authorization.');
       console.error(err);
     } finally {
       setDeletingImage(null);
@@ -89,17 +92,33 @@ export default function AdminGallery() {
     setTimeout(() => setSuccessMessage(''), 3000);
   };
 
-  // Fetch images on component mount
+  // Fetch images when token is available
   useEffect(() => {
-    fetchImages();
-  }, []);
+    if (token) {
+      fetchImages();
+    }
+  }, [token]);
+
+  // If authentication is still loading, show loading indicator
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    );
+  }
+
+  // If no token, show login required
+  if (!token) {
+    return <AuthRequired />;
+  }
 
   return (
     <AdminLayout>
       <div className="py-8 px-4 mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold mb-8">Gallery Management</h1>
         
-        {/* Success message */}
+        {/* Display success message or error */}
         {successMessage && (
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
@@ -110,21 +129,20 @@ export default function AdminGallery() {
           </motion.div>
         )}
         
-        {/* Error message */}
-        {error && (
+        {isError && message && (
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-red-500 text-gray-100 p-4 rounded-md mb-6"
           >
-            {error}
+            {message}
           </motion.div>
         )}
 
         {/* Upload section */}
         <section className="mb-12 bg-gray-800 rounded-lg p-6">
           <h2 className="text-2xl font-bold mb-4">Upload New Image</h2>
-          <ImageUploadForm onImageUploaded={handleImageUploaded} />
+          <ImageUploadForm onImageUploaded={handleImageUploaded} token={token} />
         </section>
         
         {/* Gallery management section */}

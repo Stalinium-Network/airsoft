@@ -1,56 +1,25 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { FaSignOutAlt, FaHome, FaImages, FaCalendarAlt, FaUsers, FaBars, FaTimes } from 'react-icons/fa';
+import useAdminAuth from '@/hooks/useAdminAuth';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { userEmail, logout } = useAdminAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
-
-  // Check authentication status
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/admin/login');
-      return;
-    }
-
-    // Here you would typically verify the token with your backend
-    // For now, we'll just assume it's valid if it exists
-    setIsLoggedIn(true);
-    setIsLoading(false);
-  }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/admin/login');
-  };
 
   // For small screens, close sidebar when a link is clicked
   const handleNavClick = (path: string) => {
     setIsSidebarOpen(false);
     router.push(path);
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-      </div>
-    );
-  }
-
-  if (!isLoggedIn) {
-    return null; // Will redirect to login via useEffect
-  }
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100">
@@ -74,21 +43,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {/* Admin header */}
           <div className="px-6 py-4 border-b border-gray-700">
             <h2 className="text-2xl font-bold text-green-500">Admin Panel</h2>
-            <p className="text-sm text-gray-400">STALKER Airsoft</p>
+            {userEmail && <p className="text-sm text-gray-400">{userEmail}</p>}
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
             <NavLink href="/admin" icon={<FaHome />} label="Dashboard" onClick={() => handleNavClick('/admin')} />
             <NavLink href="/admin/gallery" icon={<FaImages />} label="Gallery" onClick={() => handleNavClick('/admin/gallery')} />
-            <NavLink href="/admin/events" icon={<FaCalendarAlt />} label="Events" onClick={() => handleNavClick('/admin/events')} />
+            <NavLink href="/admin/console" icon={<FaCalendarAlt />} label="Events" onClick={() => handleNavClick('/admin/console')} />
             <NavLink href="/admin/users" icon={<FaUsers />} label="Users" onClick={() => handleNavClick('/admin/users')} />
           </nav>
 
           {/* Logout button */}
           <div className="p-4 border-t border-gray-700">
             <button
-              onClick={handleLogout}
+              onClick={logout}
               className="flex w-full items-center px-4 py-2 rounded-md text-gray-300 hover:bg-gray-700 transition-colors"
             >
               <FaSignOutAlt className="mr-3" />

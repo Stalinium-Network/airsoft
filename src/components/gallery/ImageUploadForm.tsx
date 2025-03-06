@@ -1,21 +1,20 @@
 'use client'
 
 import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { FaUpload, FaImage, FaSpinner } from 'react-icons/fa';
 
 interface ImageUploadFormProps {
   onImageUploaded: () => void;
+  token: string | null;
 }
 
-export default function ImageUploadForm({ onImageUploaded }: ImageUploadFormProps) {
+export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [description, setDescription] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,16 +47,15 @@ export default function ImageUploadForm({ onImageUploaded }: ImageUploadFormProp
       return;
     }
     
+    if (!token) {
+      setError('You must be logged in to upload images');
+      return;
+    }
+    
     setIsUploading(true);
     setError('');
     
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/admin/login');
-        return;
-      }
-      
       const formData = new FormData();
       formData.append('file', file);
       
@@ -169,10 +167,10 @@ export default function ImageUploadForm({ onImageUploaded }: ImageUploadFormProp
           {/* Submit button */}
           <button
             type="submit"
-            disabled={isUploading || !file}
+            disabled={isUploading || !file || !token}
             className={`w-full mt-4 flex items-center justify-center py-3 px-6 rounded-md text-lg font-medium transition
               ${
-                file && !isUploading
+                file && !isUploading && token
                   ? 'bg-green-500 hover:bg-green-600 text-gray-900'
                   : 'bg-gray-700 text-gray-400 cursor-not-allowed'
               }`}
