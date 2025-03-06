@@ -1,70 +1,121 @@
 'use client'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
-import { useRouter } from 'next/navigation';
-import { FaImages, FaCalendarAlt, FaUsers } from 'react-icons/fa';
-import AdminLayout from '@/components/admin/AdminLayout';
-import { motion } from 'framer-motion';
-
-export default function AdminDashboard() {
-  const router = useRouter();
-
-  const adminModules = [
-    {
-      title: "Gallery Management",
-      description: "Upload, edit, and delete images in your gallery",
-      icon: <FaImages className="text-3xl" />,
-      path: "/admin/gallery",
-      color: "bg-green-500"
-    },
-    {
-      title: "Event Management",
-      description: "Create and manage upcoming airsoft events",
-      icon: <FaCalendarAlt className="text-3xl" />,
-      path: "/admin/events", 
-      color: "bg-blue-500"
-    },
-    {
-      title: "User Management",
-      description: "Manage user accounts and permissions",
-      icon: <FaUsers className="text-3xl" />,
-      path: "/admin/users",
-      color: "bg-purple-500"
-    }
-  ];
-
-  return (
-    <AdminLayout>
-      <div className="py-8 px-4 mx-auto max-w-7xl">
-        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-gray-400 mb-8">Welcome to the STALKER Airsoft admin panel</p>
+export default function AdminLogin() {
+  const router = useRouter()
+  const [message, setMessage] = useState('')
+  const [isError, setIsError] = useState(false)
+  
+  // Handle OAuth redirect and extract token if present
+  useEffect(() => {
+    // Check if we're being redirected from OAuth with a token
+    const urlParams = new URLSearchParams(window.location.search)
+    const token = urlParams.get('token')
+    
+    if (token) {
+      // Store token in localStorage
+      try {
+        localStorage.setItem('adminToken', token)
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {adminModules.map((module, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              className="bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
-              whileHover={{ y: -5 }}
-              onClick={() => router.push(module.path)}
-            >
-              <div className="p-6 cursor-pointer">
-                <div className={`inline-flex items-center justify-center p-3 ${module.color} rounded-full mb-4`}>
-                  {module.icon}
-                </div>
-                <h2 className="text-xl font-bold mb-2">{module.title}</h2>
-                <p className="text-gray-400">{module.description}</p>
-              </div>
-              <div className={`${module.color} p-4 flex justify-end`}>
-                <button className="text-sm font-medium">
-                  Go to {module.title.split(" ")[0]} →
-                </button>
-              </div>
-            </motion.div>
-          ))}
+        // Check if token was actually saved
+        const savedToken = localStorage.getItem('adminToken')
+        if (savedToken === token) {
+          // Remove token from URL for security
+          window.history.replaceState({}, document.title, window.location.pathname)
+          
+          // Redirect to console
+          setMessage('Login successful! Redirecting...')
+          setTimeout(() => router.push('/admin/console'), 1000)
+        } else {
+          console.error('Failed to save token to localStorage')
+          setIsError(true)
+          setMessage('Error: Failed to save authentication token')
+        }
+      } catch (error) {
+        console.error('Error saving token:', error)
+        setIsError(true)
+        setMessage('Error: Could not save authentication token')
+      }
+    } else {
+      // Check if user is already logged in
+      const existingToken = localStorage.getItem('adminToken')
+      if (existingToken) {
+        // Verify existing token
+        const verifyToken = async () => {
+          try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/verify-token`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${existingToken}`
+              }
+            })
+            
+            if (response.ok) {
+              router.push('/admin/console')
+            } else {
+              localStorage.removeItem('adminToken')
+            }
+          } catch (error) {
+            console.error('Error verifying token:', error)
+          }
+        }
+        
+        verifyToken()
+      }
+    }
+  }, [router])
+  
+  const handleGoogleLogin = () => {
+    // Redirect to Google OAuth endpoint
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/admin/google`
+  }
+  
+  return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold text-white text-center mb-6">Admin Login</h2>
+        
+        {message && (
+          <div className={`p-4 mb-6 rounded text-center ${isError ? 'bg-red-900' : 'bg-green-900'}`}>
+            {message}
+          </div>
+        )}
+        
+        <div className="space-y-4">
+          <button 
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 font-medium py-3 px-4 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <Image 
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+              alt="Google logo" 
+              width={18} 
+              height={18}
+            />
+            Sign in with Google
+          </button>
+          
+          <div className="text-center text-gray-400 text-sm">
+            <p>Debug check:</p>
+            <p className="mt-1">
+              localStorage availability: {typeof window !== 'undefined' && window.localStorage ? 'Available' : 'Not available'}
+            </p>
+          </div>
+        </div>
+        
+        <div className="mt-6 text-center text-sm text-gray-400">
+          Admin access only. Non-authorized emails will be rejected.
         </div>
       </div>
-    </AdminLayout>
-  );
+    </div>
+  )
 }
