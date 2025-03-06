@@ -39,7 +39,7 @@ export default function Navigation() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8">
           <Link href="/" className="text-white hover:text-green-500 transition-colors">Home</Link>
-          <Link href="/checklist" className="text-white hover:text-green-500 transition-colors">Checklist</Link>
+          <Link href="/gallery" className="text-white hover:text-green-500 transition-colors">Gallery</Link>
           <Link href="/about" className="text-white hover:text-green-500 transition-colors">About Us</Link>
           <Link href="/rules" className="text-white hover:text-green-500 transition-colors">Rules</Link>
           <Link href="/waiver" className="text-white hover:text-green-500 transition-colors">Waiver</Link>
@@ -55,7 +55,7 @@ export default function Navigation() {
       >
         <div className="bg-gray-800 px-4 py-2 flex flex-col space-y-3">
           <Link href="/" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-          <Link href="/checklist" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Checklist</Link>
+          <Link href="/gallery" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
           <Link href="/about" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
           <Link href="/rules" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Rules</Link>
           <Link href="/waiver" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Waiver</Link>

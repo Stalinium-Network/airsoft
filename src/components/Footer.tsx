@@ -12,18 +12,7 @@ export default function Footer() {
               The premier STALKER-themed airsoft experience. Enter the Zone at your own risk, stalker.
             </p>
           </div>
-          
-          {/* <div>
-            <h4 className="text-lg font-bold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              <li><Link href="/" className="text-gray-400 hover:text-green-500 transition-colors">Home</Link></li>
-              <li><Link href="/checklist" className="text-gray-400 hover:text-green-500 transition-colors">Checklist</Link></li>
-              <li><Link href="/about" className="text-gray-400 hover:text-green-500 transition-colors">About Us</Link></li>
-              <li><Link href="/rules" className="text-gray-400 hover:text-green-500 transition-colors">Rules</Link></li>
-              <li><Link href="/waiver" className="text-gray-400 hover:text-green-500 transition-colors">Waiver</Link></li>
-            </ul>
-          </div> */}
-          
+                    
           <div>
             <h4 className="text-lg font-bold mb-4">Contact Us</h4>
             <ul className="space-y-2">
