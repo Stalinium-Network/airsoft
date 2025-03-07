@@ -14,7 +14,8 @@ interface GalleryImage {
 // Fetch gallery data from the API
 async function getGalleryImages(): Promise<GalleryImage[]> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/preview`, {
+    // Changed from /gallery/preview to /gallery/list to get all images
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/list`, {
       cache: 'no-store' // Don't cache the results so we always get fresh data
     });
     

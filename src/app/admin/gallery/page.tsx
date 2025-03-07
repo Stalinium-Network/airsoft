@@ -28,7 +28,8 @@ export default function AdminGallery() {
     
     setIsLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/preview`);
+      // Changed from /gallery/preview to /gallery/list to get all images for admin
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/list`);
       
       if (!response.ok) {
         throw new Error(`Error fetching gallery: ${response.status}`);

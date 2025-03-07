@@ -1,35 +1,39 @@
-'use client'
+"use client";
 
-import { useState, useRef } from 'react';
-import { FaUpload, FaImage, FaSpinner } from 'react-icons/fa';
+import { useState, useRef } from "react";
+import { FaUpload, FaImage, FaSpinner } from "react-icons/fa";
+import { compressImageToWebP } from "@/utils/imageUtils";
 
 interface ImageUploadFormProps {
   onImageUploaded: () => void;
   token: string | null;
 }
 
-export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadFormProps) {
+export default function ImageUploadForm({
+  onImageUploaded,
+  token,
+}: ImageUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
-    
+
     // Check if file is an image
-    if (!selectedFile.type.includes('image/')) {
-      setError('Please select an image file');
+    if (!selectedFile.type.includes("image/")) {
+      setError("Please select an image file");
       return;
     }
-    
+
     setFile(selectedFile);
-    setError('');
-    
+    setError("");
+
     // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -41,55 +45,58 @@ export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadF
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!file) {
-      setError('Please select an image to upload');
+      setError("Please select an image to upload");
       return;
     }
-    
+
     if (!token) {
-      setError('You must be logged in to upload images');
+      setError("You must be logged in to upload images");
       return;
     }
-    
+
     setIsUploading(true);
-    setError('');
-    
+    setError("");
+
     try {
       const formData = new FormData();
-      formData.append('file', file);
       
-      // If description is provided, add it to the form data
-      if (description.trim()) {
-        formData.append('description', description.trim());
-      }
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-      
+      // Compress the image before uploading
+      const compressedImage = await compressImageToWebP(file);
+      formData.append("file", compressedImage);
+
+      if (!description.trim()) return;
+      formData.append("description", description.trim());
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/gallery/upload`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`Upload failed with status: ${response.status}`);
       }
-      
+
       // Reset form
       setFile(null);
       setPreviewUrl(null);
-      setDescription('');
+      setDescription("");
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
-      
+
       // Notify parent component of successful upload
       onImageUploaded();
-      
     } catch (err) {
-      console.error('Error uploading image:', err);
-      setError('Failed to upload image. Please try again.');
+      console.error("Error uploading image:", err);
+      setError("Failed to upload image. Please try again.");
     } finally {
       setIsUploading(false);
     }
@@ -98,11 +105,9 @@ export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadF
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-500 text-white p-3 rounded-md">
-          {error}
-        </div>
+        <div className="bg-red-500 text-white p-3 rounded-md">{error}</div>
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           {/* File input */}
@@ -110,10 +115,14 @@ export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadF
             <label htmlFor="image" className="block text-gray-300 mb-2">
               Select Image
             </label>
-            <div 
+            <div
               onClick={() => fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer
-                ${previewUrl ? 'border-green-500' : 'border-gray-600 hover:border-gray-500'}`}
+                ${
+                  previewUrl
+                    ? "border-green-500"
+                    : "border-gray-600 hover:border-gray-500"
+                }`}
             >
               <input
                 type="file"
@@ -124,7 +133,7 @@ export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadF
                 className="hidden"
                 disabled={isUploading}
               />
-              
+
               {previewUrl ? (
                 <div className="relative h-48 w-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -146,12 +155,12 @@ export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadF
             </div>
           </div>
         </div>
-        
+
         <div>
           {/* Description input */}
           <div className="mb-4">
             <label htmlFor="description" className="block text-gray-300 mb-2">
-              Description (Optional)
+              Description
             </label>
             <textarea
               id="description"
@@ -163,7 +172,7 @@ export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadF
               disabled={isUploading}
             />
           </div>
-          
+
           {/* Submit button */}
           <button
             type="submit"
@@ -171,8 +180,8 @@ export default function ImageUploadForm({ onImageUploaded, token }: ImageUploadF
             className={`w-full mt-4 flex items-center justify-center py-3 px-6 rounded-md text-lg font-medium transition
               ${
                 file && !isUploading && token
-                  ? 'bg-green-500 hover:bg-green-600 text-gray-900'
-                  : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                  ? "bg-green-500 hover:bg-green-600 text-gray-900"
+                  : "bg-gray-700 text-gray-400 cursor-not-allowed"
               }`}
           >
             {isUploading ? (

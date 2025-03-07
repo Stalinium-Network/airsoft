@@ -25,9 +25,9 @@ export default function AdminLogin() {
           // Remove token from URL for security
           window.history.replaceState({}, document.title, window.location.pathname)
           
-          // Redirect to console
+          // Redirect to gallery management instead of console
           setMessage('Login successful! Redirecting...')
-          setTimeout(() => router.push('/admin/console'), 1000)
+          setTimeout(() => router.push('/admin/gallery'), 1000)
         } else {
           console.error('Failed to save token to localStorage')
           setIsError(true)
@@ -53,7 +53,7 @@ export default function AdminLogin() {
             })
             
             if (response.ok) {
-              router.push('/admin/console')
+              router.push('/admin/gallery') // Redirect to gallery management
             } else {
               localStorage.removeItem('adminToken')
             }
