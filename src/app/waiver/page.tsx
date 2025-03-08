@@ -4,10 +4,10 @@ import { SvgBook } from "@/components/SVG/Book";
 import { motion } from "framer-motion";
 
 const waiver = `
-# Zone 37 Airsoft, Inc.
+# WW Zov Airsoft, Inc.
 
 Recreational Activities Release of Liability, Waiver of Claims, Express
-Assumption of Risk and Indemnity Agreement – Zone 37 Airsoft, Inc.
+Assumption of Risk and Indemnity Agreement – WW Zov Airsoft, Inc.
 THIS IS A RELEASE OF LIABILITY, WAIVER OF CLAIMS, ASSUMPTION OF RISK – 
 
 PLEASE READ BEFORE SIGNING
@@ -16,21 +16,21 @@ I represent that I am qualified, 18 years old or older, in good health, and in p
 these activities. Express Assumption of Risk Associated with Recreation Activities:
 I do hereby affirm and acknowledge that I have been fully informed and understand the inherent hazards and risks
 associated with the recreational activity generally described as Airsoft Game Play, including the rental of equipment
-and transportation associated therewith of which I am about to engage in. In consideration of Zone 37 Airsoft, Inc.
+and transportation associated therewith of which I am about to engage in. In consideration of WW Zov Airsoft, Inc.
 zfurnishing services and or equipment to enable me to participate. I do understand the activity involves risks, dangers
 and the use of equipment that may result in my injury, illness, potential for permanent disability and or death. I
 understand fully that this activity involves risks, bodily injury, strains, partial and or total paralysis, fractures, eye
 injuries, blindness, heat stroke, heart attack, disease, death or other ailments that could cause serious disability and
 or even death, which may be caused by my own actions or inaction, those of others participating in this recreational
 activity known as Airsoft Game Play, the condition in which the event takes place, and or the negligence of the
-owners, agents, employees, officers, directors, stockholders of Zone 37 Airsoft, Inc.; accidents, breach of contract,
+owners, agents, employees, officers, directors, stockholders of WW Zov Airsoft, Inc.; accidents, breach of contract,
 force of nature or any other causes, and the negligence of others. I fully accept and assume all such risk and all
 responsibility for losses, costs, and damages I may incur as a result of my participation in this activity. I hold harmless
-Zone 37 Airsoft Inc. for any such claim, release from any loss, liability, damages, or cost which any may incur as the
+WW Zov Airsoft Inc. for any such claim, release from any loss, liability, damages, or cost which any may incur as the
 result of such claim. Release of liability, Waiver of Claims.
 I HEREBY RELEASE AND HOLD HARMLESS WITH RESPECT TO ANY AND ALL INJURY, DISABILITY, DEATH,
 OR LOSS OR DAMAGE TO PERSON OR PROPERTY, WHETHER CAUSED BY NEGLIGENCE OR OTHERWISE,
-THE FOLLOWING NAMED PERSONS OR ENTITIES, HEREIN REFERRED TO AS RELEASES: Zone 37 Airsoft,
+THE FOLLOWING NAMED PERSONS OR ENTITIES, HEREIN REFERRED TO AS RELEASES: WW Zov Airsoft,
 Inc., officers, employees, agents, stockholders, owners, representatives, and volunteers, from liability and
 responsibility whatsoever and for any claims or causes of action that I, my estate, heirs, survivors, executors, or
 assigns may have for personal injury, property damage, or wrongful death arising from the above activities weather

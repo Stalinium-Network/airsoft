@@ -5,14 +5,7 @@ export default function Footer() {
   return (
     <footer className="py-10 border-t border-gray-800 px-4">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h4 className="text-xl font-bold text-green-500 mb-4">ZONE 37</h4>
-            <p className="text-gray-400">
-              The premier STALKER-themed airsoft experience. Enter the Zone at your own risk, stalker.
-            </p>
-          </div>
-                    
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">                   
           <div>
             <h4 className="text-lg font-bold mb-4">Contact Us</h4>
             <ul className="space-y-2">

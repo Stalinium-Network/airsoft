@@ -25,8 +25,8 @@ export default function Navigation() {
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
-          <img src="/logo.webp" alt="Zone 37 Logo" className="h-10 w-10 p-1 bg-white rounded-full mr-3" />
-          <span className="text-green-500 font-bold text-2xl tracking-wider">ZONE 37</span>
+          <img src="/logo.webp" alt="WW Zov Logo" className="h-10 w-10 p-1 bg-white rounded-full mr-3" />
+          <span className="text-green-500 font-bold text-2xl tracking-wider">WW Zov</span>
         </Link>
 
         {/* Mobile menu button */}
@@ -41,6 +41,7 @@ export default function Navigation() {
           <Link href="/" className="text-white hover:text-green-500 transition-colors">Home</Link>
           <Link href="/gallery" className="text-white hover:text-green-500 transition-colors">Gallery</Link>
           <Link href="/about" className="text-white hover:text-green-500 transition-colors">About Us</Link>
+          <Link href="/faqs" className="text-white hover:text-green-500 transition-colors">FAQs</Link>
           <Link href="/rules" className="text-white hover:text-green-500 transition-colors">Rules</Link>
           <Link href="/waiver" className="text-white hover:text-green-500 transition-colors">Waiver</Link>
         </div>
@@ -57,6 +58,7 @@ export default function Navigation() {
           <Link href="/" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Home</Link>
           <Link href="/gallery" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
           <Link href="/about" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+          <Link href="/faqs" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>FAQs</Link>
           <Link href="/rules" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Rules</Link>
           <Link href="/waiver" className="text-white py-2 hover:text-green-500" onClick={() => setMobileMenuOpen(false)}>Waiver</Link>
         </div>

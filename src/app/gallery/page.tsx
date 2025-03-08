@@ -1,9 +1,10 @@
-export const dynamic = "force-dynamic";
-
 import GalleryGrid from '@/components/gallery/GalleryGrid';
 import Footer from '@/components/Footer';
 import ClientWrapper from '@/components/ClientWrapper';
 import GalleryHero from '@/components/gallery/GalleryHero';
+
+// Add revalidation time in seconds (1 hour = 3600 seconds)
+export const revalidate = 3600;
 
 // Gallery interface (matching the API response)
 interface GalleryImage {
@@ -14,9 +15,11 @@ interface GalleryImage {
 // Fetch gallery data from the API
 async function getGalleryImages(): Promise<GalleryImage[]> {
   try {
-    // Changed from /gallery/preview to /gallery/list to get all images
+    // Updated fetch with next cache options
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/list`, {
-      cache: 'no-store' // Don't cache the results so we always get fresh data
+      next: { 
+        revalidate: 3600 // Cache for 1 hour (3600 seconds)
+      }
     });
     
     if (!response.ok) {

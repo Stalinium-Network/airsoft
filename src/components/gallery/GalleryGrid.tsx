@@ -26,12 +26,15 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
 
   return (
     <>
-      <div className={`grid grid-cols-1 sm:grid-cols-2 ${getGridColumnClass()} gap-5 auto-rows-max`}>
+      <div 
+        className={`grid grid-cols-1 sm:grid-cols-2 ${getGridColumnClass()} gap-4 auto-rows-max`}
+        style={{ gridAutoFlow: 'dense' }}
+      >
         {images.map((image, index) => (
           <motion.div 
             key={image.filename}
             className={`relative cursor-pointer overflow-hidden rounded-lg shadow-md 
-              ${index === 0 ? 'sm:col-span-2 sm:row-span-2' : ''}
+              ${index === 0 ? 'sm:col-span-2' : ''}
               ${index % 5 === 4 ? 'md:col-span-2' : ''}
             `}
             initial={{ opacity: 0, y: 20 }}
@@ -40,12 +43,12 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
             onClick={() => setSelectedImage(image)}
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
           >
-            <div className={`relative ${index === 0 ? 'h-[500px]' : 'h-64 md:h-80'} w-full`}>
+            <div className={`relative h-72 w-full ${index === 0 ? 'sm:h-96' : ''}`}>
               <Image
                 src={`${process.env.NEXT_PUBLIC_API_URL}/gallery/image/${image.filename}`}
                 alt={image.description || "Gallery image"}
                 fill
-                className="object-cover"
+                className="object-cover" 
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 opacity-60 transition-opacity hover:opacity-40" />
               

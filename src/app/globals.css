@@ -123,3 +123,18 @@ html {
     rgba(0, 0, 0, 0) 100%
   );
 }
+
+/* NProgress custom styling */
+#nprogress .bar {
+  background: #4ade80 !important; /* Green color to match your theme */
+  height: 3px !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #4ade80, 0 0 5px #4ade80 !important;
+}
