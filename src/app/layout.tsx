@@ -24,6 +24,7 @@ const meta = {
 export const metadata: Metadata = {
   title: meta.title,
   description: meta.description,
+  metadataBase: new URL("https://browsenchat.com"),
   icons: '/favicon_new.ico',
   robots: "index, follow",
   openGraph: {

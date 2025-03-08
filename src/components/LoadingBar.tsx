@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
@@ -15,7 +15,6 @@ NProgress.configure({
 
 export default function LoadingBar() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   
   useEffect(() => {
     // Start progress bar when navigation starts
@@ -29,7 +28,7 @@ export default function LoadingBar() {
     return () => {
       clearTimeout(timeoutId)
     }
-  }, [pathname, searchParams]) // This effect runs when the route changes
+  }, [pathname]) // This effect runs when the route changes
   
   return null // This component doesn't render anything visible
 }
