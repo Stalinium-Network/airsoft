@@ -1,4 +1,5 @@
 'use client'
+
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -7,6 +8,7 @@ import ImageModal from './ImageModal';
 interface GalleryImage {
   filename: string;
   description: string;
+  game?: string | null;
 }
 
 interface GalleryGridProps {
@@ -64,6 +66,7 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
         ))}
       </div>
       
+      {/* Image Modal */}
       {selectedImage && (
         <ImageModal 
           image={selectedImage} 

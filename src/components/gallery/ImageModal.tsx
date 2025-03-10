@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaTimes, FaChevronLeft, FaChevronRight, FaInfoCircle } from 'react-icons/fa';
+import ImageDetailsModal from './ImageDetailsModal';
 
 interface GalleryImage {
   filename: string;
@@ -18,6 +19,7 @@ interface ImageModalProps {
 export default function ImageModal({ image, onClose, images }: ImageModalProps) {
   const [currentImage, setCurrentImage] = useState(image);
   const currentIndex = images.findIndex(img => img.filename === currentImage.filename);
+  const [showDetails, setShowDetails] = useState(false);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -91,6 +93,26 @@ export default function ImageModal({ image, onClose, images }: ImageModalProps) 
       >
         <FaChevronRight size={24} />
       </button>
+
+      {/* Details button */}
+      <button 
+        className="absolute bottom-6 right-6 p-3 bg-green-600 hover:bg-green-700 rounded-full text-white transition-colors flex items-center justify-center"
+        title="View image details"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowDetails(true);
+        }}
+      >
+        <FaInfoCircle size={20} />
+      </button>
+      
+      {/* Details Modal */}
+      {showDetails && (
+        <ImageDetailsModal
+          filename={currentImage.filename}
+          onClose={() => setShowDetails(false)}
+        />
+      )}
     </div>
   );
 }

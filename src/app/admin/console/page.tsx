@@ -6,7 +6,8 @@ import useAdminAuth from './hooks/useAdminAuth'
 import GameList from './components/GameList'
 import CreateGameModal from './components/CreateGameModal'
 import EditGameModal from './components/EditGameModal'
-import AuthRequired from './components/AuthRequired'
+import AuthRequired from '@/components/admin/AuthRequired'
+import AdminLayout from '@/components/admin/AdminLayout'
 import { adminApi } from '@/utils/api'
 import AgentChat from './components/AgentChat'
 
@@ -137,22 +138,9 @@ export default function AdminConsole() {
   
   // Main admin console UI
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6 pt-16">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-8 pb-4 border-b border-gray-700">
-          <h1 className="text-2xl font-bold">Admin Console</h1>
-          <div className="flex items-center gap-4">
-            {userEmail && (
-              <span className="text-sm text-gray-300">{userEmail}</span>
-            )}
-            <button 
-              onClick={logout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-            >
-              Logout
-            </button>
-          </div>
-        </header>
+    <AdminLayout>
+      <div className="py-8 px-4 mx-auto max-w-7xl">
+        <h1 className="text-3xl font-bold mb-8">Events Management</h1>
         
         {/* Messages */}
         {message && (
@@ -182,36 +170,36 @@ export default function AdminConsole() {
           onEditGame={openEditModal}
           onDeleteGame={deleteGame}
         />
+        
+        {/* Create Game Modal */}
+        {isCreateModalOpen && (
+          <CreateGameModal
+            onClose={() => setIsCreateModalOpen(false)}
+            onGameCreated={handleGameCreated}
+            onError={(errorMessage) => {
+              setIsError(true)
+              setMessage(errorMessage)
+            }}
+          />
+        )}
+        
+        {/* Edit Modal */}
+        {isEditModalOpen && editingGame && (
+          <EditGameModal
+            game={editingGame}
+            onClose={() => {
+              setIsEditModalOpen(false)
+              setEditingGame(null)
+            }}
+            onGameUpdated={handleGameUpdated}
+            onError={(errorMessage) => {
+              setIsError(true)
+              setMessage(errorMessage)
+            }}
+          />
+        )}
+        <AgentChat />
       </div>
-      
-      {/* Create Game Modal */}
-      {isCreateModalOpen && (
-        <CreateGameModal
-          onClose={() => setIsCreateModalOpen(false)}
-          onGameCreated={handleGameCreated}
-          onError={(errorMessage) => {
-            setIsError(true)
-            setMessage(errorMessage)
-          }}
-        />
-      )}
-      
-      {/* Edit Modal */}
-      {isEditModalOpen && editingGame && (
-        <EditGameModal
-          game={editingGame}
-          onClose={() => {
-            setIsEditModalOpen(false)
-            setEditingGame(null)
-          }}
-          onGameUpdated={handleGameUpdated}
-          onError={(errorMessage) => {
-            setIsError(true)
-            setMessage(errorMessage)
-          }}
-        />
-      )}
-      <AgentChat />
-    </div>
+    </AdminLayout>
   )
 }

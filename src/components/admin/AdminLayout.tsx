@@ -24,7 +24,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100">
       {/* Mobile sidebar toggle */}
-      <div className="lg:hidden fixed top-4 left-4 z-30">
+      <div className="lg:hidden fixed bottom-2 right-2 z-30">
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="p-2 rounded-md bg-gray-800 text-gray-200"
@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className={`
         fixed inset-y-0 left-0 z-20 w-64 bg-gray-800 transform transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-        lg:translate-x-0 lg:static lg:z-10
+        lg:translate-x-0 lg:static lg:z-10 pt-12 
       `}>
         <div className="flex flex-col h-full">
           {/* Admin header */}

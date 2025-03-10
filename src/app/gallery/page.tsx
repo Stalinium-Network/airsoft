@@ -1,7 +1,7 @@
-import GalleryGrid from '@/components/gallery/GalleryGrid';
 import Footer from '@/components/Footer';
 import ClientWrapper from '@/components/ClientWrapper';
 import GalleryHero from '@/components/gallery/GalleryHero';
+import GalleryGrid from '@/components/gallery/GalleryGrid';
 
 // Add revalidation time in seconds (1 hour = 3600 seconds)
 export const revalidate = 3600;
@@ -10,6 +10,7 @@ export const revalidate = 3600;
 interface GalleryImage {
   filename: string;
   description: string;
+  game?: string | null;
 }
 
 // Fetch gallery data from the API

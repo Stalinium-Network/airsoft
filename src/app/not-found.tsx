@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the client component with no SSR
+const DynamicBackground = dynamic(
+  () => import('../components/DynamicBackground'),
+  { ssr: true }
+);
 
 export const metadata: Metadata = {
   title: 'Page Not Found | WW Zov',
@@ -8,8 +15,11 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white flex items-center justify-center px-4 py-16">
-      <div className="max-w-md mx-auto text-center">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-gray-900 to-black text-white flex items-center justify-center px-4 py-16 animate-gradient-pulse">
+      <div className="absolute inset-0 z-0">
+        <DynamicBackground />
+      </div>
+      <div className="max-w-md mx-auto text-center z-10 relative">
         <div className="relative mb-8 mx-auto w-32 h-32">
           {/* Radiation symbol */}
           <div className="absolute inset-0 bg-green-500 rounded-full opacity-20 animate-ping"></div>

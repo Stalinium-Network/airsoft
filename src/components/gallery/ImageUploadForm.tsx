@@ -1,27 +1,40 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, ChangeEvent, FormEvent } from "react";
 import { FaUpload, FaImage, FaSpinner } from "react-icons/fa";
 import { compressImageToWebP } from "@/utils/imageUtils";
+import { Game } from "@/services/gameService";
+
+// interface Game {
+//   _id: string;
+//   name: string;
+//   date: string;
+//   isPast: boolean;
+// }
 
 interface ImageUploadFormProps {
   onImageUploaded: () => void;
   token: string | null;
+  games: Game[];
+  isLoadingGames: boolean;
 }
 
 export default function ImageUploadForm({
   onImageUploaded,
   token,
+  games,
+  isLoadingGames,
 }: ImageUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
+  const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle file selection
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
@@ -43,7 +56,7 @@ export default function ImageUploadForm({
   };
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!file) {
@@ -61,13 +74,18 @@ export default function ImageUploadForm({
 
     try {
       const formData = new FormData();
-      
+
       // Compress the image before uploading
       const compressedImage = await compressImageToWebP(file);
       formData.append("file", compressedImage);
 
       if (!description.trim()) return;
       formData.append("description", description.trim());
+
+      // Only append game if one is selected
+      if (selectedGameId) {
+        formData.append("game", selectedGameId);
+      }
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/gallery/upload`,
@@ -88,6 +106,7 @@ export default function ImageUploadForm({
       setFile(null);
       setPreviewUrl(null);
       setDescription("");
+      setSelectedGameId("");
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -100,6 +119,13 @@ export default function ImageUploadForm({
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // Format date for display
+  const formatDate = (dateString: Date | string) => {
+    if (typeof dateString === "string")
+      return new Date(dateString).toLocaleDateString();
+    return dateString.toLocaleDateString();
   };
 
   return (
@@ -148,7 +174,7 @@ export default function ImageUploadForm({
                   <FaImage className="text-4xl text-gray-500 mb-2" />
                   <p className="text-gray-400">Click to select an image</p>
                   <p className="text-gray-500 text-sm mt-1">
-                    JPG, PNG, GIF up to 5MB
+                    JPG, PNG up to 5MB
                   </p>
                 </div>
               )}
@@ -171,6 +197,32 @@ export default function ImageUploadForm({
               placeholder="Enter a description for this image..."
               disabled={isUploading}
             />
+          </div>
+
+          {/* Game selection */}
+          <div className="mb-4">
+            <label htmlFor="game" className="block text-gray-300 mb-2">
+              Associated Game (optional)
+            </label>
+            <select
+              id="game"
+              value={selectedGameId}
+              onChange={(e) => setSelectedGameId(e.target.value)}
+              className="w-full px-4 py-2 bg-gray-700 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+              disabled={isLoadingGames}
+            >
+              <option value="">None</option>
+              {isLoadingGames ? (
+                <option disabled>Loading games...</option>
+              ) : (
+                games.map((game) => (
+                  <option key={game._id} value={game._id}>
+                    {game.name} ({formatDate(game.date)}){" "}
+                    {game.isPast ? "(Past)" : ""}
+                  </option>
+                ))
+              )}
+            </select>
           </div>
 
           {/* Submit button */}

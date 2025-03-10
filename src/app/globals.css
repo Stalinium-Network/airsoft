@@ -138,3 +138,20 @@ html {
 #nprogress .peg {
   box-shadow: 0 0 10px #4ade80, 0 0 5px #4ade80 !important;
 }
+
+@keyframes gradient-pulse {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-pulse {
+  background-size: 200% 200%;
+  animation: gradient-pulse 8s ease infinite;
+}

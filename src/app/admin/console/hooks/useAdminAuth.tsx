@@ -59,7 +59,6 @@ export default function useAdminAuth() {
         
         const data = response.data
         setUserEmail(data.email)
-        setMessage(`Authenticated as ${data.email}`)
         setIsError(false)
         console.log('Token verified successfully')
       } catch (error: any) {

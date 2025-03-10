@@ -55,7 +55,7 @@ export default function RootLayout({
         {/* ...existing head content... */}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-900 to-black text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-900 to-black text-white overflow-x-hidden`}
       >
         <LoadingBar />
         <Navigation />
