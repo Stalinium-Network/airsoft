@@ -38,8 +38,3 @@ export async function deleteLocation(locationId: string) {
     throw error;
   }
 }
-
-export function getLocationImageUrl(filename: string): string {
-  if (!filename) return '';
-  return `${process.env.NEXT_PUBLIC_API_URL}/locations/image/${filename}`;
-}
