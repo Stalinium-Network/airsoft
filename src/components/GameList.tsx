@@ -69,17 +69,17 @@ function GameCard({ game }: { game: Game }) {
   // Helper to get location data
   const getLocationInfo = () => {
     if (!game.location) return { name: "TBD", coordinates: "" };
-    
-    if (typeof game.location === 'string') {
+
+    if (typeof game.location === "string") {
       return { name: game.location, coordinates: "" };
     }
-    
-    return { 
-      name: game.location._id, 
-      coordinates: game.location.coordinates 
+
+    return {
+      name: game.location._id,
+      coordinates: game.location.coordinates,
     };
   };
-  
+
   const location = getLocationInfo();
 
   // Navigate to game details
@@ -90,22 +90,12 @@ function GameCard({ game }: { game: Game }) {
 
   // Navigate to location on map
   const navigateToLocation = (e: React.MouseEvent) => {
-    e.preventDefault(); 
-    window.open(`https://maps.google.com/?q=${location.coordinates}`, '_blank');
+    e.preventDefault();
+    window.open(`https://maps.google.com/?q=${location.coordinates}`, "_blank");
   };
 
   return (
-    <motion.div
-      className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-green-500/20 transition-all border border-gray-700"
-      whileHover={{
-        y: -5,
-        boxShadow: "0 10px 25px -5px rgba(34, 197, 94, 0.3)",
-      }}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: true }}
-    >
+    <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-all border border-gray-700 hover:scale-[98%]">
       <div className="h-56 relative">
         <Image
           src={process.env.NEXT_PUBLIC_IMAGES_URL + game.image}
@@ -135,7 +125,9 @@ function GameCard({ game }: { game: Game }) {
             </svg>
             {formatDateTime(game.date)}
           </p>
-          <p className="text-gray-400 text-sm">Duration: {game.duration} hours</p>
+          <p className="text-gray-400 text-sm">
+            Duration: {game.duration} hours
+          </p>
         </div>
       </div>
 
@@ -164,9 +156,7 @@ function GameCard({ game }: { game: Game }) {
               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
-          <span className="text-gray-300">
-            {location.name}
-          </span>
+          <span className="text-gray-300">{location.name}</span>
         </button>
 
         {/* Only description is clickable to navigate to details */}
@@ -242,6 +232,6 @@ function GameCard({ game }: { game: Game }) {
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

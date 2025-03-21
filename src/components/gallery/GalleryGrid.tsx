@@ -29,7 +29,7 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
   return (
     <>
       <div 
-        className={`grid grid-cols-1 sm:grid-cols-2 ${getGridColumnClass()} gap-4 auto-rows-max`}
+        className={`grid grid-cols-2 ${getGridColumnClass()} gap-4 auto-rows-max`}
         style={{ gridAutoFlow: 'dense' }}
       >
         {images.map((image, index) => (

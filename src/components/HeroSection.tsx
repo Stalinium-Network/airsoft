@@ -14,6 +14,14 @@ export default function HeroSection() {
 
     // Make sure video is definitely muted (important for iOS)
     video.muted = true;
+    video.defaultMuted = true;
+    
+    // These properties can help with Safari autoplay
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    
+    // For Safari specifically, preload content
+    video.load();
 
     // Function to safely attempt video playback
     const attemptPlay = async () => {
@@ -25,12 +33,29 @@ export default function HeroSection() {
           });
         }
 
+        // Safari-specific check: ensure muted state before play attempt
+        video.muted = true;
+        
         // Try to play
         await video.play();
         console.log("Video playback started successfully");
         setIsVideoLoaded(true);
       } catch (err) {
         console.log("Autoplay prevented:", err);
+
+        // Special handling for Safari
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        if (isSafari) {
+          console.log("Safari detected, using alternate playback method");
+          
+          // For Safari, try playing on document interaction
+          const safariPlayAttempt = () => {
+            video.play().catch(e => console.log("Safari play attempt failed:", e));
+            document.removeEventListener('touchend', safariPlayAttempt);
+          };
+          
+          document.addEventListener('touchend', safariPlayAttempt);
+        }
 
         // Handle autoplay prevention with user interaction handler
         const userInteractionHandler = () => {
@@ -93,6 +118,13 @@ export default function HeroSection() {
     // Start the playback attempt
     attemptPlay();
 
+    // Try a delayed attempt for Safari (sometimes helps)
+    setTimeout(() => {
+      if (video && video.paused) {
+        video.play().catch(e => console.log("Delayed play attempt failed:", e));
+      }
+    }, 200);
+
     // Cleanup function
     return () => {
       ["click", "touchstart", "keydown"].forEach((event) => {
@@ -117,9 +149,9 @@ export default function HeroSection() {
         <video
           ref={videoRef}
           autoPlay
-          muted
-          loop
           playsInline
+          muted={true}
+          loop
           preload="auto"
           className="absolute w-screen min-h-full object-cover video-main"
           onCanPlayThrough={() => setIsVideoLoaded(true)}
@@ -147,14 +179,11 @@ export default function HeroSection() {
             className="text-5xl md:text-7xl font-bold mb-6 text-white"
             data-nosnippet
           >
-            WELCOME TO <span className="text-green-500">WW Zov</span>
+            WELCOME TO <span className="bg-gradient-to-r from-green-200 to-green-500 text-transparent bg-clip-text">WW Zov</span>
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-200">
-            Airsoft Arena: STALKER Zone is a meeting place for all who seek real
-            adventures in the Zone. Join the ranks of stalkers, obtain valuable
-            artifacts, complete tasks and beware of enemies. Our scenario games
-            recreate the atmosphere of the STALKER world. Choose your path in
-            the Exclusion Zone.
+            Join the ranks of stalkers, obtain valuable
+            artifacts, complete tasks and beware of enemies.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
