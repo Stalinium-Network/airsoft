@@ -1,5 +1,21 @@
 import { Location } from './locationService';
 
+// Базовая модель фракции - без registrationLink
+export interface Fraction {
+  _id: string;
+  name?: string;
+  image?: string;
+  shortDescription?: string; 
+  description?: string; // Full markdown description
+}
+
+// Расширенная модель для фракции внутри игры - с capacity, filled и registrationLink
+export interface GameFraction extends Fraction {
+  capacity: number;
+  filled: number;
+  registrationLink?: string; // Скрыто, но оставлено для будущего использования
+}
+
 export interface Game {
   _id: any;
   name: string;
@@ -9,12 +25,11 @@ export interface Game {
   description: string;  // Short description
   detailedDescription?: string;  // Detailed description
   image: string;
-  capacity: {
-    total: number;
-    filled: number;
-  };
+  // Используем GameFraction вместо Fraction для игр
+  fractions: GameFraction[];
   price: number;
   isPast: boolean;
+  registrationLink?: string; // Новое поле для общей ссылки регистрации
 }
 
 export interface GamesResponse {

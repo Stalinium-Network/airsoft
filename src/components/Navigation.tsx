@@ -19,6 +19,7 @@ export default function Navigation() {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
+      id='navigation'
       transition={{ duration: 0.5 }}
       className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-gray-900/90 backdrop-blur-sm py-2 shadow-xl' : 'bg-transparent py-4'
         }`}

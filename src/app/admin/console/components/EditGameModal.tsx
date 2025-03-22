@@ -1,15 +1,18 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Game } from "@/services/gameService";
+import { Game, Fraction } from "@/services/gameService";
 import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
+import FractionsManager from "./FractionsManager";
+import Image from "next/image";
 
 // Components
 import GameFormFields from "./game-form/GameFormFields";
 import ImageUploadSection from "./game-form/ImageUploadSection";
 import ProgressBar from "./game-form/ProgressBar";
-import { Location } from "@/services/locationService";
+import ModalHeader from "./modal/ModalHeader";
+import ModalFooter from "./modal/ModalFooter";
 
 // Define the mixed event type for consistent typing
 type MixedChangeEvent =
@@ -32,7 +35,10 @@ export default function EditGameModal({
   onError,
 }: EditGameModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [editingGame, setEditingGame] = useState<Game>({ ...game });
+  const [editingGame, setEditingGame] = useState<Game>({ 
+    ...game,
+    fractions: game.fractions || [] // Убедимся, что fractions существует
+  });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -49,17 +55,7 @@ export default function EditGameModal({
   const handleInputChange = (e: MixedChangeEvent) => {
     const { name, value } = e.target;
 
-    if (name.includes(".")) {
-      // Handle nested properties (e.g., capacity.total)
-      const [parent, child] = name.split(".");
-      setEditingGame({
-        ...editingGame,
-        [parent]: {
-          ...editingGame[parent as keyof Game],
-          [child]: parent === "capacity" ? parseInt(value, 10) || 0 : value,
-        },
-      });
-    } else if (name === "price") {
+    if (name === "price") {
       setEditingGame({
         ...editingGame,
         price: parseInt(value, 10) || 0,
@@ -115,7 +111,23 @@ export default function EditGameModal({
     }));
   };
 
-  // Update game with FormData - now just a button click handler
+  // Handle location selection
+  const handleLocationSelect = (locationId: string) => {
+    setEditingGame(prev => ({
+      ...prev,
+      location: locationId,
+    }));
+  };
+
+  // Handle fractions update
+  const handleFractionsChange = (updatedFractions: Fraction[]) => {
+    setEditingGame((prev: any) => ({
+      ...prev,
+      fractions: updatedFractions
+    }));
+  };
+
+  // Update game with FormData
   const handleUpdateGame = async () => {
     setIsLoading(true);
     setUploadProgress(0);
@@ -134,22 +146,24 @@ export default function EditGameModal({
       formData.append("name", editingGame.name);
       formData.append("date", dateString);
       formData.append("duration", editingGame.duration.toString());
-
-      // Send location as string (location name/ID)
-      // Only one location is ever set
-      formData.append("location", (editingGame.location as Location)._id); 
-      console.log(editingGame.location);
-
+      formData.append("location", typeof editingGame.location === 'string' 
+        ? editingGame.location 
+        : (editingGame.location as any)._id);
       formData.append("description", editingGame.description);
       formData.append("price", editingGame.price.toString());
       formData.append("isPast", isPastGame(editingGame.date).toString());
 
-      // Append capacity as individual fields
-      formData.append("totalCapacity", editingGame.capacity.total.toString());
-      formData.append("filledCapacity", editingGame.capacity.filled.toString());
-
       if (editingGame.detailedDescription) {
         formData.append("detailedDescription", editingGame.detailedDescription);
+      }
+      
+      // Всегда добавляем поле registrationLink, даже если оно пустое
+      // Это позволит очистить ссылку если пользователь удалил значение
+      formData.append("registrationLink", editingGame.registrationLink || '');
+
+      // Add fractions as JSON string
+      if (editingGame.fractions && editingGame.fractions.length > 0) {
+        formData.append("fractions", JSON.stringify(editingGame.fractions));
       }
 
       // IMPORTANT FIX: Image handling
@@ -216,70 +230,95 @@ export default function EditGameModal({
     }
   };
 
+  const editIcon = (
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+      />
+    </svg>
+  );
+
+  const saveIcon = (
+    <svg
+      className="w-5 h-5 mr-1"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5 13l4 4L19 7"
+      />
+    </svg>
+  );
+
+  const loadingIcon = (
+    <svg
+      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+  );
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-gray-800 to-gray-700 p-6 border-b border-gray-700 flex justify-between items-center">
-          <h3 className="text-xl font-bold text-white flex items-center">
-            <svg
-              className="w-5 h-5 mr-2 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-              />
-            </svg>
-            Edit Game
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-            disabled={isLoading}
-            aria-label="Close"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+        <ModalHeader 
+          title={`Edit Game: ${game.name}`}
+          icon={editIcon}
+          onClose={onClose}
+          isLoading={isLoading}
+          color="text-blue-500"
+        />
 
         <div className="p-6">
           {isLoading && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
               <div className="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
-                <div className="w-12 h-12 border-4 border-t-green-500 border-gray-700 rounded-full animate-spin mb-4"></div>
+                <div className="w-12 h-12 border-4 border-t-blue-500 border-gray-700 rounded-full animate-spin mb-4"></div>
                 <p className="text-white">Saving changes...</p>
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-1 gap-6">
-            {/* Game form fields (now grouped) */}
+            {/* Game form fields */}
             <GameFormFields
               game={editingGame}
               onChange={handleInputChange}
               isLoading={isLoading}
+              onLocationSelect={handleLocationSelect}
             />
 
             {/* Status section (only in Edit mode) */}
             <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
-              <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+              <h3 className="text-lg font-medium text-blue-500 mb-3 flex items-center">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="none"
@@ -367,10 +406,42 @@ export default function EditGameModal({
                 </div>
               </div>
             </div>
+            
+            {/* Fractions Manager with updated approach */}
+            <div className="bg-gray-750 p-5 rounded-lg border border-gray-700">
+              <h3 className="text-lg font-medium text-blue-500 mb-3 flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                Game Factions
+              </h3>
+              
+              <div className="bg-gray-800/50 p-4 mb-4 rounded border border-gray-700/50">
+                <p className="text-sm text-gray-300">
+                  Manage the factions for this game. Add or remove factions and adjust their capacities.
+                </p>
+              </div>
+              
+              <FractionsManager 
+                fractions={editingGame.fractions || []}
+                onChange={handleFractionsChange}
+                isLoading={isLoading}
+              />
+            </div>
 
             {/* Image upload section */}
             <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
-              <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+              <h3 className="text-lg font-medium text-blue-500 mb-3 flex items-center">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="none"
@@ -402,65 +473,17 @@ export default function EditGameModal({
             show={isLoading && uploadProgress > 0}
           />
 
-          <div className="flex gap-3 justify-end mt-6 sticky bottom-0 pt-4 bg-gradient-to-t from-gray-800 to-transparent">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-md transition-colors flex items-center"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleUpdateGame}
-              disabled={isLoading}
-              className={`bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition-colors flex items-center
-                ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
-            >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-5 h-5 mr-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Save Changes
-                </>
-              )}
-            </button>
-          </div>
+          {/* Footer with action buttons */}
+          <ModalFooter
+            onCancel={onClose}
+            onConfirm={handleUpdateGame}
+            isLoading={isLoading}
+            confirmLabel="Save Changes"
+            confirmIcon={saveIcon}
+            loadingLabel="Saving..."
+            loadingIcon={loadingIcon}
+            confirmColor="bg-blue-600 hover:bg-blue-700"
+          />
         </div>
       </div>
     </div>

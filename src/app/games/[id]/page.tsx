@@ -4,7 +4,11 @@ import { formatDateTime } from "@/utils/time-format";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import Link from "next/link";
 import { Metadata } from "next";
-import RegisterButton from "@/components/RegisterButton";
+import { GameFraction } from "@/services/gameService"; // Изменено с Fraction на GameFraction
+import dynamic from "next/dynamic";
+
+// Динамически импортируем RegisterButton как клиентский компонент
+const RegisterButton = dynamic(() => import('@/components/RegisterButton'));
 
 // Enable revalidation every 1 hour (3600 seconds)
 export const revalidate = 3600;
@@ -17,10 +21,11 @@ interface GameDetails {
   description: string;
   price: number;
   isPast: boolean;
-  capacity: {
+  capacity?: {
     total: number;
     filled: number;
   };
+  fractions?: GameFraction[]; // Изменено с Fraction на GameFraction
   location: {
     _id: string;
     coordinates: string;
@@ -29,6 +34,7 @@ interface GameDetails {
   };
   detailedDescription: string;
   duration: number;
+  registrationLink?: string; // Добавлено поле для общей ссылки регистрации
 }
 
 // // Fix the params type to match Next.js expectations
@@ -85,11 +91,30 @@ export default async function GameDetailPage({ params }: any) {
     return notFound();
   }
 
-  const percentFilled = Math.round(
-    (game.capacity.filled / game.capacity.total) * 100
-  );
-  const spotsLeft = game.capacity.total - game.capacity.filled;
-  const isFull = spotsLeft <= 0;
+  // Calculate total capacity based on available data
+  const getTotalCapacity = () => {
+    // If using new fractions structure
+    if (game.fractions && game.fractions.length > 0) {
+      const total = game.fractions.reduce((sum, fraction) => sum + fraction.capacity, 0);
+      const filled = game.fractions.reduce((sum, fraction) => sum + fraction.filled, 0);
+      return {
+        total,
+        filled,
+        percentFilled: Math.round((filled / total) * 100),
+        spotsLeft: total - filled,
+        isFull: total <= filled
+      };
+    }
+    
+    // Fallback
+    return { total: 0, filled: 0, percentFilled: 0, spotsLeft: 0, isFull: true };
+  };
+  
+  const capacity = getTotalCapacity();
+  console.log(game.fractions)
+
+  // Определяем, заполнена ли игра полностью
+  const isFull = capacity.isFull || capacity.spotsLeft <= 0;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -180,7 +205,7 @@ export default async function GameDetailPage({ params }: any) {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    d="M15 11a3 3 0 11-6 0 3 3 0z"
                   />
                 </svg>
                 <a
@@ -213,6 +238,61 @@ export default async function GameDetailPage({ params }: any) {
               <h2 className="text-2xl font-bold mb-4">Event Details</h2>
               <MarkdownRenderer content={game.detailedDescription} />
             </div>
+            
+            {/* Fractions section if available */}
+            {game.fractions && game.fractions.length > 0 && (
+              <div className="rounded-lg p-6 mt-8 shadow-lg border bg-gray-800 border-gray-700">
+                <h2 className="text-2xl font-bold mb-6">Available Factions</h2>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {game.fractions.map((fraction) => (
+                    <div key={fraction._id} className="border border-gray-700 rounded-lg overflow-hidden">
+                      {fraction.image && (
+                        <div className="h-40 relative">
+                          <Image
+                            src={`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${fraction.image}`}
+                            alt={fraction._id}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="p-4">
+                        <h3 className="text-xl font-bold mb-2">{fraction.name || fraction._id}</h3>
+                        
+                        {fraction.shortDescription && (
+                          <p className="text-gray-300 mb-3">{fraction.shortDescription}</p>
+                        )}
+                        
+                        <div className="mb-3">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-gray-400">Capacity</span>
+                            <span className="text-green-400">
+                              {fraction.filled}/{fraction.capacity}
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full ${
+                                fraction.filled / fraction.capacity < 0.3
+                                  ? "bg-green-500"
+                                  : fraction.filled / fraction.capacity < 0.7
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500"
+                              }`}
+                              style={{ width: `${(fraction.filled / fraction.capacity) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        {/* Уже не показываем кнопки для фракций */}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -223,26 +303,26 @@ export default async function GameDetailPage({ params }: any) {
               {/* Capacity information */}
               <div className="mb-6">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">Capacity</span>
+                  <span className="text-gray-400">Total Capacity</span>
                   <span className="text-green-400">
-                    {game.capacity.filled}/{game.capacity.total}
+                    {capacity.filled}/{capacity.total}
                   </span>
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2.5 mb-1">
                   <div
                     className={`h-2.5 rounded-full ${
-                      percentFilled < 30
+                      capacity.percentFilled < 30
                         ? "bg-green-500"
-                        : percentFilled < 70
+                        : capacity.percentFilled < 70
                         ? "bg-yellow-500"
                         : "bg-red-500"
                     }`}
-                    style={{ width: `${percentFilled}%` }}
+                    style={{ width: `${capacity.percentFilled}%` }}
                   ></div>
                 </div>
-                {!game.isPast && spotsLeft > 0 && (
+                {!game.isPast && capacity.spotsLeft > 0 && (
                   <p className="text-sm text-green-400 mt-2">
-                    {spotsLeft} spots left
+                    {capacity.spotsLeft} spots left
                   </p>
                 )}
               </div>
@@ -258,15 +338,31 @@ export default async function GameDetailPage({ params }: any) {
                   </div>
                 </div>
               )}
-
-              {/* Registration button */}
-              <RegisterButton
-                gameId={game._id}
-                gameName={game.name}
-                isPast={game.isPast}
-                isFull={isFull}
-                className="w-full"
-              />
+              
+              {/* Кнопка регистрации - заменяем на компонент RegisterButton */}
+              {!game.isPast && (
+                <div className="mt-4">
+                  <RegisterButton
+                    gameId={game._id.toString()}
+                    gameName={game.name}
+                    isPast={game.isPast}
+                    isFull={isFull}
+                    hasFractions={game.fractions && game.fractions.length > 0}
+                    registrationLink={game.registrationLink}
+                    className="w-full"
+                  />
+                </div>
+              )}
+              
+              {/* Информация о фракциях */}
+              {game.fractions && game.fractions.length > 0 && !game.isPast && (
+                <div className="bg-gray-700 p-4 rounded-lg text-center mt-4">
+                  <p className="text-gray-300 mb-2">Review available factions below</p>
+                  <svg className="w-6 h-6 mx-auto text-green-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                </div>
+              )}
             </div>
 
             {/* Location map and details */}
@@ -312,7 +408,7 @@ export default async function GameDetailPage({ params }: any) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      d="M15 11a3 3 0 11-6 0 3 3 0z"
                     />
                   </svg>
                   <a

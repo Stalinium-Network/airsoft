@@ -1,30 +1,29 @@
 "use client";
 import { useState } from "react";
-import { Game } from "@/services/gameService";
+import { Game, Fraction } from "@/services/gameService";
 import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
+import FractionsManager from "./FractionsManager";
+import Image from "next/image";
 
 // Components
 import ImageUploadSection from "./game-form/ImageUploadSection";
 import GameFormFields from "./game-form/GameFormFields";
 import ProgressBar from "./game-form/ProgressBar";
-import { Location } from "@/services/locationService";
+import ModalHeader from "./modal/ModalHeader";
+import ModalFooter from "./modal/ModalFooter";
 
-// Default game data template with Date object
-const defaultGameData = {
+// Default game data template with Date object - обновлено для фракций
+const defaultGameData: Omit<Game, "_id"> = {
   name: "",
-  date: new Date(), // Use actual Date object instead of string
-  duration: 3, // Default to 3 hours
+  date: new Date(),
+  duration: 3,
   location: "",
-  coordinates: "",
   description: "",
-  detailedDescription: "", // Admin-only detailedDescription description
+  detailedDescription: "",
   image: "",
-  capacity: {
-    total: 30,
-    filled: 0,
-  },
+  fractions: [], // Используем только фракции, без capacity
   price: 25,
   isPast: false,
 };
@@ -57,17 +56,7 @@ export default function CreateGameModal({
   const handleInputChange = (e: MixedChangeEvent) => {
     const { name, value } = e.target;
 
-    if (name.includes(".")) {
-      // Handle nested properties (e.g., capacity.total)
-      const [parent, child] = name.split(".");
-      setNewGame((prev) => ({
-        ...prev,
-        [parent]: {
-          ...(prev as any)[parent],
-          [child]: parent === "capacity" ? parseInt(value, 10) || 0 : value,
-        },
-      }));
-    } else if (name === "price") {
+    if (name === "price") {
       setNewGame((prev) => ({
         ...prev,
         price: parseInt(value, 10) || 0,
@@ -79,7 +68,6 @@ export default function CreateGameModal({
         ...prev,
         date: new Date(value),
         isPast: isPastValue,
-        // Note: we no longer update endDate here because it will be calculated from duration
       }));
     } else if (name === "endDate") {
       // Update end date when it's changed (either manually or via duration)
@@ -124,6 +112,22 @@ export default function CreateGameModal({
     }));
   };
 
+  // Handle location selection
+  const handleLocationSelect = (locationId: string) => {
+    setNewGame((prev) => ({
+      ...prev,
+      location: locationId,
+    }));
+  };
+
+  // Handle fractions update
+  const handleFractionsChange = (updatedFractions: Fraction[]) => {
+    setNewGame((prev: any) => ({
+      ...prev,
+      fractions: updatedFractions,
+    }));
+  };
+
   // Create a new game using FormData to support file upload
   const handleCreateGame = async () => {
     setIsLoading(true);
@@ -157,20 +161,19 @@ export default function CreateGameModal({
       formData.append("name", newGame.name);
       formData.append("date", dateString);
       formData.append("duration", newGame.duration.toString());
-      formData.append("location", (newGame.location as Location)._id);
+      formData.append("location", typeof newGame.location === 'string' ? newGame.location : (newGame.location as any)._id);
       formData.append("description", newGame.description);
-
-      formData.append(
-        "detailedDescription",
-        newGame.detailedDescription as string
-      );
-
+      formData.append("detailedDescription", newGame.detailedDescription as string);
       formData.append("price", newGame.price.toString());
       formData.append("isPast", newGame.isPast.toString());
+      
+      // Всегда добавляем поле registrationLink, даже если оно пустое
+      formData.append("registrationLink", newGame.registrationLink || '');
 
-      // Append capacity as individual fields
-      formData.append("totalCapacity", newGame.capacity.total.toString());
-      formData.append("filledCapacity", newGame.capacity.filled.toString());
+      // Add fractions as JSON string
+      if (newGame.fractions && newGame.fractions.length > 0) {
+        formData.append("fractions", JSON.stringify(newGame.fractions));
+      }
 
       // Image handling
       if (imageFile) {
@@ -210,48 +213,55 @@ export default function CreateGameModal({
     }
   };
 
+  const createIcon = (
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+      />
+    </svg>
+  );
+
+  const loadingIcon = (
+    <svg
+      className="animate-spin h-4 w-4 mr-2"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+  );
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-gray-800 to-gray-700 p-6 border-b border-gray-700 flex justify-between items-center">
-          <h3 className="text-xl font-bold text-white flex items-center">
-            <svg
-              className="w-5 h-5 mr-2 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            Create New Game
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-            disabled={isLoading}
-            aria-label="Close"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+        <ModalHeader 
+          title="Create New Game"
+          icon={createIcon}
+          onClose={onClose}
+          isLoading={isLoading}
+        />
 
         <div className="p-6">
           {isLoading && (
@@ -264,12 +274,44 @@ export default function CreateGameModal({
           )}
 
           <div className="grid grid-cols-1 gap-6">
-            {/* Game form fields (now grouped) */}
             <GameFormFields
               game={newGame}
               onChange={handleInputChange}
               isLoading={isLoading}
+              onLocationSelect={handleLocationSelect}
             />
+            
+            {/* Fractions Manager with new approach */}
+            <div className="bg-gray-750 p-5 rounded-lg border border-gray-700">
+              <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                Game Factions
+              </h3>
+              
+              <div className="bg-gray-800/50 p-4 mb-4 rounded border border-gray-700/50">
+                <p className="text-sm text-gray-300">
+                  Add factions to this game and specify their capacities. Players will be able to choose which faction to join.
+                </p>
+              </div>
+              
+              <FractionsManager 
+                fractions={newGame.fractions || []}
+                onChange={handleFractionsChange}
+                isLoading={isLoading}
+              />
+            </div>
 
             {/* Image upload section */}
             <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
@@ -305,66 +347,16 @@ export default function CreateGameModal({
             show={isLoading && uploadProgress > 0}
           />
 
-          <div className="flex gap-3 justify-end mt-6 sticky bottom-0 pt-4 bg-gradient-to-t from-gray-800 to-transparent">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-md transition-colors flex items-center"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleCreateGame}
-              disabled={isLoading}
-              className={`bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition-colors flex items-center
-                ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
-            >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="animate-spin h-4 w-4 mr-2"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-5 h-5 mr-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    />
-                  </svg>
-                  Create Game
-                </>
-              )}
-            </button>
-          </div>
+          {/* Footer with action buttons */}
+          <ModalFooter
+            onCancel={onClose}
+            onConfirm={handleCreateGame}
+            isLoading={isLoading}
+            confirmLabel="Create Game"
+            confirmIcon={<span className="w-5 h-5 mr-1">{createIcon}</span>}
+            loadingLabel="Creating..."
+            loadingIcon={loadingIcon}
+          />
         </div>
       </div>
     </div>

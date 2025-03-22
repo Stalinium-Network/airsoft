@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { FaSignOutAlt, FaHome, FaImages, FaCalendarAlt, FaUsers, FaBars, FaTimes } from 'react-icons/fa';
 import useAdminAuth from '@/hooks/useAdminAuth';
 
@@ -13,7 +13,26 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { userEmail, logout } = useAdminAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathname = usePathname();
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Hide main navigation when admin pages load
+  useEffect(() => {
+    // Find the main navigation element and hide it
+    const mainNavigation = document.getElementById('navigation');
+    if (mainNavigation) {
+      mainNavigation.style.display = 'none';
+    }
+
+    // Cleanup - restore navigation when component unmounts
+    return () => {
+      const mainNavigation = document.getElementById('navigation');
+      if (mainNavigation) {
+        mainNavigation.style.display = '';
+      }
+    };
+  }, []);
 
   // For small screens, close sidebar when a link is clicked
   const handleNavClick = (path: string) => {
@@ -21,66 +40,130 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     router.push(path);
   };
 
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('adminToken');
+      router.push('/admin');
+    }
+  };
+
+  const navItems = [
+    { label: 'Games', href: '/admin/console' },
+    { label: 'Gallery', href: '/admin/gallery' },
+    { label: 'Locations', href: '/admin/locations' },
+    { label: 'Fractions', href: '/admin/fractions' },
+  ];
+
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-100">
-      {/* Mobile sidebar toggle */}
-      <div className="lg:hidden fixed bottom-2 right-2 z-30">
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 rounded-md bg-gray-800 text-gray-200"
-        >
-          {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-        </button>
-      </div>
-
-      {/* Sidebar - responsive */}
-      <div className={`
-        fixed inset-y-0 left-0 z-20 w-64 bg-gray-800 transform transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-        lg:translate-x-0 lg:static lg:z-10 pt-12 
-      `}>
-        <div className="flex flex-col h-full">
-          {/* Admin header */}
-          <div className="px-6 py-4 border-b border-gray-700">
-            <h2 className="text-2xl font-bold text-green-500">Admin Panel</h2>
-            {userEmail && <p className="text-sm text-gray-400">{userEmail}</p>}
+    <div className="min-h-screen bg-gray-900 text-white">
+      <nav className="bg-gray-800 border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <span className="text-green-500 font-bold">Admin Console</span>
+              </div>
+              <div className="hidden md:block">
+                <div className="ml-10 flex items-baseline space-x-4">
+                  {/* Add back to site link */}
+                  <Link
+                    href="/"
+                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center"
+                  >
+                    <FaHome className="mr-1.5 text-green-500" />
+                    Back to Site
+                  </Link>
+                  
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`px-3 py-2 rounded-md text-sm font-medium ${
+                        pathname === item.href
+                          ? 'bg-gray-900 text-white'
+                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="hidden md:block">
+              <button
+                onClick={handleLogout}
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              >
+                Log Out
+              </button>
+            </div>
+            <div className="-mr-2 flex md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+              >
+                <span className="sr-only">Open main menu</span>
+                <svg
+                  className={`${isMenuOpen ? 'hidden' : 'block'} h-6 w-6`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg
+                  className={`${isMenuOpen ? 'block' : 'hidden'} h-6 w-6`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
+        </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
-            <NavLink href="/admin" icon={<FaHome />} label="Dashboard" onClick={() => handleNavClick('/admin')} />
-            <NavLink href="/admin/gallery" icon={<FaImages />} label="Gallery" onClick={() => handleNavClick('/admin/gallery')} />
-            <NavLink href="/admin/console" icon={<FaCalendarAlt />} label="Events" onClick={() => handleNavClick('/admin/console')} />
-            <NavLink href="/admin/users" icon={<FaUsers />} label="Users" onClick={() => handleNavClick('/admin/users')} />
-          </nav>
-
-          {/* Logout button */}
-          <div className="p-4 border-t border-gray-700">
-            <button
-              onClick={logout}
-              className="flex w-full items-center px-4 py-2 rounded-md text-gray-300 hover:bg-gray-700 transition-colors"
+        <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {/* Add back to site link in mobile menu */}
+            <Link
+              href="/"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center"
             >
-              <FaSignOutAlt className="mr-3" />
-              Logout
+              <FaHome className="mr-1.5 text-green-500" />
+              Back to Site
+            </Link>
+            
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  pathname === item.href
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+            <button
+              onClick={handleLogout}
+              className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+            >
+              Log Out
             </button>
           </div>
         </div>
-      </div>
+      </nav>
 
-      {/* Main content */}
-      <div className="flex-1 overflow-y-auto bg-gray-900">
-        {/* Overlay for mobile sidebar */}
-        {isSidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          ></div>
-        )}
-        
-        <main className="flex-1 py-6">
-          {children}
-        </main>
-      </div>
+      <main>{children}</main>
     </div>
   );
 }

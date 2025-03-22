@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Game } from "@/services/gameService";
+import { Game, Fraction } from "@/services/gameService";
 import { formatDateTime } from "@/utils/time-format";
 import { Location } from "@/services/locationService";
 
@@ -20,6 +20,18 @@ export default function GameList({
   onEditGame,
   onDeleteGame,
 }: GameListProps) {
+  // Calculate total capacity from fractions
+  const getCapacityInfo = (game: Game) => {
+    if (!game.fractions || game.fractions.length === 0) {
+      return { total: 0, filled: 0 };
+    }
+    
+    const total = game.fractions.reduce((sum, fraction) => sum + fraction.capacity, 0);
+    const filled = game.fractions.reduce((sum, fraction) => sum + fraction.filled, 0);
+    
+    return { total, filled };
+  };
+
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-8">
       <div className="flex justify-between items-center mb-6">
@@ -62,70 +74,95 @@ export default function GameList({
 
       {/* Game cards grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {games.map((game) => (
-          <div
-            key={game._id}
-            className="bg-gray-700 rounded-lg overflow-hidden shadow-lg border border-gray-600"
-          >
-            {/* Game image */}
-            <div className="h-40 relative">
-              <Image
-                src={process.env.NEXT_PUBLIC_IMAGES_URL + game.image}
-                alt={game.name}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-3">
-                <h3 className="text-lg font-semibold text-white">
-                  {game.name}
-                </h3>
-                <p className="text-sm text-gray-300">
-                  {formatDateTime(game.date)}
-                </p>
-              </div>
-            </div>
-
-            {/* Game info */}
-            <div className="p-4">
-              <div className="mb-3">
-                <span className="text-xs font-medium bg-gray-600 text-gray-300 px-2 py-1 rounded">
-                  {game.isPast ? "Past Event" : "Upcoming"}
-                </span>
-                <span className="text-xs font-medium bg-green-600 text-white px-2 py-1 rounded ml-2">
-                  ${game.price}
-                </span>
-              </div>
-
-              <p className="text-sm text-gray-400 mb-2 line-clamp-2">
-                {game.description}
-              </p>
-
-              <div className="text-xs text-gray-400 mb-3">
-                <div>Location: {(game.location as Location)._id}</div>
-                <div>
-                  Capacity: {game.capacity.filled}/{game.capacity.total}
+        {games.map((game) => {
+          const { total, filled } = getCapacityInfo(game);
+          
+          return (
+            <div
+              key={game._id}
+              className="bg-gray-700 rounded-lg overflow-hidden shadow-lg border border-gray-600"
+            >
+              {/* Game image */}
+              <div className="h-40 relative">
+                <Image
+                  src={process.env.NEXT_PUBLIC_IMAGES_URL + game.image}
+                  alt={game.name}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 p-3">
+                  <h3 className="text-lg font-semibold text-white">
+                    {game.name}
+                  </h3>
+                  <p className="text-sm text-gray-300">
+                    {formatDateTime(game.date)}
+                  </p>
                 </div>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onEditGame(game)}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded text-sm"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDeleteGame(game._id)}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-1.5 rounded text-sm"
-                >
-                  Delete
-                </button>
+              {/* Game info */}
+              <div className="p-4">
+                <div className="mb-3">
+                  <span className="text-xs font-medium bg-gray-600 text-gray-300 px-2 py-1 rounded">
+                    {game.isPast ? "Past Event" : "Upcoming"}
+                  </span>
+                  <span className="text-xs font-medium bg-green-600 text-white px-2 py-1 rounded ml-2">
+                    ${game.price}
+                  </span>
+                </div>
+
+                <p className="text-sm text-gray-400 mb-2 line-clamp-2">
+                  {game.description}
+                </p>
+
+                <div className="text-xs text-gray-400 mb-3">
+                  <div>
+                    Location:{" "}
+                    {typeof game.location === "string"
+                      ? game.location
+                      : (game.location as Location)._id}
+                  </div>
+
+                  {/* Fractions information */}
+                  <div>
+                    {game.fractions && game.fractions.length > 0 ? (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span>Total Capacity:</span>
+                          <span>{filled}/{total}</span>
+                        </div>
+                        <div className="mt-1">
+                          <span className="text-xs text-gray-500">
+                            Fractions: {game.fractions.length}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div>No fractions defined</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onEditGame(game)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDeleteGame(game._id)}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-1.5 rounded text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

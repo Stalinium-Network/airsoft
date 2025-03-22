@@ -13,12 +13,14 @@ interface GameFormFieldsProps {
   game: Partial<Game>;
   onChange: (e: MixedChangeEvent) => void;
   isLoading?: boolean;
+  onLocationSelect?: (locationId: string) => void; // Add this property to fix type errors
 }
 
 export default function GameFormFields({
   game,
   onChange,
-  isLoading = false
+  isLoading = false,
+  onLocationSelect // Add this to the component props
 }: GameFormFieldsProps) {
   // Converting date format for datetime-local input - automatically call when input renders
   const [startDate, setStartDate] = useState<string>(formatDateForInput(game.date || new Date()));
@@ -43,6 +45,11 @@ export default function GameFormFields({
 
   // Handle location change which could be a string or object
   const handleLocationChange = (location: any) => {
+    // If onLocationSelect prop is provided, call it
+    if (onLocationSelect) {
+      onLocationSelect(location);
+    }
+    
     // Create a synthetic event object that matches the expected format
     const syntheticEvent = {
       target: {
@@ -133,6 +140,23 @@ export default function GameFormFields({
               required
             />
           </div>
+          
+          {/* Registration Link field - новое поле */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Registration Link
+              <span className="text-xs text-gray-500 ml-2">(URL for player registration)</span>
+            </label>
+            <input
+              type="text"
+              name="registrationLink"
+              value={game.registrationLink || ''}
+              onChange={handleChange}
+              placeholder="https://example.com/register?gameId=123"
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              disabled={isLoading}
+            />
+          </div>
         </div>
       </div>
         
@@ -151,53 +175,6 @@ export default function GameFormFields({
           onChange={handleLocationChange}
           isLoading={isLoading}
         />
-      </div>
-      
-      {/* 3. Capacity Information */}
-      <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
-        <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          Capacity
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Total capacity field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Total Capacity <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              name="capacity.total"
-              min="1"
-              max="1000"
-              value={game.capacity?.total || ''}
-              onChange={handleChange}
-              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              disabled={isLoading}
-              required
-            />
-          </div>
-          
-          {/* Current registrations field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Current Registrations
-            </label>
-            <input
-              type="number"
-              name="capacity.filled"
-              min="0"
-              max={game.capacity?.total || 1000}
-              value={game.capacity?.filled || ''}
-              onChange={handleChange}
-              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              disabled={isLoading}
-            />
-          </div>
-        </div>
       </div>
       
       {/* 4. Description Information */}

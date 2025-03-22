@@ -8,6 +8,8 @@ interface RegisterButtonProps {
   gameName: string;
   isPast: boolean;
   isFull: boolean;
+  hasFractions?: boolean;
+  registrationLink?: string; // Добавлено новое поле
   className?: string;
 }
 
@@ -15,16 +17,20 @@ export default function RegisterButton({
   gameId, 
   gameName, 
   isPast, 
-  isFull, 
+  isFull,
+  hasFractions = false,
+  registrationLink = '', // Добавляем значение по умолчанию
   className = '' 
 }: RegisterButtonProps) {
   const router = useRouter();
   const [shareMessage, setShareMessage] = useState('');
   
   const handleRegister = () => {
-    // Implement registration logic
-    // For now, navigate to registration page with gameId
-    router.push(`/registration/${gameId}?name=${encodeURIComponent(gameName)}`);
+    // Проверяем, что ссылка существует и перенаправляем только если она есть
+    if (registrationLink) {
+      window.open(registrationLink, '_blank');
+    }
+    // Убираем перенаправление на страницу деталей, если ссылки нет
   };
   
   const handleShare = async () => {
@@ -72,6 +78,7 @@ export default function RegisterButton({
         <button 
           onClick={handleRegister}
           className={`${baseClasses} bg-yellow-600 hover:bg-yellow-700 text-white group w-full`}
+          disabled={!registrationLink}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
@@ -79,6 +86,17 @@ export default function RegisterButton({
           </svg>
           You can still register
         </button>
+      );
+    } else if (!registrationLink) {
+      // Новый случай: нет ссылки регистрации
+      registerButton = (
+        <div className={`${baseClasses} bg-gray-600 text-gray-400 cursor-not-allowed w-full`}>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Registration Unavailable
+        </div>
       );
     } else {
       registerButton = (

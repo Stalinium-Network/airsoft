@@ -31,8 +31,6 @@ export const publicApi = {
   getGames: () => api.get('/games'),
   getLocations: () => api.get('/locations'),
   getLocation: (id: string) => api.get(`/locations/${id}`),
-  getFractions: () => api.get('/fractions'),
-  getFraction: (id: string) => api.get(`/fractions/${id}`)
 };
 
 // Admin-specific API methods
@@ -87,7 +85,7 @@ export const adminApi = {
     });
   },
   deleteFraction: (id: string) => api.delete(`/admin/delete-fraction/${id}`),
-
+  
   // Authentication
   verifyToken: () => api.get('/admin/verify-token'),
 };

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Game } from "@/services/gameService";
+import { Fraction, Game } from "@/services/gameService";
 import { formatDateTime } from "@/utils/time-format";
 import RegisterButton from "./RegisterButton";
 
@@ -60,11 +60,27 @@ export default function GameList({ pastGames, upcomingGames }: GameListProps) {
 
 function GameCard({ game }: { game: Game }) {
   const router = useRouter();
-  const percentFilled = Math.round(
-    (game.capacity.filled / game.capacity.total) * 100
-  );
-  const spotsLeft = game.capacity.total - game.capacity.filled;
-  const isFull = spotsLeft <= 0;
+  
+  // Calculate total capacity and filled spots using fractions
+  const getTotalCapacity = () => {
+    // If using new fractions structure
+    if (game.fractions && game.fractions.length > 0) {
+      const total = game.fractions.reduce((sum, fraction) => sum + fraction.capacity, 0);
+      const filled = game.fractions.reduce((sum, fraction) => sum + fraction.filled, 0);
+      return {
+        total,
+        filled,
+        percentFilled: Math.round((filled / total) * 100),
+        spotsLeft: total - filled
+      };
+    }
+    
+    // Fallback
+    return { total: 0, filled: 0, percentFilled: 0, spotsLeft: 0 };
+  };
+  
+  const capacity = getTotalCapacity();
+  const isFull = capacity.spotsLeft <= 0;
 
   // Helper to get location data
   const getLocationInfo = () => {
@@ -153,7 +169,7 @@ function GameCard({ game }: { game: Game }) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              d="M15 11a3 3 0 11-6 0 3 3 0z"
             />
           </svg>
           <span className="text-gray-300">{location.name}</span>
@@ -167,14 +183,15 @@ function GameCard({ game }: { game: Game }) {
           {game.description}
         </button>
 
+        {/* Fractions & Capacity section */}
         <div className="mb-5">
           <div className="flex justify-between text-sm mb-1">
             <span className="text-gray-400">Capacity</span>
             <span className="text-green-500">
-              {game.capacity.filled}/{game.capacity.total}
-              {!game.isPast && spotsLeft > 0 && (
+              {capacity.filled}/{capacity.total}
+              {!game.isPast && capacity.spotsLeft > 0 && (
                 <span className="ml-1 text-green-400">
-                  ({spotsLeft} spots left)
+                  ({capacity.spotsLeft} spots left)
                 </span>
               )}
             </span>
@@ -182,15 +199,46 @@ function GameCard({ game }: { game: Game }) {
           <div className="w-full bg-gray-700 rounded-full h-2.5">
             <div
               className={`h-2.5 rounded-full ${
-                percentFilled < 30
+                capacity.percentFilled < 30
                   ? "bg-green-500"
-                  : percentFilled < 70
+                  : capacity.percentFilled < 70
                   ? "bg-yellow-500"
                   : "bg-red-500"
               }`}
-              style={{ width: `${percentFilled}%` }}
+              style={{ width: `${capacity.percentFilled}%` }}
             ></div>
           </div>
+          
+          {/* Show fractions if available */}
+          {game.fractions && game.fractions.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm text-gray-400">Fractions:</p>
+              <div className="grid grid-cols-1 gap-2">
+                {game.fractions.map((fraction) => (
+                  <div key={fraction._id} className="flex items-center justify-between text-xs">
+                    <span className="text-gray-300">{fraction._id}</span>
+                    <div className="flex items-center">
+                      <span className="text-green-400 mr-2">
+                        {fraction.filled}/{fraction.capacity}
+                      </span>
+                      <div className="w-16 bg-gray-700 rounded-full h-1.5">
+                        <div
+                          className={`h-1.5 rounded-full ${
+                            fraction.filled / fraction.capacity < 0.3
+                              ? "bg-green-500"
+                              : fraction.filled / fraction.capacity < 0.7
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
+                          }`}
+                          style={{ width: `${(fraction.filled / fraction.capacity) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Registration button */}
@@ -227,6 +275,8 @@ function GameCard({ game }: { game: Game }) {
               gameName={game.name}
               isPast={game.isPast}
               isFull={isFull}
+              hasFractions={game.fractions && game.fractions.length > 0}
+              registrationLink={game.registrationLink} // Передаем новое поле
               className="w-full"
             />
           )}
