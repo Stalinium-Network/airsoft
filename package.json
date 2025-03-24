@@ -6,9 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "bun dev/unused.ts"
   },
   "dependencies": {
+    "@next/bundle-analyzer": "^15.2.3",
     "axios": "^1.6.0",
     "browser-image-compression": "^2.0.2",
     "framer-motion": "^12.4.7",
@@ -31,7 +33,12 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@typescript-eslint/parser": "^8.27.0",
+    "eslint": "^9.23.0",
+    "eslint-config-next": "^15.2.3",
+    "eslint-plugin-unused-imports": "^4.1.4",
     "tailwindcss": "^4",
+    "ts-unused-exports": "^11.0.1",
     "typescript": "^5"
   }
 }

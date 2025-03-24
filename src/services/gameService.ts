@@ -14,6 +14,7 @@ export interface GameFraction extends Fraction {
   capacity: number;
   filled: number;
   registrationLink?: string; // Скрыто, но оставлено для будущего использования
+  details: string; // Дополнительные детали фракции, например детали того что будет делать фракция в игре
 }
 
 export interface Game {

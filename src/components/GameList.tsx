@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,9 @@ interface GameListProps {
 export default function GameList({ pastGames, upcomingGames }: GameListProps) {
   const [filter, setFilter] = useState<"upcoming" | "past">("upcoming");
 
-  const filteredGames = filter === "upcoming" ? upcomingGames : pastGames;
+  const handleFilterChange = (newFilter: "upcoming" | "past") => {
+    setFilter(newFilter);
+  };
 
   return (
     <motion.div
@@ -27,33 +29,58 @@ export default function GameList({ pastGames, upcomingGames }: GameListProps) {
       viewport={{ once: true }}
     >
       <div className="flex justify-center mb-8">
-        <div className="bg-gray-800 p-1 rounded-lg inline-flex">
+        <div className="bg-gray-800 p-1 rounded-lg inline-flex relative">
+          {/* Animated background pill */}
+          <motion.div
+            className="absolute inset-y-1 rounded-md bg-green-500 z-0"
+            initial={false}
+            animate={{
+              x: filter === "upcoming" ? 0 : "100%",
+              width: "50%",
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+          
           <button
-            className={`px-6 py-2 rounded-md transition-all ${
-              filter === "upcoming"
-                ? "bg-green-500 text-gray-900"
-                : "text-gray-300"
+            className={`px-6 py-2 rounded-md transition-all relative z-10 text-center w-30 ${
+              filter === "upcoming" ? "text-gray-900 font-medium" : "text-gray-300"
             }`}
-            onClick={() => setFilter("upcoming")}
+            onClick={() => handleFilterChange("upcoming")}
           >
             Upcoming
           </button>
           <button
-            className={`px-6 py-2 rounded-md transition-all ${
-              filter === "past" ? "bg-green-500 text-gray-900" : "text-gray-300"
+            className={`px-6 py-2 rounded-md transition-all relative z-10 text-center w-30 ${
+              filter === "past" ? "text-gray-900 font-medium" : "text-gray-300"
             }`}
-            onClick={() => setFilter("past")}
+            onClick={() => handleFilterChange("past")}
           >
             Past
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
-        {filteredGames.map((game) => (
-          <GameCard key={game._id} game={game} />
-        ))}
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={filter}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4"
+        >
+          {(filter === "upcoming" ? upcomingGames : pastGames).map((game) => (
+            <motion.div
+              key={game._id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <GameCard game={game} />
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -169,7 +196,7 @@ function GameCard({ game }: { game: Game }) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M15 11a3 3 0 11-6 0 3 3 0z"
+              d="M15 11a3 3 0 11-6 0 3 3z"
             />
           </svg>
           <span className="text-gray-300">{location.name}</span>
@@ -258,7 +285,7 @@ function GameCard({ game }: { game: Game }) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M15 12a3 3 0 11-6 0 3 3 0z"
+                  d="M15 12a3 3 0 11-6 0 3 3z"
                 />
                 <path
                   strokeLinecap="round"

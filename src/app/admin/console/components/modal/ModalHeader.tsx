@@ -16,14 +16,14 @@ export default function ModalHeader({
   color = 'text-green-500'
 }: ModalHeaderProps) {
   return (
-    <div className="sticky top-0 z-10 bg-gradient-to-r from-gray-800 to-gray-700 p-6 border-b border-gray-700 flex justify-between items-center">
+    <div className="sticky top-0 z-10 bg-gradient-to-r from-gray-800 to-gray-700 p-4 sm:p-6 border-b border-gray-700 flex justify-between items-center">
       <h3 className="text-xl font-bold text-white flex items-center">
         <span className={`mr-2 ${color}`}>{icon}</span>
-        {title}
+        <span className="truncate">{title}</span>
       </h3>
       <button
         onClick={onClose}
-        className="text-gray-400 hover:text-white transition-colors"
+        className="text-gray-400 hover:text-white transition-colors p-1"
         disabled={isLoading}
         aria-label="Close"
       >

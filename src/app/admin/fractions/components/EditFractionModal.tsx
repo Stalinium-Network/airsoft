@@ -208,7 +208,7 @@ export default function EditFractionModal({
       <div className="bg-gray-800 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
         {/* Header */}
         <ModalHeader 
-          title={`Edit Fraction: ${fraction._id}`}
+          title={`Edit: ${fraction._id}`}
           icon={editIcon}
           onClose={onClose}
           isLoading={isLoading}

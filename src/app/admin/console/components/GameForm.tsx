@@ -95,9 +95,6 @@ export default function GameList({
           {games.map((game) => {
             const { total, filled } = getCapacityInfo(game);
             
-            // Check if any fraction has details
-            const hasFractionDetails = game.fractions?.some(f => !!f.details);
-            
             return (
               <motion.div
                 key={game._id}
@@ -157,18 +154,10 @@ export default function GameList({
                             <span>Total Capacity:</span>
                             <span>{filled}/{total}</span>
                           </div>
-                          <div className="mt-1 flex items-center justify-between">
+                          <div className="mt-1">
                             <span className="text-xs text-gray-500">
                               Fractions: {game.fractions.length}
                             </span>
-                            {hasFractionDetails && (
-                              <span className="text-xs text-green-500 flex items-center">
-                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                With details
-                              </span>
-                            )}
                           </div>
                         </>
                       ) : (

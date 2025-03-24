@@ -253,7 +253,7 @@ export default function CreateGameModal({
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-2 z-50">
       <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
         {/* Header */}
         <ModalHeader 
@@ -263,7 +263,7 @@ export default function CreateGameModal({
           isLoading={isLoading}
         />
 
-        <div className="p-6">
+        <div className="p-4 sm:p-2">
           {isLoading && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
               <div className="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
@@ -282,7 +282,7 @@ export default function CreateGameModal({
             />
             
             {/* Fractions Manager with new approach */}
-            <div className="bg-gray-750 p-5 rounded-lg border border-gray-700">
+            <div className="bg-gray-750 p-3 rounded-lg border border-gray-700">
               <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
                 <svg
                   className="w-5 h-5 mr-2"

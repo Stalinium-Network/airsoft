@@ -65,14 +65,14 @@ export default function FractionSelector({
       {selectedFractions.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-md font-medium text-blue-400">Selected Factions</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             {selectedFractions.map(fraction => (
               <div 
                 key={fraction._id} 
                 className="flex items-center gap-3 bg-gray-700 p-3 rounded-lg border border-gray-600 group"
               >
                 {fraction.image && (
-                  <div className="w-12 h-12 relative flex-shrink-0 rounded-md overflow-hidden bg-gray-800">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 relative flex-shrink-0 rounded-md overflow-hidden bg-gray-800">
                     <Image 
                       src={`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${fraction.image}`}
                       alt={fraction.name || fraction._id}
@@ -108,7 +108,7 @@ export default function FractionSelector({
       <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
         <h4 className="text-md font-medium text-green-400 mb-3">Add Faction</h4>
         
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <select
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}
@@ -126,7 +126,7 @@ export default function FractionSelector({
           <button
             onClick={handleAddFraction}
             disabled={!selectedId || isLoading}
-            className={`px-4 py-2 rounded-md font-medium ${
+            className={`px-4 py-2 rounded-md font-medium sm:w-auto w-full ${
               !selectedId
                 ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                 : 'bg-green-600 hover:bg-green-700 text-white'

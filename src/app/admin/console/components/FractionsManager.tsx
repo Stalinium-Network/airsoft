@@ -1,32 +1,99 @@
-import React, { useState } from 'react';
-import { GameFraction } from '@/services/gameService';
-import FractionSelector from './FractionSelector';
+"use client";
+import { useState, useEffect } from "react";
+import { Fraction, GameFraction } from "@/services/gameService";
+import { adminApi } from "@/utils/api";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image';
 
 interface FractionsManagerProps {
   fractions: GameFraction[];
   onChange: (fractions: GameFraction[]) => void;
-  isLoading?: boolean;
+  isLoading: boolean;
 }
 
-export default function FractionsManager({ fractions, onChange, isLoading = false }: FractionsManagerProps) {
-  // Add a selected fraction to the game
-  const handleAddFraction = (fraction: GameFraction) => {
-    onChange([...fractions, fraction]);
+export default function FractionsManager({
+  fractions,
+  onChange,
+  isLoading,
+}: FractionsManagerProps) {
+  const [availableFractions, setAvailableFractions] = useState<Fraction[]>([]);
+  const [selectedFractionId, setSelectedFractionId] = useState<string>("");
+  const [isLoadingFractions, setIsLoadingFractions] = useState(false);
+
+  // Fetch available fractions on component mount
+  useEffect(() => {
+    fetchFractions();
+  }, []);
+
+  const fetchFractions = async () => {
+    try {
+      setIsLoadingFractions(true);
+      const response = await adminApi.getFractions();
+      setAvailableFractions(response.data);
+    } catch (error) {
+      console.error("Error fetching fractions:", error);
+    } finally {
+      setIsLoadingFractions(false);
+    }
   };
 
-  // Remove a fraction from the game
-  const handleRemoveFraction = (fractionId: string) => {
-    onChange(fractions.filter(f => f._id !== fractionId));
-  };
+  // Handle adding a fraction to the game
+  const handleAddFraction = () => {
+    if (!selectedFractionId || isLoading) return;
 
-  // Update a fraction's capacity, filled or registrationLink values
-  const handleUpdateFraction = (index: number, field: 'capacity' | 'filled' | 'registrationLink', value: number | string) => {
-    const updatedFractions = [...fractions];
-    updatedFractions[index] = {
-      ...updatedFractions[index],
-      [field]: value
+    // Find the selected fraction from available fractions
+    const fractionToAdd = availableFractions.find(
+      (f) => f._id === selectedFractionId
+    );
+
+    if (!fractionToAdd) return;
+
+    // Check if fraction is already added
+    const isAlreadyAdded = fractions.some((f) => f._id === fractionToAdd._id);
+    if (isAlreadyAdded) return;
+
+    // Create a new GameFraction by adding game-specific fields to the base Fraction
+    const newGameFraction: GameFraction = {
+      ...fractionToAdd,
+      capacity: 20, // Default capacity
+      filled: 0, // Default filled (starts empty)
+      details: "", // Добавляем пустое поле details для каждой новой фракции
     };
+
+    // Update fractions array
+    const updatedFractions = [...fractions, newGameFraction];
+    onChange(updatedFractions);
+
+    // Reset selection
+    setSelectedFractionId("");
+  };
+
+  // Handle removing a fraction from the game
+  const handleRemoveFraction = (fractionId: string) => {
+    if (isLoading) return;
+    
+    const updatedFractions = fractions.filter((f) => f._id !== fractionId);
+    onChange(updatedFractions);
+  };
+
+  // Handle updating a fraction's capacity and filled count
+  const handleFractionChange = (
+    fractionId: string,
+    field: "capacity" | "filled" | "details" | "registrationLink",
+    value: any
+  ) => {
+    if (isLoading) return;
+    
+    const updatedFractions = fractions.map((fraction) => {
+      if (fraction._id === fractionId) {
+        return {
+          ...fraction,
+          [field]: field === "capacity" || field === "filled" ? parseInt(value, 10) || 0 : value,
+        };
+      }
+      return fraction;
+    });
+    
     onChange(updatedFractions);
   };
 
@@ -36,132 +103,205 @@ export default function FractionsManager({ fractions, onChange, isLoading = fals
 
   return (
     <div className="space-y-6">
-      {/* Faction selection area */}
-      <FractionSelector
-        selectedFractions={fractions}
-        onSelect={handleAddFraction}
-        onRemove={handleRemoveFraction}
-        isLoading={isLoading}
-      />
-      
-      {/* Capacity management area */}
-      {fractions.length > 0 && (
-        <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
-          <h3 className="text-md font-medium text-green-400 mb-4">Faction Capacities</h3>
-          
-          {/* Summary */}
-          <div className="flex justify-between text-sm bg-gray-700/50 p-3 rounded mb-4">
-            <span className="text-gray-300">Total Capacity: <span className="text-white font-medium">{totalCapacity}</span></span>
-            <span className="text-gray-300">Total Filled: <span className="text-white font-medium">{totalFilled}</span></span>
-            <span className="text-gray-300">Remaining: <span className="text-green-400 font-medium">{totalCapacity - totalFilled}</span></span>
-          </div>
-          
-          {/* Capacity editing interface */}
-          <div className="overflow-hidden rounded-lg border border-gray-700">
-            <table className="min-w-full divide-y divide-gray-700">
-              <thead className="bg-gray-800">
-                <tr>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Faction
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Capacity
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Filled
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Available
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-gray-700 divide-y divide-gray-600">
-                {fractions.map((fraction, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-750' : 'bg-gray-700'}>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {fraction.image && (
-                          <div className="flex-shrink-0 h-8 w-8 mr-3 relative">
-                            <Image
-                              src={`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${fraction.image}`}
-                              alt={fraction.name || fraction._id}
-                              fill
-                              className="rounded-md object-cover"
-                            />
-                          </div>
-                        )}
-                        <div className="text-sm font-medium text-white">{fraction.name || fraction._id}</div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <input
-                        type="number"
-                        min="1"
-                        value={fraction.capacity}
-                        onChange={(e) => handleUpdateFraction(index, 'capacity', parseInt(e.target.value) || 0)}
-                        className="w-20 bg-gray-600 border border-gray-500 rounded px-2 py-1 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        disabled={isLoading}
+      {/* Fraction selection dropdown */}
+      <div className="flex items-center mb-4">
+        <div className="flex-grow mr-2">
+          <select
+            className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+            value={selectedFractionId}
+            onChange={(e) => setSelectedFractionId(e.target.value)}
+            disabled={isLoading || isLoadingFractions}
+          >
+            <option value="">Select a fraction to add...</option>
+            {availableFractions
+              .filter(
+                (f) => !fractions.some((added) => added._id === f._id)
+              )
+              .map((fraction) => (
+                <option key={fraction._id} value={fraction._id}>
+                  {fraction.name || fraction._id}
+                </option>
+              ))}
+          </select>
+        </div>
+        <button
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md disabled:opacity-50"
+          onClick={handleAddFraction}
+          disabled={!selectedFractionId || isLoading || isLoadingFractions}
+        >
+          Add
+        </button>
+      </div>
+
+      {/* Fractions list */}
+      <div className="space-y-4">
+        <AnimatePresence>
+          {fractions.length === 0 ? (
+            <div className="text-center py-3 text-gray-400 italic">
+              No fractions added yet. Add a fraction to get started.
+            </div>
+          ) : (
+            fractions.map((fraction, index) => (
+              <motion.div
+                key={fraction._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="bg-gray-700 rounded-lg p-4 border border-gray-600"
+              >
+                <div className="flex justify-between items-start">
+                  <h4 className="font-medium text-lg">
+                    {fraction.name || fraction._id}
+                  </h4>
+                  <button
+                    onClick={() => handleRemoveFraction(fraction._id)}
+                    className="text-red-400 hover:text-red-300"
+                    disabled={isLoading}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
                       />
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <input
-                        type="number"
-                        min="0"
-                        max={fraction.capacity}
-                        value={fraction.filled}
-                        onChange={(e) => handleUpdateFraction(index, 'filled', parseInt(e.target.value) || 0)}
-                        className="w-20 bg-gray-600 border border-gray-500 rounded px-2 py-1 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        disabled={isLoading}
-                      />
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        fraction.capacity - fraction.filled > 0 
-                          ? 'bg-green-900/40 text-green-400' 
-                          : 'bg-red-900/40 text-red-400'
-                      }`}>
-                        {fraction.capacity - fraction.filled}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Registration links section - скрыта, но код сохранен */}
-          <div className="mt-6 hidden">
-            <h4 className="text-md font-medium text-green-400 mb-4">Registration Links</h4>
-            <div className="space-y-3">
-              {fractions.map((fraction, index) => (
-                <div key={index} className="bg-gray-700 p-3 rounded-lg border border-gray-600">
-                  <div className="flex items-center mb-2">
-                    {fraction.image && (
-                      <div className="flex-shrink-0 h-6 w-6 mr-2 relative">
-                        <Image
-                          src={`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${fraction.image}`}
-                          alt={fraction.name || fraction._id}
-                          fill
-                          className="rounded-md object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="text-sm font-medium text-white">{fraction.name || fraction._id}</div>
+                    </svg>
+                  </button>
+                </div>
+
+                {fraction.shortDescription && (
+                  <p className="text-sm text-gray-400 mt-1 mb-3">
+                    {fraction.shortDescription}
+                  </p>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
+                      Capacity
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={fraction.capacity}
+                      onChange={(e) =>
+                        handleFractionChange(
+                          fraction._id,
+                          "capacity",
+                          e.target.value
+                        )
+                      }
+                      className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
+                      disabled={isLoading}
+                    />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">
+                      Filled Spots
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max={fraction.capacity}
+                      value={fraction.filled}
+                      onChange={(e) =>
+                        handleFractionChange(
+                          fraction._id,
+                          "filled",
+                          e.target.value
+                        )
+                      }
+                      className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
+                    Fraction-specific Registration Link (optional)
+                  </label>
                   <input
                     type="text"
-                    value={fraction.registrationLink || ''}
-                    onChange={(e) => handleUpdateFraction(index, 'registrationLink', e.target.value)}
-                    placeholder="Enter registration link (e.g., /register/game-1/fraction-1)"
-                    className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://example.com/register/fraction"
+                    value={fraction.registrationLink || ""}
+                    onChange={(e) =>
+                      handleFractionChange(
+                        fraction._id,
+                        "registrationLink",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
                     disabled={isLoading}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Leave empty to use the game-wide registration link.
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+
+                {/* Новое поле для деталей фракции с поддержкой Markdown */}
+                <div className="mb-1">
+                  <label className="block text-sm font-medium text-gray-400 mb-1 flex items-center">
+                    <span>Fraction Details</span>
+                    <span className="ml-2 text-xs text-blue-400">(Markdown supported)</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    placeholder="Enter details specific to this fraction in this game..."
+                    value={fraction.details || ""}
+                    onChange={(e) =>
+                      handleFractionChange(
+                        fraction._id,
+                        "details",
+                        e.target.value
+                      )
+                    }
+                    className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white font-mono text-sm"
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    These details will be shown when players hover over this fraction on the game details page.
+                  </p>
+                </div>
+
+                {/* Progress bar */}
+                <div className="mt-3">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-400">Capacity</span>
+                    <span className="text-gray-300">
+                      {fraction.filled}/{fraction.capacity}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-600 rounded-full h-2.5">
+                    <div
+                      className={`h-2.5 rounded-full ${
+                        fraction.filled / fraction.capacity < 0.3
+                          ? "bg-green-500"
+                          : fraction.filled / fraction.capacity < 0.7
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                      }`}
+                      style={{
+                        width: `${(fraction.filled / fraction.capacity) * 100}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Capacity management area */}
+      
     </div>
   );
 }

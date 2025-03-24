@@ -1,260 +1,93 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { atomDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { SvgCopy } from "@/components/SVG/Copy";
 
 export default function AgentChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [chatId, setChatId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<
-    { role: "user" | "assistant"; content: string }[]
-  >([]);
-  const [currentResponse, setCurrentResponse] = useState("");
+  const [messages, setMessages] = useState<{
+    id: number;
+    text: string;
+    isUser: boolean;
+    timestamp: Date;
+  }[]>([
+    {
+      id: 1,
+      text: "👋 Hello! I'm your administrative assistant. How can I help you today?",
+      isUser: false,
+      timestamp: new Date(),
+    },
+  ]);
+  const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Scroll to bottom of messages
+  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, currentResponse]);
+  }, [messages]);
 
-  // Focus input when chat is opened
+  // Focus input when chat opens
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 300);
+    if (isOpen) {
+      inputRef.current?.focus();
     }
   }, [isOpen]);
 
-  // Send message to AI agent
-  const sendMessage = async () => {
-    if (!message.trim() || isLoading) return;
-
-    // Add user message to chat
-    const userMessage = message;
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
-    setMessage("");
-    setIsLoading(true);
-    setCurrentResponse("");
-
-    try {
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL
-        }/admin/ask-agent`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
-          body: JSON.stringify({ message: userMessage, chatId }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      // Process the stream
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) {
-        throw new Error("Response body is null");
-      }
-
-      let responseText = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n\n");
-
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-
-          const data = line.substring(6);
-
-          // Handle new chat ID
-          if (data.startsWith("[new_chat]")) {
-            const newChatId = data.substring(10).trim();
-            setChatId(newChatId);
-            continue;
-          }
-
-          // Handle end of stream
-          if (data === "[DONE]") {
-            break;
-          }
-
-          // Handle normal response text
-          responseText += data;
-          setCurrentResponse(responseText);
-        }
-      }
-
-      // Add assistant's full response to chat
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: responseText },
-      ]);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "Sorry, there was an error processing your request. Please try again.",
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-      setCurrentResponse("");
-    }
+  const toggleChat = () => {
+    setIsOpen(!isOpen);
   };
 
-  // Handle Enter key to send message
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!inputText.trim()) return;
+    
+    // Add user message
+    const userMessage = {
+      id: Date.now(),
+      text: inputText,
+      isUser: true,
+      timestamp: new Date(),
+    };
+    
+    setMessages([...messages, userMessage]);
+    setInputText("");
+    
+    // Simulate assistant response after a delay
+    setTimeout(() => {
+      const assistantMessage = {
+        id: Date.now() + 1,
+        text: "I understand you need help. I'm analyzing your request and will assist you shortly.",
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+    }, 1000);
   };
 
-  // Render message content, with markdown for assistant messages
-  const renderMessageContent = (
-    content: string,
-    role: "user" | "assistant"
-  ) => {
-    if (role === "user") {
-      return <p className="whitespace-pre-wrap">{content}</p>;
-    }
-
-    return (
-      <ReactMarkdown
-        // className="markdown-content whitespace-pre-wrap"
-        components={{
-          code({ node, inline, className, children, ...props }: any) {
-            const match = /language-(\w+)/.exec(className || "");
-            return !inline && match ? (
-              <SyntaxHighlighter
-                {...props as any}
-                style={atomDark}
-                language={match[1]}
-                PreTag="div"
-                className="rounded-md text-sm"
-              >
-                {String(children).replace(/\n$/, "")}
-              </SyntaxHighlighter>
-            ) : (
-              <code
-                {...props}
-                className={`${className} bg-gray-700 rounded-sm px-1 py-0.5`}
-              >
-                {children}
-              </code>
-            );
-          },
-          a: ({ node, ...props }) => (
-            <a
-              {...props}
-              className="text-blue-400 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            />
-          ),
-          p: ({ node, ...props }) => (
-            <p {...props} className="mb-3 last:mb-0" />
-          ),
-          ul: ({ node, ...props }) => (
-            <ul {...props} className="list-disc pl-6 mb-3" />
-          ),
-          ol: ({ node, ...props }) => (
-            <ol {...props} className="list-decimal pl-6 mb-3" />
-          ),
-          li: ({ node, ...props }) => <li {...props} className="mb-1" />,
-          h1: ({ node, ...props }) => (
-            <h1 {...props} className="text-xl font-bold mb-2 mt-3" />
-          ),
-          h2: ({ node, ...props }) => (
-            <h2 {...props} className="text-lg font-bold mb-2 mt-3" />
-          ),
-          h3: ({ node, ...props }) => (
-            <h3 {...props} className="text-md font-bold mb-2 mt-2" />
-          ),
-          blockquote: ({ node, ...props }) => (
-            <blockquote
-              {...props}
-              className="pl-3 border-l-2 border-gray-500 italic text-gray-300 my-2"
-            />
-          ),
-          table: ({ node, ...props }) => (
-            <div className="overflow-x-auto mb-3">
-              <table
-                {...props}
-                className="min-w-full text-sm border-collapse"
-              />
-            </div>
-          ),
-          th: ({ node, ...props }) => (
-            <th
-              {...props}
-              className="bg-gray-700 px-3 py-1 text-left border border-gray-600"
-            />
-          ),
-          td: ({ node, ...props }) => (
-            <td {...props} className="px-3 py-1 border border-gray-600" />
-          ),
-          hr: ({ node, ...props }) => (
-            <hr {...props} className="border-gray-600 my-3" />
-          ),
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-    );
+  // Handle textarea height adjustment
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputText(e.target.value);
+    
+    // Auto-resize the textarea
+    e.target.style.height = "auto";
+    e.target.style.height = Math.min(e.target.scrollHeight, 150) + "px";
   };
 
   return (
     <>
-      {/* Chat button */}
+      {/* Chat toggle button */}
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="fixed bottom-6 right-6 bg-green-500 text-gray-900 rounded-full p-4 shadow-lg z-50 hover:bg-green-400 transition-all"
+        onClick={toggleChat}
+        className="fixed bottom-6 right-6 bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg z-20 flex items-center justify-center transition-all"
       >
         {isOpen ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -265,175 +98,101 @@ export default function AgentChat() {
         )}
       </button>
 
-      {/* Chat panel */}
+      {/* Fullscreen chat interface */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-20 right-6 w-96 max-w-[calc(100vw-3rem)] bg-gray-800 rounded-lg shadow-xl z-50 flex flex-col"
-            style={{ height: "min(30rem, calc(100vh - 10rem))" }}
+            className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center"
           >
-            {/* Chat header */}
-            <div className="p-4 border-b border-gray-700 bg-gray-700 rounded-t-lg">
-              <h3 className="text-lg font-medium text-white flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2 text-green-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-                Admin Assistant
-              </h3>
-            </div>
-
-            {/* Chat messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.length === 0 ? (
-                <div className="text-gray-400 text-center py-8">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 mx-auto mb-2 text-gray-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                  <p>How can I help you today?</p>
-                  <p className="text-sm mt-2">
-                    Ask me about managing games, users, or any other admin
-                    tasks.
-                  </p>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gray-850 w-full max-w-5xl h-screen md:h-[80vh] rounded-xl shadow-2xl overflow-hidden border border-gray-700 flex flex-col"
+            >
+              {/* Chat header */}
+              <div className="bg-gray-800 p-4 border-b border-gray-700 flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="h-10 w-10 rounded-full bg-green-600 flex items-center justify-center text-white text-xl mr-3">
+                    AI
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">Admin Assistant</h3>
+                    <p className="text-xs text-gray-400">
+                      Powered by OpenAI
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <>
-                  {messages.map((msg, index) => (
-                    <div
-                      key={index}
-                      className={`flex relative ${
-                        msg.role === "user" ? "justify-end" : "justify-start"
-                      }`}
-                    >
-                      <div
-                        className={`rounded-lg py-2 px-4 ${
-                          msg.role === "user"
-                            ? "bg-green-600 text-white rounded-tr-none max-w-[80%]"
-                            : "text-gray-100 rounded-tl-none"
-                        }`}
-                      >
-                        {renderMessageContent(msg.content, msg.role)}
-                      </div>
-                      {msg.role !== "user" && (
-                        <SvgCopy className="w-5 h-5 text-gray-400 ml-2 cursor-pointer absolute right-0 bottom-0" />
-                      )}
-                    </div>
-                  ))}
-
-                  {/* Typing indicator - Updated to match message design */}
-                  {isLoading && (
-                    <div className="flex relative justify-start">
-                      <div className="bg-gray-700 rounded-lg py-2 px-4 text-gray-100 rounded-tl-none max-w-[80%]">
-                        {currentResponse ? (
-                          renderMessageContent(currentResponse, "assistant")
-                        ) : (
-                          <div className="flex space-x-1">
-                            <div
-                              className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
-                              style={{ animationDelay: "0ms" }}
-                            ></div>
-                            <div
-                              className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
-                              style={{ animationDelay: "150ms" }}
-                            ></div>
-                            <div
-                              className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
-                              style={{ animationDelay: "300ms" }}
-                            ></div>
-                          </div>
-                        )}
-                      </div>
-                      {currentResponse && (
-                        <SvgCopy className="w-5 h-5 text-gray-400 ml-2 cursor-pointer absolute right-0 bottom-0" />
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input area */}
-            <div className="p-4 border-t border-gray-700">
-              <div className="flex items-end space-x-2">
-                <textarea
-                  ref={inputRef}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your message..."
-                  className="flex-1 bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-green-500 resize-none overflow-hidden"
-                  rows={1}
-                  style={{ minHeight: "2.5rem", maxHeight: "8rem" }}
-                />
                 <button
-                  onClick={sendMessage}
-                  disabled={!message.trim() || isLoading}
-                  className={`px-4 py-2 rounded-md ${
-                    !message.trim() || isLoading
-                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                      : "bg-green-500 text-gray-900 hover:bg-green-400"
-                  }`}
+                  onClick={toggleChat}
+                  className="rounded-full p-2 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
                 >
-                  {isLoading ? (
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  ) : (
-                    <svg
-                      className="h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                    </svg>
-                  )}
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
-            </div>
+
+              {/* Chat messages area */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900">
+                {messages.map(message => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        message.isUser 
+                          ? 'bg-green-600 text-white rounded-br-none' 
+                          : 'bg-gray-800 text-gray-200 rounded-bl-none border border-gray-700'
+                      }`}
+                    >
+                      <p className="text-sm">{message.text}</p>
+                      <p className="text-xs text-right mt-1 opacity-70">
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Chat input area */}
+              <form onSubmit={handleSubmit} className="p-4 bg-gray-800 border-t border-gray-700">
+                <div className="flex items-end gap-2">
+                  <textarea
+                    ref={inputRef}
+                    value={inputText}
+                    onChange={handleTextAreaChange}
+                    placeholder="Type your message..."
+                    className="flex-1 bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none min-h-[2.5rem] max-h-[150px] transition-all"
+                    rows={1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    className="bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg transition-colors"
+                    disabled={!inputText.trim()}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Press Enter to send, Shift+Enter for a new line
+                </p>
+              </form>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
