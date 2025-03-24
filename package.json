@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "analyze": "bun dev/unused.ts"
+    "analyze": "bun dev/unused.ts",
+    "count": "bun dev/_c.ts"
   },
   "dependencies": {
     "@next/bundle-analyzer": "^15.2.3",

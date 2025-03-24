@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameFraction } from "@/services/gameService";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
@@ -11,7 +11,31 @@ interface FactionsSectionProps {
 }
 
 export default function FactionsSection({ fractions }: FactionsSectionProps) {
-  const [expandedFractionId, setExpandedFractionId] = useState<string | null>(null);
+  const [selectedFraction, setSelectedFraction] = useState<GameFraction | null>(null);
+  const [cardPosition, setCardPosition] = useState<{ top: number, left: number, width: number, height: number } | null>(null);
+  const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  const openDetails = (fraction: GameFraction) => {
+    if (cardRefs.current[fraction._id]) {
+      const card = cardRefs.current[fraction._id];
+      const rect = card?.getBoundingClientRect();
+      if (rect) {
+        setCardPosition({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height
+        });
+      }
+    }
+    setSelectedFraction(fraction);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeDetails = () => {
+    setSelectedFraction(null);
+    document.body.style.overflow = '';
+  };
 
   return (
     <div className="mt-10 pt-8 border-t border-gray-700">
@@ -27,6 +51,7 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
           <div 
             key={fraction._id} 
             className="relative overflow-hidden rounded-lg border border-gray-700 group hover:border-green-500 transition-all duration-300 hover:shadow-md hover:shadow-green-900/20"
+            ref={(el) => { cardRefs.current[fraction._id] = el; }}
           >
             {/* Background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-800/80 to-gray-800/60 z-10"></div>
@@ -54,7 +79,7 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
               }`}
             ></div>
             
-            {/* Main content */}
+            {/* Content */}
             <div className="p-4 relative z-20">
               <div className="flex items-start justify-between">
                 <h4 className="text-lg font-bold mb-1 group-hover:text-green-400 transition-colors">
@@ -117,49 +142,116 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
               {/* "View Details" button if details are available */}
               {fraction.details && (
                 <button 
-                  onClick={() => setExpandedFractionId(expandedFractionId === fraction._id ? null : fraction._id)}
+                  onClick={() => openDetails(fraction)}
                   className="mt-3 inline-flex items-center justify-center w-full py-1.5 px-3 bg-gray-700 hover:bg-gray-600 rounded text-sm font-medium transition-colors"
                 >
-                  {expandedFractionId === fraction._id ? (
-                    <>
-                      <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                      </svg>
-                      Hide Details
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                      View Details
-                    </>
-                  )}
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  View Details
                 </button>
               )}
-              
-              {/* Expanded details section */}
-              <AnimatePresence>
-                {expandedFractionId === fraction._id && fraction.details && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-4 p-3 bg-gray-700/50 rounded-lg border border-gray-600">
-                      <div className="prose prose-sm prose-invert max-w-none">
-                        <MarkdownRenderer content={fraction.details} />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Анимированное модальное окно */}
+      <AnimatePresence>
+        {selectedFraction && cardPosition && (
+          <motion.div 
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeDetails}
+          >
+            {/* Затемненный фон с минимальным размытием */}
+            <motion.div 
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+
+            {/* Анимированная карточка с эффектом расширения */}
+            <motion.div
+              className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-2xl relative z-10 w-full max-w-3xl mx-4"
+              onClick={(e) => e.stopPropagation()}
+              initial={{
+                position: 'fixed',
+                top: cardPosition.top,
+                left: cardPosition.left,
+                width: cardPosition.width,
+                height: cardPosition.height,
+                opacity: 0.8,
+                scale: 1,
+                borderRadius: '0.5rem'
+              }}
+              animate={{
+                top: '50%',
+                left: '50%',
+                x: '-50%',
+                y: '-50%',
+                width: 'min(90vw, 800px)',
+                height: 'auto',
+                opacity: 1,
+                scale: 1,
+                borderRadius: '0.5rem'
+              }}
+              exit={{
+                top: cardPosition.top,
+                left: cardPosition.left,
+                x: 0,
+                y: 0,
+                width: cardPosition.width,
+                height: cardPosition.height,
+                opacity: 0,
+                scale: 0.9,
+                borderRadius: '0.5rem'
+              }}
+              transition={{ 
+                type: 'spring',
+                damping: 30,
+                stiffness: 300
+              }}
+            >
+              {/* Заголовок */}
+              <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-4 flex justify-between items-center border-b border-gray-700">
+                <h3 className="text-xl font-bold text-green-400 flex items-center">
+                  {selectedFraction.image && (
+                    <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-gray-600 relative">
+                      <Image
+                        src={`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${selectedFraction.image}`}
+                        alt={selectedFraction.name || selectedFraction._id}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  {selectedFraction.name || selectedFraction._id}
+                </h3>
+                <button 
+                  onClick={closeDetails}
+                  className="bg-gray-700 hover:bg-gray-600 p-2 rounded-full"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Содержимое */}
+              <div className="p-6 max-h-[70vh] overflow-y-auto">
+                {/* Детали фракции */}
+                <div className="prose prose-invert max-w-none bg-gray-700/30 p-4 rounded-lg">
+                  <MarkdownRenderer content={selectedFraction.details} />
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
