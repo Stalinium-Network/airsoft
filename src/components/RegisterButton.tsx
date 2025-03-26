@@ -3,41 +3,22 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-interface RegisterButtonProps {
-  gameId: string;
-  gameName: string;
-  isPast: boolean;
-  isFull: boolean;
-  hasFractions?: boolean;
-  registrationLink?: string; // Добавлено новое поле
+// New ShareButton component
+interface ShareButtonProps {
+  title: string;
+  text: string;
+  url: string;
   className?: string;
 }
 
-export default function RegisterButton({ 
-  gameId, 
-  gameName, 
-  isPast, 
-  isFull,
-  hasFractions = false,
-  registrationLink = '', // Добавляем значение по умолчанию
-  className = '' 
-}: RegisterButtonProps) {
-  const router = useRouter();
+export function ShareButton({ title, text, url, className = '' }: ShareButtonProps) {
   const [shareMessage, setShareMessage] = useState('');
-  
-  const handleRegister = () => {
-    // Проверяем, что ссылка существует и перенаправляем только если она есть
-    if (registrationLink) {
-      window.open(registrationLink, '_blank');
-    }
-    // Убираем перенаправление на страницу деталей, если ссылки нет
-  };
   
   const handleShare = async () => {
     const shareData = {
-      title: gameName,
-      text: `Check out this STALKER airsoft event: ${gameName}`,
-      url: `${window.location.origin}/games/${gameId}`
+      title,
+      text,
+      url
     };
 
     try {
@@ -54,9 +35,61 @@ export default function RegisterButton({
     }
   };
   
+  const shareButtonClasses = "py-3 px-4 rounded-md transition-colors font-bold bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 flex items-center justify-center";
+  
+  return (
+    <div className="relative">
+      <button 
+        onClick={handleShare} 
+        className={`${shareButtonClasses} ${className}`}
+        aria-label="Share this event"
+        title="Share this event"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+        </svg>
+      </button>
+      
+      {shareMessage && (
+        <div className="absolute top-full left-0 right-0 mt-1 p-1 bg-gray-800 text-xs text-green-400 rounded text-center border border-gray-700">
+          {shareMessage}
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface RegisterButtonProps {
+  gameId: string;
+  gameName: string;
+  isPast: boolean;
+  isFull: boolean;
+  hasFractions?: boolean;
+  registrationLink?: string;
+  className?: string;
+}
+
+export default function RegisterButton({ 
+  gameId, 
+  gameName, 
+  isPast, 
+  isFull,
+  hasFractions = false,
+  registrationLink = '',
+  className = '' 
+}: RegisterButtonProps) {
+  const router = useRouter();
+  
+  const handleRegister = () => {
+    // Проверяем, что ссылка существует и перенаправляем только если она есть
+    if (registrationLink) {
+      window.open(registrationLink, '_blank');
+    }
+    // Убираем перенаправление на страницу деталей, если ссылки нет
+  };
+  
   // Base button classes
   const baseClasses = "py-3 rounded-md transition-colors font-bold flex items-center justify-center gap-2";
-  const shareButtonClasses = "py-3 px-4 rounded-md transition-colors font-bold bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 flex items-center justify-center";
   
   // Refactored ButtonContainer that doesn't take children
   const ButtonContainer = () => {
@@ -117,24 +150,11 @@ export default function RegisterButton({
     return (
       <div className={`flex ${className}`}>
         <div className="w-full mr-2">{registerButton}</div>
-        <div className="relative">
-          <button 
-            onClick={handleShare} 
-            className={shareButtonClasses}
-            aria-label="Share this event"
-            title="Share this event"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-          </button>
-          
-          {shareMessage && (
-            <div className="absolute top-full left-0 right-0 mt-1 p-1 bg-gray-800 text-xs text-green-400 rounded text-center border border-gray-700">
-              {shareMessage}
-            </div>
-          )}
-        </div>
+        <ShareButton 
+          title={gameName} 
+          text={`Check out this STALKER airsoft event: ${gameName}`}
+          url={typeof window !== 'undefined' ? `${window.location.origin}/games/${gameId}` : `/games/${gameId}`}
+        />
       </div>
     );
   };

@@ -6,7 +6,6 @@ import { NewsCategory } from "@/services/newsService";
 import { adminApi, publicApi } from "@/utils/api";
 import Image from "next/image";
 import { createImagePreview, prepareImageForUpload } from '@/utils/imageUtils';
-import MarkdownEditorComponent from '@/components/admin/MarkdownEditorComponent';
 
 interface CreateNewsModalProps {
   onClose: () => void;
@@ -99,11 +98,11 @@ export default function CreateNewsModal({
     });
   };
 
-  // Обработка изменения содержимого в Markdown редакторе
-  const handleEditorChange = (markdown: string) => {
+  // Обработка изменения содержимого текстового поля
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
-      content: markdown,
+      content: e.target.value,
     });
   };
 
@@ -128,6 +127,7 @@ export default function CreateNewsModal({
       submitData.append("pinned", formData.pinned.toString());
       
       // Сжимаем и добавляем изображение
+      // Используем правильный ключ 'file' вместо 'image'
       await prepareImageForUpload(submitData, imageFile);
 
       // Имитация прогресса загрузки
@@ -243,7 +243,6 @@ export default function CreateNewsModal({
               {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="description"
@@ -330,14 +329,18 @@ export default function CreateNewsModal({
                 Content <span className="text-red-500">*</span>
               </label>
               
-              <MarkdownEditorComponent 
-                markdown={formData.content}
-                onChange={handleEditorChange}
-                placeholder="Write your news content in Markdown format..."
+              <textarea
+                name="content"
+                value={formData.content}
+                onChange={handleContentChange}
+                placeholder="Write your news content here..."
+                rows={15}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
               />
               
               <p className="text-xs text-gray-500 mt-1">
-                Markdown format supported. You can use headers, lists, links, and more.
+                Describe your news in detail.
               </p>
             </div>
           </div>

@@ -10,9 +10,10 @@ const navItems = [
   { href: '/', label: 'Home' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/about', label: 'About Us' },
+  { href: '/news', label: 'News' },
   { href: '/faqs', label: 'FAQs' },
   { href: '/rules', label: 'Rules' },
-  { href: '/waiver', label: 'Waiver' }
+  { href: '/waiver', label: 'Waiver' },
 ];
 
 // Отдельный компонент для пункта навигации в десктопной версии

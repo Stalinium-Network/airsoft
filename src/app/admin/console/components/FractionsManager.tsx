@@ -248,18 +248,19 @@ export default function FractionsManager({
                   </p>
                 </div> */}
 
-                {/* Новое поле для деталей фракции с поддержкой Markdown */}
+                {/* Поле для деталей фракции */}
                 <div className="mb-1 mt-4">
                   <label className="block text-sm font-medium text-gray-400 mb-1 flex items-center">
                     <span>Fraction Details</span>
-                    <span className="ml-2 text-xs text-blue-400">(Markdown supported)</span>
                   </label>
                   
-                  <MarkdownEditorComponent
-                    markdown={fraction.details || ""}
-                    onChange={(markdown) => handleFractionChange(fraction._id, "details", markdown)}
+                  <textarea
+                    value={fraction.details || ""}
+                    onChange={(e) => handleFractionChange(fraction._id, "details", e.target.value)}
                     placeholder="Enter details specific to this fraction in this game..."
-                    editorStyles={{ height: '200px' }}
+                    rows={6}
+                    className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
+                    disabled={isLoading}
                   />
                   
                   <p className="text-xs text-gray-500 mt-1">

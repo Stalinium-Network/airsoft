@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { NewsItem } from "../data/news";
 import NewsCard from "./NewsCard";
+import { NewsItem } from "@/services/newsService";
 
 interface NewsGridProps {
   newsItems: NewsItem[];
@@ -36,7 +36,7 @@ export default function NewsGrid({
         </div>
       ) : (
         newsItems.map((article, index) => (
-          <NewsCard key={article._id} article={article} index={index} />
+          <NewsCard key={article._id} article={article} index={index} categories={[]} /> //TODO: Add categories
         ))
       )}
     </div>

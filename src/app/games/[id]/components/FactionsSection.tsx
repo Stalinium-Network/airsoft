@@ -245,8 +245,8 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
               {/* Содержимое */}
               <div className="p-6 max-h-[70vh] overflow-y-auto">
                 {/* Детали фракции */}
-                <div className="prose prose-invert max-w-none bg-gray-700/30 p-4 rounded-lg">
-                  <MarkdownRenderer content={selectedFraction.details} />
+                <div className="prose prose-invert max-w-none bg-gray-700/30 p-4 rounded-lg whitespace-pre-wrap">
+                  {selectedFraction.details}
                 </div>
               </div>
             </motion.div>

@@ -1,35 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
 import { NewsItem, NewsCategory } from "@/services/newsService";
-import { publicApi } from "@/utils/api";
 
 interface NewsCardProps {
   article: NewsItem;
   index: number;
+  categories: NewsCategory[];
 }
 
-export default function NewsCard({ article, index }: NewsCardProps) {
-  const [categories, setCategories] = useState<NewsCategory[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Загрузка категорий
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const response = await publicApi.getNewsCategories();
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Error fetching news categories:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchCategories();
-  }, []);
-
+export default function NewsCard({ article, index, categories }: NewsCardProps) {
   // Функция получения имени категории
   const getCategoryName = (categoryId: string) => {
     const category = categories.find(cat => cat.id === categoryId);
@@ -54,12 +37,21 @@ export default function NewsCard({ article, index }: NewsCardProps) {
       className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-green-500 transition-all duration-300 shadow-lg hover:shadow-green-500/10"
     >
       <div className="relative h-48 overflow-hidden">
-        {/* Placeholder background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800"></div>
+        {/* Изображение новости */}
+        {article.image ? (
+          <Image
+            src={`${process.env.NEXT_PUBLIC_API_URL}/news/image/${article.image}`}
+            alt={article.title}
+            fill
+            className="object-cover transition-transform duration-300 hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800"></div>
+        )}
         
         <div className="absolute top-4 left-4 z-10">
           <span className="bg-green-600/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium">
-            {isLoading ? "..." : getCategoryName(article.category)}
+            {getCategoryName(article.category)}
           </span>
         </div>
       </div>
@@ -69,16 +61,21 @@ export default function NewsCard({ article, index }: NewsCardProps) {
           <span>{formatDate(article.date)}</span>
         </div>
         
-        <h3 className="text-xl font-bold mb-3 hover:text-green-400 transition-colors">
-          {article.title}
-        </h3>
+        <Link href={`/news/${article._id}`}>
+          <h3 className="text-xl font-bold mb-3 hover:text-green-400 transition-colors">
+            {article.title}
+          </h3>
+        </Link>
         
         <p className="text-gray-400 mb-4 line-clamp-3">
           {article.description}
         </p>
         
         <div className="flex justify-end">
-          <button className="text-green-400 hover:text-green-300 font-medium flex items-center group">
+          <Link 
+            href={`/news/${article._id}`}
+            className="text-green-400 hover:text-green-300 font-medium flex items-center group"
+          >
             Read More
             <svg
               className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform"
@@ -93,7 +90,7 @@ export default function NewsCard({ article, index }: NewsCardProps) {
                 d="M14 5l7 7m0 0l-7 7m7-7H3"
               />
             </svg>
-          </button>
+          </Link>
         </div>
       </div>
     </motion.div>

@@ -85,7 +85,7 @@ export async function compressImageToWebP(
 export async function prepareImageForUpload(
   formData: FormData,
   originalFile: File | null,
-  fieldName: string = 'image'
+  fieldName: string = 'file'  // Изменено с 'image' на 'file'
 ): Promise<void> {
   if (!originalFile) return;
   

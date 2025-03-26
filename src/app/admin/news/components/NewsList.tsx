@@ -288,7 +288,7 @@ export default function NewsList({
                       <div className="relative w-16 h-16 rounded-md overflow-hidden bg-gray-700">
                         {item.image ? (
                           <Image 
-                            src={`/api/news/image/${item.image}`} 
+                            src={`${process.env.NEXT_PUBLIC_API_URL}/news/image/${item.image}`} 
                             alt={item.title}
                             fill
                             className="object-cover"
