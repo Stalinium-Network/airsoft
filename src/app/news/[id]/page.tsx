@@ -1,15 +1,15 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { publicApi } from '@/utils/api';
-import { mapNewsData } from '@/services/newsService';
+import { mapNewsData, NewsItem } from '@/services/newsService';
 import NewsContent from './components/NewsContent';
 import RelatedNews from './components/RelatedNews';
 
-// Включаем revalidate каждый час
+// Revalidate at most every hour
 export const revalidate = 3600;
 
-// Генерация метаданных для страницы
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+// Generate metadata for the page
+export async function generateMetadata({ params }: any): Promise<Metadata> {
   try {
     const newsResponse = await publicApi.getNewsItem(params.id);
     const news = mapNewsData(newsResponse.data);
@@ -20,12 +20,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       openGraph: {
         title: news.title,
         description: news.description,
-        images: [{
+        images: news.image ? [{
           url: `${process.env.NEXT_PUBLIC_API_URL}/news/image/${news.image}`,
           width: 1200,
           height: 630,
           alt: news.title
-        }],
+        }] : [],
         type: 'article',
         publishedTime: news.date.toISOString(),
       }
@@ -38,7 +38,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-export default async function NewsPage({ params }: { params: { id: string } }) {
+// Main page component
+export default async function NewsPage({ params }: any) {
   // Получаем данные о новости
   try {
     const newsResponse = await publicApi.getNewsItem(params.id);
@@ -52,7 +53,7 @@ export default async function NewsPage({ params }: { params: { id: string } }) {
     const relatedNewsResponse = await publicApi.getNews(news.category);
     const relatedNews = relatedNewsResponse.data
       .map(mapNewsData)
-      .filter(item => item._id !== news._id) // Исключаем текущую новость
+      .filter((item: NewsItem) => item._id !== news._id) // Исключаем текущую новость
       .slice(0, 3); // Ограничиваем до 3-х связанных новостей
     
     return (

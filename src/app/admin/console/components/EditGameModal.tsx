@@ -5,8 +5,6 @@ import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
 import FractionsManager from "./FractionsManager";
-import Image from "next/image";
-import MarkdownEditorComponent from '@/components/admin/MarkdownEditorComponent';
 
 // Components
 import GameFormFields from "./game-form/GameFormFields";

@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import { Fraction, GameFraction } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from 'next/image';
-import MarkdownEditorComponent from '@/components/admin/MarkdownEditorComponent';
 
 interface FractionsManagerProps {
   fractions: GameFraction[];
