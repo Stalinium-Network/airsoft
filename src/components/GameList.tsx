@@ -29,7 +29,7 @@ export default function GameList({ pastGames, upcomingGames }: GameListProps) {
       viewport={{ once: true }}
     >
       <div className="flex justify-center mb-8">
-        <div className="bg-gray-800 p-1 rounded-lg inline-flex relative">
+        <div className="bg-gray-800 p-1 rounded-lg inline-flex relative ">
           {/* Animated background pill */}
           <motion.div
             className="absolute inset-y-1 rounded-md bg-green-500 z-0"
@@ -42,7 +42,7 @@ export default function GameList({ pastGames, upcomingGames }: GameListProps) {
           />
           
           <button
-            className={`px-6 py-2 rounded-md transition-all relative z-10 text-center w-30 ${
+            className={`px-6 py-2 rounded-md transition-all relative z-10 text-center w-30 cursor-pointer ${
               filter === "upcoming" ? "text-gray-900 font-medium" : "text-gray-300"
             }`}
             onClick={() => handleFilterChange("upcoming")}
@@ -50,7 +50,7 @@ export default function GameList({ pastGames, upcomingGames }: GameListProps) {
             Upcoming
           </button>
           <button
-            className={`px-6 py-2 rounded-md transition-all relative z-10 text-center w-30 ${
+            className={`px-6 py-2 rounded-md transition-all relative z-10 text-center w-30 cursor-pointer ${
               filter === "past" ? "text-gray-900 font-medium" : "text-gray-300"
             }`}
             onClick={() => handleFilterChange("past")}

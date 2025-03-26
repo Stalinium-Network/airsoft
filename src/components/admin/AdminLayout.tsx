@@ -52,6 +52,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { label: 'Gallery', href: '/admin/gallery' },
     { label: 'Locations', href: '/admin/locations' },
     { label: 'Fractions', href: '/admin/fractions' },
+    { label: 'News', href: '/admin/news' },
   ];
 
   return (

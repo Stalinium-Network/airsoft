@@ -1,29 +1,7 @@
-import imageCompression from 'browser-image-compression';
-
 /**
- * Создает предварительный просмотр изображения
+ * Сжимает изображение с указанной максимальной шириной и качеством
  */
-export function createImagePreview(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      resolve(e.target?.result as string);
-    };
-    reader.onerror = () => {
-      reject(new Error('Failed to create image preview'));
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-/**
- * Сжимает изображение и конвертирует в формат WebP
- */
-export async function compressImageToWebP(
-  file: File, 
-  maxWidth = 1200, 
-  quality = 0.8
-): Promise<Blob> {
+export async function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -54,7 +32,7 @@ export async function compressImageToWebP(
         
         ctx.drawImage(img, 0, 0, width, height);
         
-        // Получаем сжатое изображение в формате WebP
+        // Получаем сжатое изображение
         canvas.toBlob(
           (blob) => {
             if (blob) {
@@ -64,7 +42,7 @@ export async function compressImageToWebP(
               reject(new Error('Failed to compress image'));
             }
           },
-          'image/webp',
+          file.type,
           quality
         );
       };
@@ -75,6 +53,22 @@ export async function compressImageToWebP(
     reader.onerror = () => {
       reject(new Error('Failed to read file'));
     };
+  });
+}
+
+/**
+ * Создает предварительный просмотр изображения
+ */
+export function createImagePreview(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      resolve(e.target?.result as string);
+    };
+    reader.onerror = () => {
+      reject(new Error('Failed to create image preview'));
+    };
+    reader.readAsDataURL(file);
   });
 }
 
@@ -90,17 +84,14 @@ export async function prepareImageForUpload(
   if (!originalFile) return;
   
   try {
-    // Сжимаем изображение в формат WebP перед отправкой
-    const compressedBlob = await compressImageToWebP(originalFile);
+    // Сжимаем изображение перед отправкой
+    const compressedBlob = await compressImage(originalFile);
     
-    // Создаем новый File из Blob
-    const fileExt = 'webp';
-    const fileName = originalFile.name.split('.').slice(0, -1).join('.') + '.' + fileExt;
-    
+    // Создаем новый File из Blob, сохраняя тип и имя
     const compressedFile = new File(
       [compressedBlob], 
-      fileName, 
-      { type: 'image/webp' }
+      originalFile.name, 
+      { type: originalFile.type }
     );
     
     // Добавляем файл в FormData

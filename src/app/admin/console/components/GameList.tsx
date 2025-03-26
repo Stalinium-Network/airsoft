@@ -36,13 +36,11 @@ export default function GameList({
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-8">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Game Management</h2>
-
         {/* Filter toggle with animation */}
         <div className="bg-gray-700 p-1 rounded-lg inline-flex relative">
           {/* Animated background pill */}
           <motion.div
-            className="absolute inset-y-1 rounded-md bg-green-600 z-0"
+            className="absolute inset-y-1 rounded-md bg-green-600 z-0 cursor-pointer"
             initial={false}
             animate={{
               x: filter === "upcoming" ? 0 : "100%",

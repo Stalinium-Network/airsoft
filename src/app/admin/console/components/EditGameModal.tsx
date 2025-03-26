@@ -6,6 +6,7 @@ import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
 import FractionsManager from "./FractionsManager";
 import Image from "next/image";
+import MarkdownEditorComponent from '@/components/admin/MarkdownEditorComponent';
 
 // Components
 import GameFormFields from "./game-form/GameFormFields";
@@ -125,6 +126,14 @@ export default function EditGameModal({
       ...prev,
       fractions: updatedFractions
     }));
+  };
+
+  // Handle markdown changes
+  const handleDetailedDescriptionChange = (markdown: string) => {
+    setEditingGame({
+      ...editingGame,
+      detailedDescription: markdown
+    });
   };
 
   // Update game with FormData
@@ -464,6 +473,21 @@ export default function EditGameModal({
                 onImageRemove={handleRemoveImage}
                 fileInputDisabled={isLoading}
               />
+            </div>
+
+            {/* Detailed Description with Markdown */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Detailed Description <span className="text-red-500">*</span>
+              </label>
+              <MarkdownEditorComponent
+                markdown={editingGame.detailedDescription || ""}
+                onChange={handleDetailedDescriptionChange}
+                placeholder="Enter detailed description of the game..."
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Detailed description supports Markdown formatting.
+              </p>
             </div>
           </div>
 

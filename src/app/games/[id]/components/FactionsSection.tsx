@@ -15,6 +15,7 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
   const [cardPosition, setCardPosition] = useState<{ top: number, left: number, width: number, height: number } | null>(null);
   const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
+
   const openDetails = (fraction: GameFraction) => {
     if (cardRefs.current[fraction._id]) {
       const card = cardRefs.current[fraction._id];

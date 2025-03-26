@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Game, Fraction } from "@/services/gameService";
 import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
-import { createImagePreview } from "@/utils/imageUtils";
+import { createImagePreview, prepareImageForUpload } from '@/utils/imageUtils';
 import FractionsManager from "./FractionsManager";
 import Image from "next/image";
+import MarkdownEditorComponent from '@/components/admin/MarkdownEditorComponent';
 
 // Components
 import ImageUploadSection from "./game-form/ImageUploadSection";
@@ -74,13 +75,21 @@ export default function CreateGameModal({
       setNewGame((prev) => ({
         ...prev,
         endDate: value,
-      }));
+      })); 
     } else {
       setNewGame((prev) => ({
         ...prev,
         [name]: value,
       }));
     }
+  };
+
+  // Handle markdown changes
+  const handleDetailedDescriptionChange = (markdown: string) => {
+    setNewGame({
+      ...newGame,
+      detailedDescription: markdown
+    });
   };
 
   // Handle image file selection
@@ -338,6 +347,21 @@ export default function CreateGameModal({
                 onImageRemove={handleRemoveImage}
                 fileInputDisabled={isLoading}
               />
+            </div>
+
+            {/* Detailed Description with Markdown */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Detailed Description <span className="text-red-500">*</span>
+              </label>
+              <MarkdownEditorComponent
+                markdown={newGame.detailedDescription || ""}
+                onChange={handleDetailedDescriptionChange}
+                placeholder="Enter detailed description of the game..."
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Detailed description supports Markdown formatting.
+              </p>
             </div>
           </div>
 

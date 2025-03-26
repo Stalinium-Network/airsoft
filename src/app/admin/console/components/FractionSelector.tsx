@@ -49,6 +49,7 @@ export default function FractionSelector({
       // Add default capacity, filled values и пустую registrationLink для конкретной игры
       const gameFraction: GameFraction = {
         ...fraction,
+        details: '', // Default empty details
         capacity: 20, // Default capacity
         filled: 0, // Default filled
         registrationLink: '' // Default empty registration link

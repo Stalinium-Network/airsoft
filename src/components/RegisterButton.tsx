@@ -115,9 +115,9 @@ export default function RegisterButton({
     }
     
     return (
-      <div className={`grid grid-cols-5 gap-2 ${className}`}>
-        <div className="col-span-4">{registerButton}</div>
-        <div className="col-span-1 relative">
+      <div className={`flex ${className}`}>
+        <div className="w-full mr-2">{registerButton}</div>
+        <div className="relative">
           <button 
             onClick={handleShare} 
             className={shareButtonClasses}

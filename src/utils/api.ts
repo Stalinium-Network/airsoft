@@ -3,8 +3,15 @@ import axios from 'axios';
 // Base API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Create axios instance
-export const api = axios.create({
+// Create axios instances
+export const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export const axiosAuthInstance = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -12,7 +19,7 @@ export const api = axios.create({
 });
 
 // Add a request interceptor to include the auth token
-api.interceptors.request.use(
+axiosAuthInstance.interceptors.request.use(
   (config) => {
     // Only in client-side code
     if (typeof window !== 'undefined') {
@@ -28,64 +35,108 @@ api.interceptors.request.use(
 
 // Public API methods
 export const publicApi = {
-  getGames: () => api.get('/games'),
-  getLocations: () => api.get('/locations'),
-  getLocation: (id: string) => api.get(`/locations/${id}`),
+  getGames: () => axiosInstance.get('/games'),
+  getLocations: () => axiosInstance.get('/locations'),
+  getLocation: (id: string) => axiosInstance.get(`/locations/${id}`),
+  getNews: (category?: string) => {
+    const url = category && category !== 'all' 
+      ? `/news?category=${category}`
+      : '/news';
+    return axiosInstance.get(url);
+  },
+  getPinnedNews: () => {
+    return axiosInstance.get('/news/pinned');
+  },
+  getRecentNews: (limit = 5) => {
+    return axiosInstance.get(`/news/recent?limit=${limit}`);
+  },
+  getNewsItem: (id: string) => {
+    return axiosInstance.get(`/news/${id}`);
+  },
+  getNewsCategories: () => {
+    return axiosInstance.get('/news/categories');
+  },
 };
 
 // Admin-specific API methods
 export const adminApi = {
   // Game management
-  getGames: () => api.get('/admin/game-list'),
-  getGame: (id: string) => api.get(`/admin/game/${id}`),
-  createGame: (gameData: any) => api.post('/admin/create-game', gameData),
+  getGames: () => axiosAuthInstance.get('/admin/game-list'),
+  getGame: (id: string) => axiosAuthInstance.get(`/admin/game/${id}`),
+  createGame: (gameData: any) => axiosAuthInstance.post('/admin/create-game', gameData),
   createGameWithImage: (formData: FormData) => {
-    return api.post('/admin/create-game', formData, {
+    return axiosAuthInstance.post('/admin/create-game', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
   updateGame: (gameId: string | number, gameData: any) => 
-    api.put(`/admin/update-game/${gameId}`, gameData),
+    axiosAuthInstance.put(`/admin/update-game/${gameId}`, gameData),
   updateGameWithImage: (id: string | number, formData: FormData) => {
-    return api.put(`/admin/update-game/${id}`, formData, {
+    return axiosAuthInstance.put(`/admin/update-game/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
-  deleteGame: (id: string | number) => api.delete(`/admin/delete-game/${id}`),
+  deleteGame: (id: string | number) => axiosAuthInstance.delete(`/admin/delete-game/${id}`),
   
   // Location endpoints
-  getLocations: () => api.get('/admin/locations'),
-  getLocation: (id: string) => api.get(`/admin/location/${id}`),
+  getLocations: () => axiosAuthInstance.get('/admin/locations'),
+  getLocation: (id: string) => axiosAuthInstance.get(`/admin/location/${id}`),
   createLocation: (formData: FormData) => {
-    return api.post('/admin/create-location', formData, {
+    return axiosAuthInstance.post('/admin/create-location', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
   updateLocation: (id: string, formData: FormData) => {
-    return api.put(`/admin/update-location/${id}`, formData, {
+    return axiosAuthInstance.put(`/admin/update-location/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
   deleteLocation: (id: string) => {
     console.log(`API: Sending DELETE request to /admin/delete-location/${id}`);
-    return api.delete(`/admin/delete-location/${id}`);
+    return axiosAuthInstance.delete(`/admin/delete-location/${id}`);
   },
   
   // Fraction endpoints
-  getFractions: () => api.get('/admin/fractions'),
-  getFraction: (id: string) => api.get(`/admin/fraction/${id}`),
+  getFractions: () => axiosAuthInstance.get('/admin/fractions'),
+  getFraction: (id: string) => axiosAuthInstance.get(`/admin/fraction/${id}`),
   createFraction: (formData: FormData) => {
-    return api.post('/admin/create-fraction', formData, {
+    return axiosAuthInstance.post('/admin/create-fraction', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
   updateFraction: (id: string, formData: FormData) => {
-    return api.put(`/admin/update-fraction/${id}`, formData, {
+    return axiosAuthInstance.put(`/admin/update-fraction/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
-  deleteFraction: (id: string) => api.delete(`/admin/delete-fraction/${id}`),
+  deleteFraction: (id: string) => axiosAuthInstance.delete(`/admin/delete-fraction/${id}`),
   
   // Authentication
-  verifyToken: () => api.get('/admin/verify-token'),
+  verifyToken: () => axiosAuthInstance.get('/admin/verify-token'),
+
+  // Методы для работы с новостями в админке
+  getNewsList: () => {
+    return axiosAuthInstance.get('/admin/news');
+  },
+  getNewsItem: (id: string) => {
+    return axiosAuthInstance.get(`/admin/news/${id}`);
+  },
+  createNews: (formData: FormData) => {
+    // Убедимся, что Content-Type не устанавливается явно, чтобы браузер автоматически добавил boundary
+    return axiosAuthInstance.post('/admin/create-news', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+  updateNews: (id: string, formData: FormData) => {
+    return axiosAuthInstance.put(`/admin/update-news/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+  deleteNews: (id: string) => {
+    return axiosAuthInstance.delete(`/admin/delete-news/${id}`);
+  },
 };

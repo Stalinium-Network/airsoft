@@ -101,27 +101,7 @@ export default function EditLocationModal({
           formData.append('file', imageFile);
         }
       }
-      
-      // DEBUG log
-      console.log('=== UPDATING LOCATION ===');
-      console.log('Location ID:', initialLocation._id);
-      console.log('Name:', location.name);
-      console.log('Coordinates:', location.coordinates);
-      console.log('Description:', location.description);
-      console.log('Image Changed:', imageChanged);
-      
-      if (imageFile) {
-        console.log('New Image:', {
-          name: imageFile.name,
-          type: imageFile.type,
-          size: Math.round(imageFile.size / 1024) + 'KB'
-        });
-      } else if (imageChanged) {
-        console.log('Image: Removed');
-      } else {
-        console.log('Image: Unchanged');
-      }
-      
+    
       // Simulate upload progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {

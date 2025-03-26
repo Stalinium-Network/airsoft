@@ -104,6 +104,8 @@ export default async function GameDetailPage({ params }: any) {
   // Определяем, заполнена ли игра полностью
   const isFull = capacity.isFull || capacity.spotsLeft <= 0;
 
+  console.log(game)
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Hero section */}

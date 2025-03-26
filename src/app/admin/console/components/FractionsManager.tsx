@@ -4,6 +4,7 @@ import { Fraction, GameFraction } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image';
+import MarkdownEditorComponent from '@/components/admin/MarkdownEditorComponent';
 
 interface FractionsManagerProps {
   fractions: GameFraction[];
@@ -19,6 +20,7 @@ export default function FractionsManager({
   const [availableFractions, setAvailableFractions] = useState<Fraction[]>([]);
   const [selectedFractionId, setSelectedFractionId] = useState<string>("");
   const [isLoadingFractions, setIsLoadingFractions] = useState(false);
+
 
   // Fetch available fractions on component mount
   useEffect(() => {
@@ -223,9 +225,9 @@ export default function FractionsManager({
                   </div>
                 </div>
 
-                <div className="mb-3">
+                {/* <div className="mb-3">
                   <label className="block text-sm font-medium text-gray-400 mb-1">
-                    Fraction-specific Registration Link (optional)
+                    Fraction- Registration Link (optional)
                   </label>
                   <input
                     type="text"
@@ -244,28 +246,22 @@ export default function FractionsManager({
                   <p className="text-xs text-gray-500 mt-1">
                     Leave empty to use the game-wide registration link.
                   </p>
-                </div>
+                </div> */}
 
                 {/* Новое поле для деталей фракции с поддержкой Markdown */}
-                <div className="mb-1">
+                <div className="mb-1 mt-4">
                   <label className="block text-sm font-medium text-gray-400 mb-1 flex items-center">
                     <span>Fraction Details</span>
                     <span className="ml-2 text-xs text-blue-400">(Markdown supported)</span>
                   </label>
-                  <textarea
-                    rows={4}
+                  
+                  <MarkdownEditorComponent
+                    markdown={fraction.details || ""}
+                    onChange={(markdown) => handleFractionChange(fraction._id, "details", markdown)}
                     placeholder="Enter details specific to this fraction in this game..."
-                    value={fraction.details || ""}
-                    onChange={(e) =>
-                      handleFractionChange(
-                        fraction._id,
-                        "details",
-                        e.target.value
-                      )
-                    }
-                    className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white font-mono text-sm"
-                    disabled={isLoading}
+                    editorStyles={{ height: '200px' }}
                   />
+                  
                   <p className="text-xs text-gray-500 mt-1">
                     These details will be shown when players hover over this fraction on the game details page.
                   </p>
