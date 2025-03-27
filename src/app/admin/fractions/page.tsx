@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation'
 import useAdminAuth from '../console/hooks/useAdminAuth'
 import { Fraction } from '@/services/gameService'
 import { adminApi } from '@/utils/api'
-import AuthRequired from '@/components/admin/AuthRequired'
-import AdminLayout from '@/components/admin/AdminLayout'
+import AdminLayout from '@/app/admin/components/AdminLayout'
 import FractionList from './components/FractionList'
 import CreateFractionModal from './components/CreateFractionModal'
 import EditFractionModal from './components/EditFractionModal'
+import AuthRequired from '../components/AuthRequired'
 
 export default function FractionsManagement() {
   const router = useRouter()

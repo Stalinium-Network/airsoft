@@ -6,10 +6,10 @@ import useAdminAuth from './hooks/useAdminAuth'
 import GameList from './components/GameList'
 import CreateGameModal from './components/CreateGameModal'
 import EditGameModal from './components/EditGameModal'
-import AuthRequired from '@/components/admin/AuthRequired'
-import AdminLayout from '@/components/admin/AdminLayout'
+import AdminLayout from '@/app/admin/components/AdminLayout'
 import { adminApi } from '@/utils/api'
 import AgentChat from './components/AgentChat'
+import { AuthRequired } from './components'
 
 export default function AdminConsole() {
   const router = useRouter()

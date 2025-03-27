@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
-import AboutHero from '@/components/about/AboutHero';
-import OurStorySection from '@/components/about/OurStorySection';
-import TeamSection from '@/components/about/TeamSection';
-import ValueSection from '@/components/about/ValueSection';
-import GallerySection from '@/components/about/GallerySection';
+import AboutHero from '@/app/about/components/AboutHero';
+import OurStorySection from '@/app/about/components/OurStorySection';
+import TeamSection from '@/app/about/components/TeamSection';
+import ValueSection from '@/app/about/components/ValueSection';
+import GallerySection from '@/app/about/components/GallerySection';
 import Footer from '@/components/Footer';
 import ClientWrapper from '@/components/ClientWrapper';
 

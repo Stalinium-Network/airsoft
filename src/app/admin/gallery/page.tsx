@@ -6,10 +6,10 @@ import { motion } from "framer-motion";
 import { FaTrash, FaSpinner } from "react-icons/fa";
 
 import useAdminAuth from "@/hooks/useAdminAuth";
-import AuthRequired from "@/components/admin/AuthRequired";
-import AdminLayout from "@/components/admin/AdminLayout";
+import AdminLayout from "@/app/admin/components/AdminLayout";
 import ImageUploadForm from "@/components/gallery/ImageUploadForm";
 import { Game } from "@/services/gameService";
+import AuthRequired from "../components/AuthRequired";
 
 interface GalleryImage {
   filename: string;

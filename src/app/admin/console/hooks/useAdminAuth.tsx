@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { api, adminApi } from '@/utils/api'
+import { adminApi } from '@/utils/api'
 
 export default function useAdminAuth() {
   const router = useRouter()

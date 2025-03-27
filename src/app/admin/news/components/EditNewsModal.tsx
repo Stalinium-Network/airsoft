@@ -56,7 +56,7 @@ export default function EditNewsModal({
   // Установка начального превью изображения
   useEffect(() => {
     if (news.image) {
-      setImagePreview(`/api/news/image/${news.image}`);
+      setImagePreview(`${process.env.NEXT_PUBLIC_API_URL}/news/image/${news.image}`);
     }
   }, [news.image]);
 

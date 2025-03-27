@@ -139,4 +139,19 @@ export const adminApi = {
   deleteNews: (id: string) => {
     return axiosAuthInstance.delete(`/admin/delete-news/${id}`);
   },
+  
+  // Team management endpoints
+  getAdminTeamList: () => axiosAuthInstance.get('/admin/team'),
+  getTeamMember: (id: string) => axiosAuthInstance.get(`/admin/team/${id}`),
+  createTeamMember: (formData: FormData) => {
+    return axiosAuthInstance.post('/admin/create-team-member', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  updateTeamMember: (id: string, formData: FormData) => {
+    return axiosAuthInstance.put(`/admin/update-team-member/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  deleteTeamMember: (id: string) => axiosAuthInstance.delete(`/admin/delete-team-member/${id}`),
 };

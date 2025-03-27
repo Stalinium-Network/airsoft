@@ -37,8 +37,11 @@ export default function ImageUploadSection({
       // Compress and convert to WebP
       const compressedImage = await compressImageToWebP(file);
       
+      // Convert Blob to File
+      const compressedFile = new File([compressedImage], file.name, { type: 'image/webp' });
+      
       // Pass the processed image up
-      onImageChange(compressedImage);
+      onImageChange(compressedFile);
     } catch (error) {
       console.error("Error processing image:", error);
     }

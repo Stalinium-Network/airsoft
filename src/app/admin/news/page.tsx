@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { NewsItem, mapNewsData } from '@/services/newsService';
 import { adminApi } from '@/utils/api';
 import { useRouter } from 'next/navigation';
-import AdminLayout from '@/components/admin/AdminLayout';
-import AuthRequired from '@/components/admin/AuthRequired';
+import AdminLayout from '@/app/admin/components/AdminLayout';
 import NewsList from './components/NewsList';
 import CreateNewsModal from './components/CreateNewsModal';
 import EditNewsModal from './components/EditNewsModal';
 import useAdminAuth from '../console/hooks/useAdminAuth';
 import { motion } from 'framer-motion';
+import AuthRequired from '../components/AuthRequired';
 
 export default function NewsAdminPage() {
   const router = useRouter();
