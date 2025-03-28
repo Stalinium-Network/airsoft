@@ -9,7 +9,7 @@ import EditGameModal from './components/EditGameModal'
 import AdminLayout from '@/app/admin/components/AdminLayout'
 import { adminApi } from '@/utils/api'
 import AgentChat from './components/AgentChat'
-import { AuthRequired } from './components'
+import AuthRequired from '../components/AuthRequired'
 
 export default function AdminConsole() {
   const router = useRouter()

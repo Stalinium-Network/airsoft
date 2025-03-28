@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import MarkdownRenderer from '../MarkdownRenderer';
 
 interface FAQItem {
   question: string;
@@ -62,8 +63,9 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden"
               >
-                <div className="p-6 pt-0 border-t border-gray-800">
-                  <p className="text-gray-300">{item.answer}</p>
+                <div className="px-6 pb-3 pt-2 border-t border-gray-800">
+                  <MarkdownRenderer content={item.answer} />
+                  {/* <p className="text-gray-300">{item.answer}</p> */}
                 </div>
               </motion.div>
             )}

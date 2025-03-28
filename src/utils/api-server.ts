@@ -4,6 +4,13 @@ import { NewsItem, mapNewsData } from '@/services/newsService';
 // Base API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// Define FAQ interface
+export interface FAQ {
+  _id: string;
+  question: string;
+  answer: string;
+}
+
 // Создаем серверный экземпляр axios
 const serverAxios = axios.create({
   baseURL: API_URL,
@@ -83,4 +90,16 @@ export const serverApi = {
       return { past: [], upcoming: [] };
     }
   },
+
+  // Получение всех FAQ
+  async getFaqs(): Promise<FAQ[]> {
+    try {
+      const response = await serverAxios.get('/faqs');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching FAQs from server:', error);
+      return [];
+    }
+  },
+
 };

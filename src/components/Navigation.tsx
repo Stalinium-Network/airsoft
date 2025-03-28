@@ -4,14 +4,19 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { FaHome } from 'react-icons/fa';
+import { BiSolidPhotoAlbum } from 'react-icons/bi';
+import { GrContactInfo } from 'react-icons/gr';
+import { HiOutlineNewspaper } from 'react-icons/hi2';
+import { AiOutlineQuestionCircle } from 'react-icons/ai';
 
 // Навигационные элементы вынесены на уровень модуля
 const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/about', label: 'About Us' },
-  { href: '/news', label: 'News' },
-  { href: '/faqs', label: 'FAQs' },
+  { href: '/', label: 'Home', svg: FaHome },
+  { href: '/gallery', label: 'Gallery', svg: BiSolidPhotoAlbum },
+  { href: '/about', label: 'About Us', svg: GrContactInfo },
+  { href: '/news', label: 'News', svg: HiOutlineNewspaper },
+  { href: '/faqs', label: 'FAQs', svg: AiOutlineQuestionCircle },
   { href: '/rules', label: 'Rules' },
   { href: '/waiver', label: 'Waiver' },
 ];

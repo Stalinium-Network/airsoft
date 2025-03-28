@@ -59,7 +59,7 @@ export default function TeamMemberClientComponent({ member, index }: TeamMemberP
       <div className="p-6 relative">
         {/* Декоративная полоса */}
         <div className="absolute -top-12 left-0 w-full flex justify-center">
-          <div className="h-[3px] w-24 bg-gradient-to-r from-transparent via-green-500 to-transparent rounded-full md:hidden"></div>
+          <div className="h-[3px] w-24 bg-gradient-to-r from-transparent via-green-500 to-transparent rounded-full hidden md:block"></div>
         </div>
         
         {/* Настоящее имя */}

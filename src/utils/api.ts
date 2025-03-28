@@ -56,6 +56,8 @@ export const publicApi = {
   getNewsCategories: () => {
     return axiosInstance.get('/news/categories');
   },
+  // FAQ endpoints
+  getFaqs: () => axiosInstance.get('/faqs'),
 };
 
 // Admin-specific API methods
@@ -154,4 +156,14 @@ export const adminApi = {
     });
   },
   deleteTeamMember: (id: string) => axiosAuthInstance.delete(`/admin/delete-team-member/${id}`),
+
+  // FAQ management endpoints
+  getFaqs: () => axiosAuthInstance.get('/admin/faqs'),
+  createFaq: (faqData: { question: string, answer: string }) => {
+    return axiosAuthInstance.post('/admin/create-faq', faqData);
+  },
+  updateFaq: (id: string, faqData: { question: string, answer: string }) => {
+    return axiosAuthInstance.put(`/admin/update-faq/${id}`, faqData);
+  },
+  deleteFaq: (id: string) => axiosAuthInstance.delete(`/admin/delete-faq/${id}`),
 };

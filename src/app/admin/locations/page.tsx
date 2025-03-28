@@ -126,7 +126,6 @@ export default function LocationsManager() {
           <ul className="list-disc list-inside text-gray-300 ml-2 space-y-1">
             <li>A unique name (also serves as the identifier)</li>
             <li>Coordinates (latitude,longitude format)</li>
-            <li>Optionally, an image and description</li>
           </ul>
         </div>
         

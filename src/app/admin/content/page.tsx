@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import useAdminAuth from '@/hooks/useAdminAuth'
-import { adminApi } from '@/utils/api'
 import AuthRequired from '../components/AuthRequired'
 import AdminLayout from '../components/AdminLayout'
 import TeamMembersSection from './components/TeamMembersSection'
+import FAQsSection from './components/FAQsSection'
 
 export default function ContentManager() {
   const { token, message, isError, setMessage, setIsError } = useAdminAuth()
@@ -46,17 +46,17 @@ export default function ContentManager() {
               disabled
             >
               About (Coming Soon)
-            </button>
+            </button> */}
             <button
               onClick={() => setActiveSection('faq')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
                 ${activeSection === 'faq' 
                   ? 'bg-green-600 text-white' 
                   : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
-              disabled
             >
-              FAQ (Coming Soon)
+              FAQ
             </button>
+            {/*
             <button
               onClick={() => setActiveSection('rules')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
@@ -85,8 +85,15 @@ export default function ContentManager() {
           />
         )}
         
+        {activeSection === 'faq' && (
+          <FAQsSection
+            setMessage={setMessage}
+            setIsError={setIsError}
+          />
+        )}
+        
         {/* Placeholder for future content sections */}
-        {activeSection !== 'team' && (
+        {activeSection !== 'team' && activeSection !== 'faq' && (
           <div className="bg-gray-800/50 rounded-lg p-8 text-center border border-gray-700/50">
             <p className="text-gray-400 text-lg mb-4">This section is coming soon</p>
             <button

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { FaSignOutAlt, FaHome, FaImages, FaCalendarAlt, FaUsers, FaBars, FaTimes } from 'react-icons/fa';
 import useAdminAuth from '@/hooks/useAdminAuth';
+import { MdOutlineLogout } from 'react-icons/md';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -157,8 +158,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             ))}
             <button
               onClick={handleLogout}
-              className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+              className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center justify-center"
             >
+              <MdOutlineLogout className="mr-1.5 text-green-500" />
               Log Out
             </button>
           </div>
