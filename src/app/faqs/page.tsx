@@ -4,7 +4,7 @@ import AIAssistant from '@/components/faq/AIAssistant';
 import { serverApi, FAQ } from '@/utils/api-server';
 
 export const metadata: Metadata = {
-  title: 'Frequently Asked Questions | WW Zov',
+  title: 'Frequently Asked Questions | Zone 37',
   description: 'Find answers to common questions about our STALKER-themed airsoft events, equipment, registration, and more.',
 };
 
@@ -12,27 +12,7 @@ export default async function FAQPage() {
   // Fetch FAQs from the server
   const faqs: FAQ[] = await serverApi.getFaqs();
 
-  // Fallback FAQs in case the server request fails or returns empty
-  const fallbackFaqs = [
-    {
-      _id: "fallback1",
-      question: "What is STALKER-themed airsoft?",
-      answer: "STALKER-themed airsoft combines traditional airsoft gameplay with elements from the S.T.A.L.K.E.R. game series. It creates an immersive post-apocalyptic experience where players navigate the 'Zone,' collect artifacts, complete missions, and engage with the rich lore of the game universe."
-    },
-    {
-      _id: "fallback2",
-      question: "What equipment do I need to participate?",
-      answer: "Basic requirements include an airsoft replica, eye protection (goggles or full-face mask), appropriate outdoor clothing, and comfortable boots. For STALKER-themed events, we recommend adding post-apocalyptic costume elements, a gas mask (decorative or functional), and a backpack for carrying supplies."
-    },
-    {
-      _id: "fallback3",
-      question: "Are beginners welcome?",
-      answer: "Absolutely! We welcome players of all experience levels. Beginners can rent equipment from us and will receive a safety briefing before the game. We also assign new players to experienced teams who can provide guidance during the event."
-    }
-  ];
-
-  // Use server data if available, otherwise use fallback data
-  const faqItems = faqs.length > 0 ? faqs : fallbackFaqs;
+  const faqItems = faqs.length > 0 ? faqs : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-gray-100">

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
-import LoadingBar from '@/components/LoadingBar'
+import LoadingBar from '@/components/LoadingBar';
+import Footer from '@/components/Footer';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 const meta = {
-  title: "WW Zov",
+  title: "Zone 37",
   description:
     "Airsoft Arena: STALKER Zone is a meeting place for all who seek real adventures in the Zone. Join the ranks of stalkers, obtain valuable artifacts, complete tasks and beware of enemies. Our scenario games recreate the atmosphere of the STALKER world. Choose your path in the Exclusion Zone.",
   images: ["/open-graph.jpg"],
@@ -60,10 +61,10 @@ export default function RootLayout({
         <LoadingBar />
         <Navigation />
         {children}
-
-        <div className="mb-10 border-t border-gray-800 pt-6 text-center text-gray-400">
+        <Footer />
+        <div className="mt-10 border-t border-gray-800 pt-6 text-center text-gray-400">
           <p>
-            &copy; {currentYear} WW Zov. All rights reserved. Inspired by
+            &copy; {currentYear} Zone 37. All rights reserved. Inspired by
             STALKER 2.
           </p>
           <p className="mt-2 text-sm">

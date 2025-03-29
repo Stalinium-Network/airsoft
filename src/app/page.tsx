@@ -15,7 +15,6 @@ export default function Home() {
           {/* GameSection is now a proper server component */}
           <GameSection />
           <FeatureSection />
-          <Footer />
         </div>
       </ClientWrapper>
     </div>

@@ -8,13 +8,13 @@ import { SvgBook } from "@/components/SVG/Book";
 export default function RulesPage() {
   // Пример строки с правилами в формате Markdown:
   const rulesStr = `
-# WW Zov / Rules v1.0
+# Zone 37 / Rules v1.0
 
 ---
 
 Rules v1.0
 
-The goal of this RULES is to provide current and future participants with a collection of rules and approved best practices. This guide is based on proven tactics, techniques, and procedures. WW Zov reserves the right to change any of these rules and communicate them to our participants prior to or during the event to ensure the high quality and safety of our event is maintained.
+The goal of this RULES is to provide current and future participants with a collection of rules and approved best practices. This guide is based on proven tactics, techniques, and procedures. Zone 37 reserves the right to change any of these rules and communicate them to our participants prior to or during the event to ensure the high quality and safety of our event is maintained.
 
 Treat all event participants with respect and dignity. Our events are designed to provide you with a fun experience. Even if it looks like one side is winning, the organizers will do everything possible to create a balanced scenario that will bring pleasure to all players. There are no winners and therefore no need to get competitive. Enjoy your role!
 
@@ -26,15 +26,15 @@ February 2025
 
 ## Introduction
 
-WW Zov is a 40-hour continuous airsoft role-playing event set in a constantly changing lore. Each game is a continuation of the previous one and affects the main storyline. You can be a penniless bandit, a treasure hunter, a trader, a soldier, or a PMC mercenary. The choice is yours. Enjoy your role and contribute to the story of WW Zov!
+Zone 37 is a 40-hour continuous airsoft role-playing event set in a constantly changing lore. Each game is a continuation of the previous one and affects the main storyline. You can be a penniless bandit, a treasure hunter, a trader, a soldier, or a PMC mercenary. The choice is yours. Enjoy your role and contribute to the story of Zone 37!
 
-Each player has a profile in our electronic system. Players can earn in-game reputation, money and join squads or entire organizations that have their own goals in WW Zov. All this will be useful to you during the game and when participating in giveaways where we give airsoft guns and gear.
+Each player has a profile in our electronic system. Players can earn in-game reputation, money and join squads or entire organizations that have their own goals in Zone 37. All this will be useful to you during the game and when participating in giveaways where we give airsoft guns and gear.
 
 ### Lore
 
-**BREAKING NEWS: Strange Phenomenon Leads to Global Conflict Over Artifacts in WW Zov**
+**BREAKING NEWS: Strange Phenomenon Leads to Global Conflict Over Artifacts in Zone 37**
 
-© 2025, WW Zov Airsoft Inc.
+© 2025, Zone 37 Airsoft Inc.
 
 ---
 
@@ -60,7 +60,7 @@ ANSI Z87.1-1989-rated full-seal to-your-face glasses, goggles, or masks are requ
 
 #### HEARING PROTECTION
 
-Hearing protection should be worn at all times. You could be subject to noises in excess of 120 dbs at any time during an event. This includes but is not limited to loud sirens, alarms, and commercial 1.4 C pyro (such as Enola Gaye products.). WW Zov will not be responsible for injuries caused by participants who choose not to use hearing protection during the event. Any military style hearing protection is appropriate however foam earplugs work just fine.
+Hearing protection should be worn at all times. You could be subject to noises in excess of 120 dbs at any time during an event. This includes but is not limited to loud sirens, alarms, and commercial 1.4 C pyro (such as Enola Gaye products.). Zone 37 will not be responsible for injuries caused by participants who choose not to use hearing protection during the event. Any military style hearing protection is appropriate however foam earplugs work just fine.
 
 #### DEAD RAGS
 
@@ -96,7 +96,7 @@ Put trash in designated trash receptacles only when on the field. If camping on-
 
 #### LOST AND FOUND
 
-If you come across any items that another participant obviously dropped, please pick them up and turn them in to the event staff so they may be returned to their rightful owner. WW Zov is not responsible for items left on the field after event staff clear the site.
+If you come across any items that another participant obviously dropped, please pick them up and turn them in to the event staff so they may be returned to their rightful owner. Zone 37 is not responsible for items left on the field after event staff clear the site.
 
 ---
 
@@ -328,9 +328,9 @@ If you are hit with a melee weapon, you are considered "dead" immediately. You n
 
 ### PMC RUBICON
 
-The paramilitary association of former special forces officers from the Eastern Bloc and other Slavic countries. They are distinguished by their brutal approach to achieving their goals. They do not disdain to do dirty work and are ready to go to the end. Rules of Engagement (ROE) states that we may not open fire until fired upon, however, this will only apply to Civilians present in WW Zov.
+The paramilitary association of former special forces officers from the Eastern Bloc and other Slavic countries. They are distinguished by their brutal approach to achieving their goals. They do not disdain to do dirty work and are ready to go to the end. Rules of Engagement (ROE) states that we may not open fire until fired upon, however, this will only apply to Civilians present in Zone 37.
 
-**Leadership and objectives**: The faction has a stationary base, a commander, and squads subordinate to him. A squad cannot have less than 4 people. Each squad must have a medic and a squad leader. Each squad itself assigns these roles to its members. As a PMC operator, you see WW Zov as a source of profit and a good place for illegal trade. Therefore, you will not allow anyone to establish control over it. Your PMC is even ready to launch a nuclear strike on WW Zov, to keep control over it. You receive specific orders from your commander as the game progresses.
+**Leadership and objectives**: The faction has a stationary base, a commander, and squads subordinate to him. A squad cannot have less than 4 people. Each squad must have a medic and a squad leader. Each squad itself assigns these roles to its members. As a PMC operator, you see Zone 37 as a source of profit and a good place for illegal trade. Therefore, you will not allow anyone to establish control over it. Your PMC is even ready to launch a nuclear strike on Zone 37, to keep control over it. You receive specific orders from your commander as the game progresses.
 
 **Appearance**: Green-based Russian camo (Pixel, ATACS-FG, Gorka, M81 Woodland, Marpat Woodland, Jungle Tiger Stripes). The top and bottom must match. No black headgear, plate carriers, or chest rigs, and pouches on them. Black pistol holsters and leg plates are allowed. Multicam and OD gear are allowed.
 
@@ -340,9 +340,9 @@ The paramilitary association of former special forces officers from the Eastern 
 
 ### PMC TITANS
 
-An American private military company consisting predominantly of former (and possibly active) CIA agents. Despite being funded by the American government for homeland security and conducting “dirty work” outside the American borders, PMC Titans is being investigated after a situation that happened in Zone 16 in May 2022. Records show that PMC Titans have allegedly committed war crimes including (but not limited to) the shooting of unarmed civilians, mutilation of corpses, and false surrendering. No one knows their real purpose for being in WW Zov nowadays.
+An American private military company consisting predominantly of former (and possibly active) CIA agents. Despite being funded by the American government for homeland security and conducting “dirty work” outside the American borders, PMC Titans is being investigated after a situation that happened in Zone 16 in May 2022. Records show that PMC Titans have allegedly committed war crimes including (but not limited to) the shooting of unarmed civilians, mutilation of corpses, and false surrendering. No one knows their real purpose for being in Zone 37 nowadays.
 
-**Leadership and objectives**: The faction has a stationary base, a commander, and squads subordinate to him. A squad cannot have less than 4 people. Each squad must have a medic and squad leader. Each squad itself assigns these roles to its members. As a PMC operator, you strive to establish your authority over WW Zov and provide your scientists with everything they need to develop advanced military technologies. You receive specific orders from your commander as the game progresses.
+**Leadership and objectives**: The faction has a stationary base, a commander, and squads subordinate to him. A squad cannot have less than 4 people. Each squad must have a medic and squad leader. Each squad itself assigns these roles to its members. As a PMC operator, you strive to establish your authority over Zone 37 and provide your scientists with everything they need to develop advanced military technologies. You receive specific orders from your commander as the game progresses.
 
 **Appearance**: Tan-based American camo (Multicam, Arid Multicam, AOR1, Desert Marpat, DCU, Chocolate Chip). The top and bottom must match. No black headgear, plate carriers, or chest rigs, and pouches on them. Black pistol holsters and leg plates are allowed. Tan, coyote brown, and OD gear are allowed.
 
@@ -352,9 +352,9 @@ An American private military company consisting predominantly of former (and pos
 
 ### UNITED GLOBAL FORCES
 
-The United Global Forces (UGF) are military forces from European countries, Africa, South America, and Australia. They strive to maintain order and prevent conflicts from spreading beyond WW Zov.
+The United Global Forces (UGF) are military forces from European countries, Africa, South America, and Australia. They strive to maintain order and prevent conflicts from spreading beyond Zone 37.
 
-**Leadership and objectives**: The faction has multiple checkpoints on the field, a commander, and squads subordinate to him. A squad cannot have less than 4 people. Each squad must have a medic and a squad leader. Each squad itself assigns these roles to its members. As a UGF operator, you are a government employee and your job is to maintain order in WW Zov and stop any illegal trade in artifacts outside the city. You receive specific orders from your commander as the game progresses.
+**Leadership and objectives**: The faction has multiple checkpoints on the field, a commander, and squads subordinate to him. A squad cannot have less than 4 people. Each squad must have a medic and a squad leader. Each squad itself assigns these roles to its members. As a UGF operator, you are a government employee and your job is to maintain order in Zone 37 and stop any illegal trade in artifacts outside the city. You receive specific orders from your commander as the game progresses.
 
 **Appearance**: Any black camo or clothes. The top and bottom must match. Headgear, plate carriers, chest rigs, and pouches on them can be of any camo.
 
@@ -364,7 +364,7 @@ The United Global Forces (UGF) are military forces from European countries, Afri
 
 ### CIVILIANS
 
-Who said you can't just make money there? WW Zov attracts all sorts of people from all over the world, including bounty hunters, treasure hunters, traders, doctors, and just onlookers who are not averse to making money peacefully, or not quite peacefully…
+Who said you can't just make money there? Zone 37 attracts all sorts of people from all over the world, including bounty hunters, treasure hunters, traders, doctors, and just onlookers who are not averse to making money peacefully, or not quite peacefully…
 
 **Leadership and objectives**: The faction has no base, commander, or squads. Players can team up at their discretion. As a civilian, you can search for artifacts and caches, trade with Traders and among your faction. You CAN revive players (if you have medic water on you), team up with one of the PMCs, but you CANNOT team up with the UGF. You can betray everyone (including your faction) to achieve your goals. But keep in mind, that reputation is hard to earn and very easy to lose. Betray your friends wisely!
 
@@ -402,7 +402,7 @@ We use the Ares Alpha app to coordinate actions during the game. Every player on
 
 Doubloons (DB) are an in-game currency. Doubloons can be earned by selling artifacts and by completing contracts and missions.
 
-Since paper money was very ineffective in WW Zov, the locals decided to use physical crypto-coins for all transactions in WW Zov. With this money, you can buy ammo, grenades, artifacts, access to closed areas, or bribe opponents to achieve your personal goals.
+Since paper money was very ineffective in Zone 37, the locals decided to use physical crypto-coins for all transactions in Zone 37. With this money, you can buy ammo, grenades, artifacts, access to closed areas, or bribe opponents to achieve your personal goals.
 
 All doubloons left on your hands by the end of the game will be credited to your faction for the next event, you can use this to gain an advantage! Saving is profitable!
 
@@ -414,7 +414,7 @@ A lockbox can be bought from the Trader. There is a limited number of lockboxes 
 
 ### ARTIFACTS
 
-Artifacts are collectibles that can be found in WW Zov. These artifacts can be used to complete contracts, fulfill missions, or for the sake of exploiting its power. Artifacts can be sold to the Trader for Doubloons.
+Artifacts are collectibles that can be found in Zone 37. These artifacts can be used to complete contracts, fulfill missions, or for the sake of exploiting its power. Artifacts can be sold to the Trader for Doubloons.
 
 - **Slime**  
   Slime is a flat yellow disc with a slight thickening in the center. If a player has this artifact, their bleed-out time is extended by an detailedDescription one minute, giving the player a higher chance of getting revived.  
@@ -480,7 +480,7 @@ You will find volunteers at traders, in hospital areas, and at faction bases. Fo
 
 ---
 
-© 2025, WW Zov Airsoft Inc.
+© 2025, Zone 37 Airsoft Inc.
 
   `;
 

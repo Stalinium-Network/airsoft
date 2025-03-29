@@ -14,7 +14,7 @@ import { AiOutlineQuestionCircle } from 'react-icons/ai';
 const navItems = [
   { href: '/', label: 'Home', svg: FaHome },
   { href: '/gallery', label: 'Gallery', svg: BiSolidPhotoAlbum },
-  { href: '/about', label: 'About Us', svg: GrContactInfo },
+  { href: '/about', label: 'About', svg: GrContactInfo },
   { href: '/news', label: 'News', svg: HiOutlineNewspaper },
   { href: '/faqs', label: 'FAQs', svg: AiOutlineQuestionCircle },
   { href: '/rules', label: 'Rules' },
@@ -114,13 +114,13 @@ export default function Navigation() {
             <div className="relative h-10 w-10 overflow-hidden rounded-full mr-3 border bg-white border-gray-700 transition-transform group-hover:scale-110">
               <Image 
                 src="/logo.webp" 
-                alt="WW Zov Logo" 
+                alt="Zone 37 Logo" 
                 fill
                 className="object-cover p-1"
               />
             </div>
             <span className="text-2xl font-bold tracking-wider transition-colors group-hover:text-green-500">
-              <span className="text-green-500 group-hover:text-white">WW</span> Zov
+              <span className="text-green-500 group-hover:text-white">Zone</span> 37
             </span>
           </Link>
 

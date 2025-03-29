@@ -9,7 +9,7 @@ const DynamicBackground = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: 'Page Not Found | WW Zov',
+  title: 'Page Not Found | Zone 37',
   description: 'The page you are looking for does not exist or has been moved.',
 };
 

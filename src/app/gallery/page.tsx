@@ -59,7 +59,6 @@ export default async function GalleryPage() {
               )}
             </div>
           </section>
-          <Footer />
         </div>
       </ClientWrapper>
     </div>

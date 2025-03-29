@@ -179,7 +179,7 @@ export default function HeroSection() {
             className="text-5xl md:text-7xl font-bold mb-6 text-white"
             data-nosnippet
           >
-            WELCOME TO <span className="bg-gradient-to-r from-green-200 to-green-500 text-transparent bg-clip-text">WW Zov</span>
+            WELCOME TO <span className="bg-gradient-to-r from-green-200 to-green-500 text-transparent bg-clip-text">Zone 37</span>
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-200">
             Join the ranks of stalkers, obtain valuable

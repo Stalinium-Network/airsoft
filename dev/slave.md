@@ -6,3 +6,7 @@
 Изменяй только то что необходимо, не трогай то что уже работает
 
 Всегда организовывай файлы правильно, что бы не навести бардак
+
+
+Ссылки на соцсети организации записанны в env переменных со следующими названиями: 
+NEXT_PUBLIC_LINK_FACEBOOK, NEXT_PUBLIC_LINK_INSTAGRAM, NEXT_PUBLIC_LINK_TIKTOK, NEXT_PUBLIC_LINK_YOUTUBE, NEXT_PUBLIC_LINK_DISCORD

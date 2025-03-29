@@ -3,9 +3,9 @@ export const dynamic = "force-dynamic";
 import AboutHero from '@/app/about/components/AboutHero';
 import OurStorySection from '@/app/about/components/OurStorySection';
 import TeamSection from '@/app/about/components/TeamSection';
-import ValueSection from '@/app/about/components/ValueSection';
+import GameFeaturesSection from '@/app/about/components/GameFeaturesSection';
+import FractionsSection from '@/app/about/components/FractionsSection';
 import GallerySection from '@/app/about/components/GallerySection';
-import Footer from '@/components/Footer';
 import ClientWrapper from '@/components/ClientWrapper';
 
 export default function AboutPage() {
@@ -15,10 +15,10 @@ export default function AboutPage() {
         <AboutHero />
         <div className='px-auto flex flex-col items-center justify-center w-screen'>
           <OurStorySection />
-          <ValueSection />
+          <GameFeaturesSection />
+          <FractionsSection />
           <GallerySection />
           <TeamSection />
-          <Footer />
         </div>
       </ClientWrapper>
     </div>

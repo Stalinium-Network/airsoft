@@ -1,12 +1,5 @@
+import { getAdminToken } from '@/utils/authUtils';
 import { Game } from './gameService';
-
-// Function to get the admin token from localStorage
-export const getAdminToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('adminToken');
-  }
-  return null;
-};
 
 // Helper for authenticated API calls
 export const adminFetch = async <T>(
@@ -119,29 +112,6 @@ export const formatDateForInput = (date: Date | string): string => {
     return `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}T${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
   } catch (error) {
     console.error("Error formatting date for input:", error);
-    return '';
-  }
-};
-
-export const formatDateForDisplay = (date: Date | string): string => {
-  if (!date) return '';
-  
-  try {
-    // Convert string to Date if needed
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
-    if (isNaN(dateObj.getTime())) return '';
-    
-    // Format as a human-readable string
-    return dateObj.toLocaleString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
-    });
-  } catch (error) {
-    console.error("Error formatting date:", error);
     return '';
   }
 };
