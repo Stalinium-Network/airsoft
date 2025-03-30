@@ -1,7 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter } from 'next/navigation'
+
+// Create a client component specifically for reading search params
+function SearchParamsReader() {
+  const searchParams = new URL(window.location.href).searchParams
+  return searchParams
+}
 
 export default function useAdminAuth() {
   const [token, setToken] = useState<string | null>(null)
@@ -10,26 +16,31 @@ export default function useAdminAuth() {
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
     const checkAndSaveToken = async () => {
       try {
+        // First check if we're in a browser environment
+        if (typeof window === 'undefined') {
+          return
+        }
+
         // First check if there's a token in URL parameters (from OAuth redirect)
-        const urlToken = searchParams.get('token')
-        
+        const searchParamsObj = new URL(window.location.href).searchParams
+        const urlToken = searchParamsObj.get('token')
+
         if (urlToken) {
           // Store token in localStorage
           localStorage.setItem('adminToken', urlToken)
           console.log('Token saved from URL parameters')
-          
+
           // Remove token from URL for security
           const newUrl = window.location.pathname
           window.history.replaceState({}, document.title, newUrl)
-          
+
           // Use the token from URL
           setToken(urlToken)
-          
+
           // Verify this token with the server
           const verifyResult = await verifyTokenWithServer(urlToken)
           if (verifyResult) {
@@ -42,7 +53,7 @@ export default function useAdminAuth() {
         // If no URL token or verification failed, check localStorage
         const storedToken = localStorage.getItem('adminToken')
         console.log('Checking stored token:', storedToken?.substring(0, 10) + '...')
-        
+
         if (!storedToken) {
           setIsLoading(false)
           return
@@ -69,7 +80,7 @@ export default function useAdminAuth() {
     }
 
     checkAndSaveToken()
-  }, [searchParams])
+  }, [])
 
   // Helper function to verify token with server
   const verifyTokenWithServer = async (tokenToVerify: string) => {

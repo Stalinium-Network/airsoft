@@ -1,12 +1,20 @@
-'use client'
+"use client";
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
-import { FaSignOutAlt, FaHome, FaImages, FaCalendarAlt, FaUsers, FaBars, FaTimes } from 'react-icons/fa';
-import useAdminAuth from '@/hooks/useAdminAuth';
-import { MdOutlineLogout } from 'react-icons/md';
-import TokenHandler from './TokenHandler';
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import {
+  FaSignOutAlt,
+  FaHome,
+  FaImages,
+  FaCalendarAlt,
+  FaUsers,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
+import useAdminAuth from "@/hooks/useAdminAuth";
+import { MdOutlineLogout } from "react-icons/md";
+import TokenHandler from "./TokenHandler";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -22,16 +30,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   // Hide main navigation when admin pages load
   useEffect(() => {
     // Find the main navigation element and hide it
-    const mainNavigation = document.getElementById('navigation');
+    const mainNavigation = document.getElementById("navigation");
     if (mainNavigation) {
-      mainNavigation.style.display = 'none';
+      mainNavigation.style.display = "none";
     }
 
     // Cleanup - restore navigation when component unmounts
     return () => {
-      const mainNavigation = document.getElementById('navigation');
+      const mainNavigation = document.getElementById("navigation");
       if (mainNavigation) {
-        mainNavigation.style.display = '';
+        mainNavigation.style.display = "";
       }
     };
   }, []);
@@ -43,28 +51,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('adminToken');
-      router.push('/admin');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("adminToken");
+      router.push("/admin");
     }
   };
 
   const navItems = [
-    { label: 'Games', href: '/admin/console' },
-    { label: 'Gallery', href: '/admin/gallery' },
-    { label: 'Locations', href: '/admin/locations' },
-    { label: 'Fractions', href: '/admin/fractions' },
-    { label: 'News', href: '/admin/news' },
-    { label: 'Content', href: '/admin/content' },
+    { label: "Games", href: "/admin/console" },
+    { label: "Gallery", href: "/admin/gallery" },
+    { label: "Locations", href: "/admin/locations" },
+    { label: "Fractions", href: "/admin/fractions" },
+    { label: "News", href: "/admin/news" },
+    { label: "Content", href: "/admin/content" },
   ];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* TokenHandler component wrapped in a Suspense boundary */}
       <Suspense fallback={null}>
         <TokenHandler />
       </Suspense>
-      
+
       <nav className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -82,15 +89,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <FaHome className="mr-1.5 text-green-500" />
                     Back to Site
                   </Link>
-                  
+
                   {navItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
                       className={`px-3 py-2 rounded-md text-sm font-medium ${
                         pathname === item.href
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                          ? "bg-gray-900 text-white"
+                          : "text-gray-300 hover:bg-gray-700 hover:text-white"
                       }`}
                     >
                       {item.label}
@@ -114,31 +121,41 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <span className="sr-only">Open main menu</span>
                 <svg
-                  className={`${isMenuOpen ? 'hidden' : 'block'} h-6 w-6`}
+                  className={`${isMenuOpen ? "hidden" : "block"} h-6 w-6`}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   aria-hidden="true"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
                 <svg
-                  className={`${isMenuOpen ? 'block' : 'hidden'} h-6 w-6`}
+                  className={`${isMenuOpen ? "block" : "hidden"} h-6 w-6`}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   aria-hidden="true"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
           </div>
         </div>
 
-        <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
+        <div className={`${isMenuOpen ? "block" : "hidden"} md:hidden`}>
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {/* Add back to site link in mobile menu */}
             <Link
@@ -148,15 +165,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <FaHome className="mr-1.5 text-green-500" />
               Back to Site
             </Link>
-            
+
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
                   pathname === item.href
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-300 hover:bg-gray-700 hover:text-white"
                 }`}
               >
                 {item.label}
@@ -187,7 +204,7 @@ interface NavLinkProps {
 
 function NavLink({ href, icon, label, onClick }: NavLinkProps) {
   return (
-    <Link 
+    <Link
       href={href}
       onClick={onClick}
       className="flex items-center px-4 py-3 text-gray-300 rounded-md hover:bg-gray-700 hover:text-green-500 transition-colors"

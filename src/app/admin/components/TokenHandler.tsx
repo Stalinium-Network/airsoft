@@ -4,13 +4,8 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
-/**
- * This component handles token extraction from URL parameters
- * and saves it to localStorage. It should be included in the
- * layout of all admin pages.
- */
-function TokenHandlerComponent() {
-  // Initialize state
+// This is a client-only component that uses useSearchParams
+function TokenHandlerClient() {
   const [mounted, setMounted] = useState(false)
   const searchParams = useSearchParams()
   
@@ -39,10 +34,12 @@ function TokenHandlerComponent() {
   return null
 }
 
+// The main component wrapped with Suspense
 export default function TokenHandler() {
+  // Use a dynamic import with Suspense to properly handle useSearchParams
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <TokenHandlerComponent />
+    <Suspense fallback={null}>
+      <TokenHandlerClient />
     </Suspense>
   )
 }

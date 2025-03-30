@@ -62,14 +62,8 @@ export default function RootLayout({
         <Navigation />
         {children}
         <Footer />
-        <div className="mt-10 border-t border-gray-800 pt-6 text-center text-gray-400">
-          <p>
-            &copy; {currentYear} Zone 37. All rights reserved. Inspired by
-            STALKER 2.
-          </p>
-          <p className="mt-2 text-sm">
-            This is a fan project and is not affiliated with GSC Game World.
-          </p>
+        <div className="my-10 border-t border-gray-800 pt-6 text-center text-gray-400">
+            &copy; {currentYear} Zone 37 Inc. California, US
         </div>
       </body>
     </html>
