@@ -1,7 +1,7 @@
 import Footer from '@/components/Footer';
 import ClientWrapper from '@/components/ClientWrapper';
-import GalleryHero from '@/components/gallery/GalleryHero';
-import GalleryGrid from '@/components/gallery/GalleryGrid';
+import GalleryHero from '@/app/admin/gallery/components/GalleryHero';
+import GalleryGrid from '@/app/admin/gallery/components/GalleryGrid';
 
 // Add revalidation time in seconds (1 hour = 3600 seconds)
 export const revalidate = 3600;

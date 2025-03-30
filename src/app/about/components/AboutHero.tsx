@@ -29,7 +29,7 @@ export default function AboutHero() {
           </h1>
           
           <p className="text-xl md:text-2xl max-w-3xl mx-auto mb-10 text-gray-300">
-            Discover the story behind Ukraine's premier STALKER-themed airsoft community
+            Discover the story behind STALKER-themed airsoft community
           </p>
 
           <motion.div

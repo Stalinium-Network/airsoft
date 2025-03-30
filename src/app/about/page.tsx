@@ -5,6 +5,7 @@ import OurStorySection from '@/app/about/components/OurStorySection';
 import TeamSection from '@/app/about/components/TeamSection';
 import GameFeaturesSection from '@/app/about/components/GameFeaturesSection';
 import FractionsSection from '@/app/about/components/FractionsSection';
+import PackingListSection from '@/app/about/components/PackingListSection';
 import GallerySection from '@/app/about/components/GallerySection';
 import ClientWrapper from '@/components/ClientWrapper';
 
@@ -17,6 +18,7 @@ export default function AboutPage() {
           <OurStorySection />
           <GameFeaturesSection />
           <FractionsSection />
+          <PackingListSection />
           <GallerySection />
           <TeamSection />
         </div>

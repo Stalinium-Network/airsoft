@@ -8,7 +8,7 @@ export default function GameFeaturesSection() {
   const features = [
     {
       icon: (
-        <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
         </svg>
       ),
@@ -17,7 +17,7 @@ export default function GameFeaturesSection() {
     },
     {
       icon: (
-        <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
         </svg>
       ),
@@ -26,7 +26,7 @@ export default function GameFeaturesSection() {
     },
     {
       icon: (
-        <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
@@ -35,7 +35,7 @@ export default function GameFeaturesSection() {
     },
     {
       icon: (
-        <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
@@ -44,7 +44,7 @@ export default function GameFeaturesSection() {
     },
     {
       icon: (
-        <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
         </svg>
       ),
@@ -53,7 +53,7 @@ export default function GameFeaturesSection() {
     },
     {
       icon: (
-        <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
@@ -63,7 +63,7 @@ export default function GameFeaturesSection() {
   ];
 
   return (
-    <section className="py-20 px-4 w-screen bg-gray-800 relative overflow-hidden">
+    <section className="py-16 px-4 w-screen bg-gray-800 relative overflow-hidden">
       {/* Декоративный фон */}
       <div className="absolute inset-0 overflow-hidden opacity-10">
         <div className="absolute w-[800px] h-[800px] -top-[400px] -right-[400px] rounded-full bg-green-500/30 blur-3xl"></div>
@@ -73,7 +73,7 @@ export default function GameFeaturesSection() {
 
       <div className="container mx-auto max-w-6xl relative z-10">
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-12"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
@@ -91,12 +91,12 @@ export default function GameFeaturesSection() {
               ></motion.span>
             </span>
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto mt-6">
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto mt-4">
             Explore the unique elements that make our STALKER-themed airsoft experience stand out from the ordinary.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
           {features.map((feature, index) => (
             <motion.div 
               key={index}
@@ -108,25 +108,26 @@ export default function GameFeaturesSection() {
               onMouseEnter={() => setHoveredFeature(index)}
               onMouseLeave={() => setHoveredFeature(null)}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-green500/20 to-green-800/30 rounded-2xl transform -rotate-1 scale-[0.98] opacity-0 group-hover:opacity-100 transition-all duration-300 blur-sm"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-green-800/30 rounded-xl transform -rotate-1 scale-[0.98] opacity-0 group-hover:opacity-100 transition-all duration-300 blur-sm"></div>
               
-              <div className="h-full bg-gray-900/50 backdrop-blur-sm p-8 rounded-2xl border border-gray-700 shadow-xl relative z-10 overflow-hidden group-hover:border-green-500/50 transition-colors duration-300">
-                {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-green-500/10 to-transparent opacity-60 rounded-bl-full"></div>
-                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-tr from-green-500/10 to-transparent opacity-40 rounded-tr-full"></div>
+              <div className="h-full bg-gray-900/50 backdrop-blur-sm p-5 rounded-xl border border-gray-700 shadow-xl relative z-10 overflow-hidden group-hover:border-green-500/50 transition-colors duration-300">
+                {/* Decorative Elements - уменьшены */}
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-green-500/10 to-transparent opacity-60 rounded-bl-full"></div>
                 
-                {/* Icon with circle background */}
-                <div className="relative mb-8 z-10">
-                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-green-400/10 to-green-600/5 rounded-full blur-md"></div>
-                  <div className={`relative inline-flex items-center justify-center p-3 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl shadow-inner text-green-400 group-hover:text-green-300 transition-all duration-500 transform ${hoveredFeature === index ? 'scale-110' : ''}`}>
-                    {feature.icon}
+                {/* Icon with circle background - уменьшен */}
+                <div className="relative mb-4 z-10">
+                  <div className="absolute -top-2 -left-2 w-16 h-16 bg-gradient-to-br from-green-400/10 to-green-600/5 rounded-full blur-md"></div>
+                  <div className={`relative inline-flex items-center justify-center p-2 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg shadow-inner text-green-400 group-hover:text-green-300 transition-all duration-500 transform ${hoveredFeature === index ? 'scale-110' : ''}`}>
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      {feature.icon}
+                    </div>
                   </div>
                 </div>
                 
-                {/* Content */}
+                {/* Content - уменьшен */}
                 <div className="relative z-10">
-                  <h3 className="text-2xl font-bold mb-4 group-hover:text-green-400 transition-colors duration-300">{feature.title}</h3>
-                  <p className="text-gray-300 group-hover:text-gray-200 transition-colors duration-300 leading-relaxed">{feature.description}</p>
+                  <h3 className="text-lg font-bold mb-2 group-hover:text-green-400 transition-colors duration-300">{feature.title}</h3>
+                  <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300 leading-relaxed line-clamp-4">{feature.description}</p>
                 </div>
                 
                 {/* Bottom design element */}
@@ -135,42 +136,6 @@ export default function GameFeaturesSection() {
             </motion.div>
           ))}
         </div>
-
-        <motion.div 
-          className="mt-20 relative"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          {/* Background Effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black rounded-2xl transform rotate-1 scale-[0.99] opacity-80"></div>
-          
-          <div className="p-10 bg-gray-900/80 backdrop-blur-md rounded-2xl border border-gray-800 shadow-2xl relative z-10 overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500/0 via-green-500 to-green-500/0"></div>
-            
-            <div className="flex flex-col md:flex-row items-center">
-              <div className="mb-8 md:mb-0 md:mr-10">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg shadow-green-500/20 relative">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-400 to-green-600 animate-pulse opacity-70 blur-md"></div>
-                  <svg className="w-12 h-12 text-gray-900 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">The Zone Experience</h3>
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  Our games are designed to be more than just airsoft matches - they're immersive experiences where your decisions matter, your character evolves, and the story unfolds based on the collective actions of all stalkers. Every game session is unique and offers something new to discover.
-                </p>
-              </div>
-            </div>
-            
-            {/* Decorative Corner Elements */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-green-500/10 to-transparent opacity-60 rounded-bl-full"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-tr from-green-500/10 to-transparent opacity-40 rounded-tr-full"></div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { FaSignOutAlt, FaHome, FaImages, FaCalendarAlt, FaUsers, FaBars, FaTimes } from 'react-icons/fa';
 import useAdminAuth from '@/hooks/useAdminAuth';
 import { MdOutlineLogout } from 'react-icons/md';
+import TokenHandler from './TokenHandler';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -59,6 +60,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {/* TokenHandler component wrapped in a Suspense boundary */}
+      <Suspense fallback={null}>
+        <TokenHandler />
+      </Suspense>
+      
       <nav className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">

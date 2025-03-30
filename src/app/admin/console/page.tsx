@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Game } from '@/services/gameService'
-import useAdminAuth from './hooks/useAdminAuth'
 import GameList from './components/GameList'
 import CreateGameModal from './components/CreateGameModal'
 import EditGameModal from './components/EditGameModal'
@@ -10,6 +9,7 @@ import AdminLayout from '@/app/admin/components/AdminLayout'
 import { adminApi } from '@/utils/api'
 import AgentChat from './components/AgentChat'
 import AuthRequired from '../components/AuthRequired'
+import useAdminAuth from '@/hooks/useAdminAuth'
 
 export default function AdminConsole() {
   const router = useRouter()

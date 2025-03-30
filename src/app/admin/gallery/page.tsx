@@ -7,7 +7,7 @@ import { FaTrash, FaSpinner } from "react-icons/fa";
 
 import useAdminAuth from "@/hooks/useAdminAuth";
 import AdminLayout from "@/app/admin/components/AdminLayout";
-import ImageUploadForm from "@/components/gallery/ImageUploadForm";
+import ImageUploadForm from "@/app/admin/gallery/components/ImageUploadForm";
 import { Game } from "@/services/gameService";
 import AuthRequired from "../components/AuthRequired";
 

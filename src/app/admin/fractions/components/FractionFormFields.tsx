@@ -71,7 +71,7 @@ export default function FractionFormFields({
               disabled={isLoading}
             />
             <p className="mt-1 text-xs text-gray-400">
-              Used on `/games/:id` page in `Available Factions` section for preview.
+              Used on `About`page for preview.
             </p>
           </div>
 

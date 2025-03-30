@@ -8,9 +8,9 @@ import AdminLayout from '@/app/admin/components/AdminLayout';
 import NewsList from './components/NewsList';
 import CreateNewsModal from './components/CreateNewsModal';
 import EditNewsModal from './components/EditNewsModal';
-import useAdminAuth from '../console/hooks/useAdminAuth';
 import { motion } from 'framer-motion';
 import AuthRequired from '../components/AuthRequired';
+import useAdminAuth from '@/hooks/useAdminAuth';
 
 export default function NewsAdminPage() {
   const router = useRouter();

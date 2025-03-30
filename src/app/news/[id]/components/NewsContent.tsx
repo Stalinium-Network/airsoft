@@ -80,12 +80,12 @@ export default function NewsContent({ news, categories }: NewsContentProps) {
       {/* Контент */}
       <div className="container mx-auto max-w-4xl px-6 py-10">
         {/* Краткое описание */}
-        <div className="text-xl text-gray-300 mb-8 leading-relaxed border-l-4 border-green-500 pl-4 italic">
+        <div className="text-md text-gray-300 mb-8 leading-relaxed border-l-4 border-green-500 px-4 mx-4 italic">
           {news.description}
         </div>
         
         {/* Основной контент с Markdown */}
-        <div className="mt-8 bg-gray-800 rounded-xl border border-gray-700 p-6 md:p-8 shadow-xl">
+        <div className="mt-8 shadow-xl">
           <div className="prose prose-invert prose-lg max-w-none">
             <MarkdownRenderer content={news.content} />
           </div>

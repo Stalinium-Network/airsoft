@@ -55,6 +55,8 @@ export default async function NewsPage({ params }: any) {
       .map(mapNewsData)
       .filter((item: NewsItem) => item._id !== news._id) // Исключаем текущую новость
       .slice(0, 3); // Ограничиваем до 3-х связанных новостей
+
+      console.log(relatedNewsResponse.data)
     
     return (
       <div className="min-h-screen bg-gray-900 text-white pb-16">
