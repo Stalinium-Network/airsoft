@@ -10,21 +10,21 @@ import ImageUploadSection from "../../console/components/game-form/ImageUploadSe
 import ProgressBar from "../../console/components/game-form/ProgressBar";
 
 interface EditFractionModalProps {
-  fraction: Fraction;
+  faction: Fraction;
   onClose: () => void;
-  onFractionUpdated: (fraction: Fraction) => void;
+  onFractionUpdated: (faction: Fraction) => void;
   onError: (message: string) => void;
 }
 
 export default function EditFractionModal({
-  fraction,
+  faction,
   onClose,
   onFractionUpdated,
   onError,
 }: EditFractionModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [editingFraction, setEditingFraction] = useState<Fraction>({ 
-    ...fraction
+    ...faction
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -33,10 +33,10 @@ export default function EditFractionModal({
 
   // Initialize image preview from existing URL if available
   useEffect(() => {
-    if (fraction.image) {
-      setImagePreview(`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${fraction.image}`);
+    if (faction.image) {
+      setImagePreview(`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${faction.image}`);
     }
-  }, [fraction.image]);
+  }, [faction.image]);
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -75,14 +75,14 @@ export default function EditFractionModal({
     }));
   };
 
-  // Update fraction
+  // Update faction
   const handleUpdateFraction = async () => {
     setIsLoading(true);
     setUploadProgress(0);
 
     // Validate form
     if (!editingFraction._id) {
-      onError("Please provide a name for the fraction");
+      onError("Please provide a name for the faction");
       setIsLoading(false);
       return;
     }
@@ -139,9 +139,9 @@ export default function EditFractionModal({
       
       onFractionUpdated(editingFraction);
     } catch (error: any) {
-      console.error("Error updating fraction:", error);
+      console.error("Error updating faction:", error);
       const errorMessage = error.response?.data?.message || error.message || "Unknown error";
-      onError(`Failed to update fraction: ${errorMessage}`);
+      onError(`Failed to update faction: ${errorMessage}`);
     } finally {
       setIsLoading(false);
       setUploadProgress(0);
@@ -208,7 +208,7 @@ export default function EditFractionModal({
       <div className="bg-gray-800 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
         {/* Header */}
         <ModalHeader 
-          title={`Edit: ${fraction._id}`}
+          title={`Edit: ${faction._id}`}
           icon={editIcon}
           onClose={onClose}
           isLoading={isLoading}
@@ -228,7 +228,7 @@ export default function EditFractionModal({
           <div className="grid grid-cols-1 gap-6">
             {/* Fraction form fields */}
             <FractionFormFields
-              fraction={editingFraction}
+              faction={editingFraction}
               onChange={handleInputChange}
               isLoading={isLoading}
             />

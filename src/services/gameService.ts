@@ -27,7 +27,7 @@ export interface Game {
   detailedDescription?: string;  // Detailed description
   image: string;
   // Используем GameFraction вместо Fraction для игр
-  fractions: GameFraction[];
+  factions: GameFraction[];
   price: number;
   isPast: boolean;
   registrationLink?: string; // Новое поле для общей ссылки регистрации

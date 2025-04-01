@@ -4,7 +4,7 @@ import { Game, Fraction } from "@/services/gameService";
 import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview, prepareImageForUpload } from '@/utils/imageUtils';
-import FractionsManager from "./FractionsManager";
+import FactionsManager from "./FactionsManager";
 
 // Components
 import ImageUploadSection from "./game-form/ImageUploadSection";
@@ -22,7 +22,7 @@ const defaultGameData: Omit<Game, "_id"> = {
   description: "",
   detailedDescription: "",
   image: "",
-  fractions: [], // Используем только фракции, без capacity
+  factions: [], // Используем только фракции, без capacity
   price: 25,
   isPast: false,
 };
@@ -127,11 +127,11 @@ export default function CreateGameModal({
     }));
   };
 
-  // Handle fractions update
-  const handleFractionsChange = (updatedFractions: Fraction[]) => {
+  // Handle factions update
+  const handleFactionsChange = (updatedFactions: Fraction[]) => {
     setNewGame((prev: any) => ({
       ...prev,
-      fractions: updatedFractions,
+      factions: updatedFactions,
     }));
   };
 
@@ -177,9 +177,9 @@ export default function CreateGameModal({
       // Всегда добавляем поле registrationLink, даже если оно пустое
       formData.append("registrationLink", newGame.registrationLink || '');
 
-      // Add fractions as JSON string
-      if (newGame.fractions && newGame.fractions.length > 0) {
-        formData.append("fractions", JSON.stringify(newGame.fractions));
+      // Add factions as JSON string
+      if (newGame.factions && newGame.factions.length > 0) {
+        formData.append("factions", JSON.stringify(newGame.factions));
       }
 
       // Image handling
@@ -288,7 +288,7 @@ export default function CreateGameModal({
               onLocationSelect={handleLocationSelect}
             />
             
-            {/* Fractions Manager with new approach */}
+            {/* Factions Manager with new approach */}
             <div className="bg-gray-750 p-3 rounded-lg border border-gray-700">
               <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
                 <svg
@@ -313,9 +313,9 @@ export default function CreateGameModal({
                 </p>
               </div>
               
-              <FractionsManager 
-                fractions={newGame.fractions || []}
-                onChange={handleFractionsChange}
+              <FactionsManager 
+                factions={newGame.factions || []}
+                onChange={handleFactionsChange}
                 isLoading={isLoading}
               />
             </div>

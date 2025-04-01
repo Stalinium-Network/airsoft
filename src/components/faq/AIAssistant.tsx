@@ -34,65 +34,65 @@ export default function AIAssistant() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
-    
+
     // Mark that the user has interacted with the chat
     setHasInteracted(true);
     setIsLoading(true);
     setError(null);
     setStreamingResponse('');
-    
+
     const userQuestion = question;
     setQuestion('');
-    
+
     // Add user message to chat
     setMessages(prevMessages => [
-      ...prevMessages, 
+      ...prevMessages,
       { role: 'user', content: userQuestion }
     ]);
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/assistant/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           message: userQuestion,
-          chatId: chatId 
+          chatId: chatId
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to get answer');
       }
-      
+
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let responseText = '';
-      
+
       if (reader) {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
+
           const chunk = decoder.decode(value);
           const lines = chunk.split('\n');
-          
+
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const data = line.substring(6);
-              
+
               if (data === '[DONE]') {
                 // Response is complete
                 // Check if response contains !ask_human
                 if (responseText.includes('!ask_human')) {
                   console.log('TODO: Ask Human');
                 }
-                
+
                 // Add complete AI response to chat history
                 setMessages(prevMessages => [
                   ...prevMessages,
                   { role: 'assistant', content: responseText }
                 ]);
-                
+
                 // Clear streaming response since it's now in the chat history
                 setStreamingResponse('');
               } else if (data.startsWith('[new_chat]')) {
@@ -126,16 +126,16 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto border border-gray-800 rounded-xl overflow-hidden bg-gray-900/50 backdrop-blur-sm">
-      <div className="p-6 bg-gray-800/30 flex items-center space-x-4">
-        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black">
+    <div className="max-w-3xl mx-auto border border-zone-dark-brown/40 rounded-xl overflow-hidden bg-zone-dark/70 backdrop-blur-sm">
+      <div className="p-6 bg-zone-dark-brown/30 flex items-center space-x-4">
+        <div className="w-8 h-8 rounded-full bg-zone-gold flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zone-dark-brown">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
         </div>
         <h3 className="text-xl font-medium">AI Assistant</h3>
       </div>
-      
+
       <div className="p-6">
         <div className="min-h-[200px] max-h-[400px] overflow-y-auto mb-6 space-y-4">
           {messages.length === 0 ? (
@@ -146,17 +146,17 @@ export default function AIAssistant() {
             <>
               {/* Display all previous messages */}
               {messages.map((msg, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`p-4 rounded-lg ${
-                    msg.role === 'user' 
-                      ? 'bg-blue-900/20 border border-blue-800 ml-10' 
-                      : 'bg-gray-800/30 mr-10'
+                    msg.role === 'user'
+                      ? 'bg-zone-blue/20 border border-zone-blue/30 ml-10'
+                      : 'bg-zone-dark-brown/30 mr-10'
                   }`}
                 >
                   <div className="flex items-start mb-1">
                     <span className={`text-sm font-semibold ${
-                      msg.role === 'user' ? 'text-blue-400' : 'text-green-400'
+                      msg.role === 'user' ? 'text-zone-blue' : 'text-zone-gold'
                     }`}>
                       {msg.role === 'user' ? 'You' : 'AI Assistant'}
                     </span>
@@ -168,12 +168,12 @@ export default function AIAssistant() {
                   )}
                 </div>
               ))}
-              
+
               {/* Display current streaming response */}
               {streamingResponse && (
-                <div className="p-4 rounded-lg bg-gray-800/30 mr-10">
+                <div className="p-4 rounded-lg bg-zone-dark-brown/30 mr-10">
                   <div className="flex items-start mb-1">
-                    <span className="text-sm font-semibold text-green-400">
+                    <span className="text-sm font-semibold text-zone-gold">
                       AI Assistant
                     </span>
                   </div>
@@ -182,7 +182,7 @@ export default function AIAssistant() {
               )}
             </>
           )}
-          
+
           {isLoading && !streamingResponse && (
             <div className="flex items-center space-x-2 text-gray-400 p-4">
               <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></div>
@@ -191,29 +191,29 @@ export default function AIAssistant() {
               <span className="text-sm">AI is thinking...</span>
             </div>
           )}
-          
+
           {error && (
             <div className="bg-red-900/20 border border-red-800 p-4 rounded-lg text-red-300">
               {error}
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
-        
+
         <form onSubmit={handleSubmit} className="relative">
           <input
             type="text"
             value={question}
             onChange={handleInputChange}
             placeholder="Ask me anything about our STALKER-themed airsoft events..."
-            className="w-full p-4 pr-16 bg-gray-800/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+            className="w-full p-4 pr-16 bg-zone-dark/50 border border-zone-dark-brown/40 rounded-lg focus:ring-2 focus:ring-zone-gold focus:border-transparent outline-none"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !question.trim()}
-            className="absolute right-3 top-3 p-2 rounded-md bg-green-500 text-black hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute right-3 top-3 p-2 rounded-md bg-zone-gold text-zone-dark-brown hover:bg-zone-gold/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -228,7 +228,7 @@ export default function AIAssistant() {
             )}
           </button>
         </form>
-        
+
         <p className="mt-4 text-sm text-gray-500 text-center">
           Our AI assistant is here to help answer your questions about our events, equipment, and STALKER lore.
         </p>

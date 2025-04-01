@@ -9,7 +9,7 @@ import FractionFormFields from "./FractionFormFields";
 import ImageUploadSection from "../../console/components/game-form/ImageUploadSection";
 import ProgressBar from "../../console/components/game-form/ProgressBar";
 
-// Default fraction data - удаляем registrationLink
+// Default faction data - удаляем registrationLink
 const defaultFractionData: Omit<Fraction, "_id"> = {
   name: "",
   shortDescription: "",
@@ -69,14 +69,14 @@ export default function CreateFractionModal({
     }));
   };
 
-  // Create new fraction
+  // Create new faction
   const handleCreateFraction = async () => {
     setIsLoading(true);
     setUploadProgress(0);
 
     // Validate form
     if (!newFraction.name) {
-      onError("Please provide a name for the fraction");
+      onError("Please provide a name for the faction");
       setIsLoading(false);
       return;
     }
@@ -124,9 +124,9 @@ export default function CreateFractionModal({
       
       onFractionCreated();
     } catch (error: any) {
-      console.error("Error creating fraction:", error);
+      console.error("Error creating faction:", error);
       const errorMessage = error.response?.data?.message || error.message || "Unknown error";
-      onError(`Failed to create fraction: ${errorMessage}`);
+      onError(`Failed to create faction: ${errorMessage}`);
     } finally {
       setIsLoading(false);
       setUploadProgress(0);
@@ -188,7 +188,7 @@ export default function CreateFractionModal({
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
               <div className="bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
                 <div className="w-12 h-12 border-4 border-t-green-500 border-gray-700 rounded-full animate-spin mb-4"></div>
-                <p className="text-white">Creating fraction...</p>
+                <p className="text-white">Creating faction...</p>
               </div>
             </div>
           )}
@@ -196,7 +196,7 @@ export default function CreateFractionModal({
           <div className="grid grid-cols-1 gap-6">
             {/* Fraction form fields */}
             <FractionFormFields
-              fraction={newFraction}
+              faction={newFraction}
               onChange={handleInputChange}
               isLoading={isLoading}
             />

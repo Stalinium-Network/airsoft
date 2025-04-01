@@ -7,10 +7,10 @@ import { GameFraction } from "@/services/gameService";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 interface FactionsSectionProps {
-  fractions: GameFraction[];
+  factions: GameFraction[];
 }
 
-export default function FactionsSection({ fractions }: FactionsSectionProps) {
+export default function FactionsSection({ factions }: FactionsSectionProps) {
   const [selectedFraction, setSelectedFraction] = useState<GameFraction | null>(
     null
   );
@@ -22,9 +22,9 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
   } | null>(null);
   const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  const openDetails = (fraction: GameFraction) => {
-    if (cardRefs.current[fraction._id]) {
-      const card = cardRefs.current[fraction._id];
+  const openDetails = (faction: GameFraction) => {
+    if (cardRefs.current[faction._id]) {
+      const card = cardRefs.current[faction._id];
       const rect = card?.getBoundingClientRect();
       if (rect) {
         setCardPosition({
@@ -35,7 +35,7 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
         });
       }
     }
-    setSelectedFraction(fraction);
+    setSelectedFraction(faction);
     document.body.style.overflow = "hidden";
   };
 
@@ -64,23 +64,23 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {fractions.map((fraction) => (
+        {factions.map((faction) => (
           <div
-            key={fraction._id}
+            key={faction._id}
             className="relative overflow-hidden rounded-lg border border-gray-700 group hover:border-green-500 transition-all duration-300 hover:shadow-md hover:shadow-green-900/20"
             ref={(el) => {
-              cardRefs.current[fraction._id] = el;
+              cardRefs.current[faction._id] = el;
             }}
           >
             {/* Background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-800/80 to-gray-800/60 z-10"></div>
 
             {/* Faction image as background */}
-            {fraction.image && (
+            {faction.image && (
               <div className="absolute inset-0 z-0">
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${fraction.image}`}
-                  alt={fraction._id}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${faction.image}`}
+                  alt={faction._id}
                   fill
                   className="object-cover opacity-30 group-hover:opacity-40 transition-opacity duration-300"
                 />
@@ -90,9 +90,9 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
             {/* Status indicator */}
             <div
               className={`absolute top-0 left-0 w-1 h-full ${
-                fraction.filled / fraction.capacity < 0.5
+                faction.filled / faction.capacity < 0.5
                   ? "bg-green-500"
-                  : fraction.filled / fraction.capacity < 0.9
+                  : faction.filled / faction.capacity < 0.9
                   ? "bg-yellow-500"
                   : "bg-red-500"
               }`}
@@ -102,28 +102,28 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
             <div className="p-4 relative z-20">
               <div className="flex items-start justify-between">
                 <h4 className="text-lg font-bold mb-1 group-hover:text-green-400 transition-colors">
-                  {fraction.name || fraction._id}
+                  {faction.name || faction._id}
                 </h4>
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    fraction.filled === fraction.capacity
+                    faction.filled === faction.capacity
                       ? "bg-red-900/50 text-red-200"
-                      : fraction.filled / fraction.capacity > 0.7
+                      : faction.filled / faction.capacity > 0.7
                       ? "bg-yellow-900/50 text-yellow-200"
                       : "bg-green-900/50 text-green-200"
                   }`}
                 >
-                  {fraction.filled === fraction.capacity
+                  {faction.filled === faction.capacity
                     ? "Full"
-                    : fraction.filled / fraction.capacity > 0.7
+                    : faction.filled / faction.capacity > 0.7
                     ? "Filling Up"
                     : "Available"}
                 </span>
               </div>
 
-              {fraction.shortDescription && (
+              {faction.shortDescription && (
                 <p className="text-gray-300 text-sm my-2 line-clamp-2">
-                  {fraction.shortDescription}
+                  {faction.shortDescription}
                 </p>
               )}
 
@@ -133,43 +133,43 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
                   <span className="text-gray-400">Capacity</span>
                   <span
                     className={`${
-                      fraction.filled / fraction.capacity < 0.5
+                      faction.filled / faction.capacity < 0.5
                         ? "text-green-400"
-                        : fraction.filled / fraction.capacity < 0.9
+                        : faction.filled / faction.capacity < 0.9
                         ? "text-yellow-400"
                         : "text-red-400"
                     }`}
                   >
-                    {fraction.filled}/{fraction.capacity}
+                    {faction.filled}/{faction.capacity}
                   </span>
                 </div>
                 <div className="w-full bg-gray-700/60 rounded-full h-1.5 overflow-hidden">
                   <div
                     className={`h-full ${
-                      fraction.filled / fraction.capacity < 0.5
+                      faction.filled / faction.capacity < 0.5
                         ? "bg-gradient-to-r from-green-600 to-green-400"
-                        : fraction.filled / fraction.capacity < 0.9
+                        : faction.filled / faction.capacity < 0.9
                         ? "bg-gradient-to-r from-yellow-600 to-yellow-400"
                         : "bg-gradient-to-r from-red-600 to-red-400"
                     }`}
                     style={{
-                      width: `${(fraction.filled / fraction.capacity) * 100}%`,
+                      width: `${(faction.filled / faction.capacity) * 100}%`,
                     }}
                   ></div>
                 </div>
               </div>
 
               {/* Spots left indicator */}
-              {fraction.filled < fraction.capacity && (
+              {faction.filled < faction.capacity && (
                 <div className="mt-2 text-xs text-green-400">
-                  {fraction.capacity - fraction.filled} spots remaining
+                  {faction.capacity - faction.filled} spots remaining
                 </div>
               )}
 
               {/* "View Details" button if details are available */}
-              {fraction.details && (
+              {faction.details && (
                 <button
-                  onClick={() => openDetails(fraction)}
+                  onClick={() => openDetails(faction)}
                   className="mt-3 inline-flex items-center justify-center w-full py-1.5 px-3 bg-gray-700 hover:bg-gray-600 rounded text-sm font-medium transition-colors"
                 >
                   <svg
@@ -259,7 +259,7 @@ export default function FactionsSection({ fractions }: FactionsSectionProps) {
                   {selectedFraction.image && (
                     <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-gray-600 relative">
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${selectedFraction.image}`}
+                        src={`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${selectedFraction.image}`}
                         alt={selectedFraction.name || selectedFraction._id}
                         fill
                         className="object-cover"

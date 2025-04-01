@@ -2,21 +2,21 @@ import { Fraction } from '@/services/gameService';
 import Image from 'next/image';
 
 interface FractionListProps {
-  fractions: Fraction[];
+  factions: Fraction[];
   isLoading: boolean;
-  onEditFraction: (fraction: Fraction) => void;
-  onDeleteFraction: (fractionId: string) => void;
+  onEditFraction: (faction: Fraction) => void;
+  onDeleteFraction: (factionId: string) => void;
 }
 
 export default function FractionList({
-  fractions,
+  factions,
   isLoading,
   onEditFraction,
   onDeleteFraction,
 }: FractionListProps) {
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-8">
-      <h2 className="text-xl font-semibold mb-6">All Fractions</h2>
+      <h2 className="text-xl font-semibold mb-6">All Factions</h2>
 
       {isLoading && (
         <div className="flex justify-center py-10">
@@ -24,25 +24,25 @@ export default function FractionList({
         </div>
       )}
 
-      {!isLoading && fractions.length === 0 && (
+      {!isLoading && factions.length === 0 && (
         <div className="text-center py-10 text-gray-400">
-          No fractions found. Create a new fraction to get started.
+          No factions found. Create a new faction to get started.
         </div>
       )}
 
       {/* Fraction grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {fractions.map((fraction) => (
+        {factions.map((faction) => (
           <div
-            key={fraction._id}
+            key={faction._id}
             className="bg-gray-700 rounded-lg overflow-hidden shadow-lg border border-gray-600"
           >
             {/* Fraction image */}
             <div className="h-40 relative">
-              {fraction.image ? (
+              {faction.image ? (
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/fractions/image/${fraction.image}`}
-                  alt={fraction.name || fraction._id}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${faction.image}`}
+                  alt={faction.name || faction._id}
                   fill
                   className="object-cover"
                 />
@@ -56,23 +56,23 @@ export default function FractionList({
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-4 w-full">
-                <h3 className="text-xl font-bold text-white">{fraction.name || fraction._id}</h3>
+                <h3 className="text-xl font-bold text-white">{faction.name || faction._id}</h3>
               </div>
             </div>
 
             {/* Fraction info */}
             <div className="p-4">
-              {fraction.shortDescription && (
-                <p className="text-gray-300 mb-3 line-clamp-2">{fraction.shortDescription}</p>
+              {faction.shortDescription && (
+                <p className="text-gray-300 mb-3 line-clamp-2">{faction.shortDescription}</p>
               )}
               
               <div className="text-sm text-gray-400 mb-4">
                 <div className="mb-1">
-                  <span className="text-gray-500">ID:</span> {fraction._id}
+                  <span className="text-gray-500">ID:</span> {faction._id}
                 </div>
               </div>
 
-              {/* Usage indicators - could show in how many games the fraction is used */}
+              {/* Usage indicators - could show in how many games the faction is used */}
               <div className="flex gap-2 mb-4">
                 <span className="text-xs bg-blue-900/60 text-blue-300 px-2 py-1 rounded">
                   Fraction
@@ -82,13 +82,13 @@ export default function FractionList({
               {/* Action buttons */}
               <div className="flex gap-2">
                 <button
-                  onClick={() => onEditFraction(fraction)}
+                  onClick={() => onEditFraction(faction)}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded text-sm"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => onDeleteFraction(fraction._id)}
+                  onClick={() => onDeleteFraction(faction._id)}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white py-1.5 rounded text-sm"
                 >
                   Delete

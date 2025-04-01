@@ -218,7 +218,7 @@ export default function AdminLogin() {
         {/* Адаптивный логотип */}
         <div className="flex justify-center mb-6 sm:mb-8">
           <Image 
-            src="/logo.webp" 
+            src="/logo-header.svg" 
             alt="Logo" 
             width={120} 
             height={40} 

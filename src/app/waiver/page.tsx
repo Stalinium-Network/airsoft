@@ -1,5 +1,5 @@
 "use client";
-import RulesWaiver from "@/components/rules-waiver/RulesWaiver";
+import RulesWaiver from "@/app/rules/components/RulesWaiver";
 import { SvgBook } from "@/components/SVG/Book";
 import { motion } from "framer-motion";
 
@@ -56,7 +56,7 @@ export default function WaiverPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 0.8 }}
-                    className="bg-gray-800 rounded-xl p-8 shadow-2xl border border-green-500/20 w-full max-w-2xl"
+                    className="bg-zone-dark-brown/30 rounded-xl p-8 shadow-2xl border border-zone-gold/20 w-full max-w-2xl"
                 >
                     <div className="text-center mb-6">
                         <h3 className="text-2xl font-bold text-white">To sign the document</h3>
@@ -68,7 +68,7 @@ export default function WaiverPage() {
                         download
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
-                        className="flex items-center justify-center gap-3 bg-green-500 hover:bg-green-400 text-gray-900 font-bold py-4 px-8 rounded-lg w-full transition-all duration-300 shadow-lg hover:shadow-green-500/25"
+                        className="flex items-center justify-center gap-3 bg-zone-gold hover:bg-zone-gold/80 text-zone-dark-brown font-bold py-4 px-8 rounded-lg w-full transition-all duration-300 shadow-lg hover:shadow-zone-gold/25"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -83,7 +83,7 @@ export default function WaiverPage() {
 
 const Title = () => {
     return (
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center border-b border-green-500 pb-4">
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center border-b border-zone-gold pb-4">
             Waiver
         </h1>
     );

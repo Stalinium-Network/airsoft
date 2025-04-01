@@ -21,7 +21,7 @@ interface GameDetails {
     total: number;
     filled: number;
   };
-  fractions?: GameFraction[];
+  factions?: GameFraction[];
   location: {
     _id: string;
     coordinates: string;
@@ -82,10 +82,10 @@ export default async function GameDetailPage({ params }: any) {
 
   // Calculate total capacity based on available data
   const getTotalCapacity = () => {
-    // If using new fractions structure
-    if (game.fractions && game.fractions.length > 0) {
-      const total = game.fractions.reduce((sum, fraction) => sum + fraction.capacity, 0);
-      const filled = game.fractions.reduce((sum, fraction) => sum + fraction.filled, 0);
+    // If using new factions structure
+    if (game.factions && game.factions.length > 0) {
+      const total = game.factions.reduce((sum, faction) => sum + faction.capacity, 0);
+      const filled = game.factions.reduce((sum, faction) => sum + faction.filled, 0);
       return {
         total,
         filled,

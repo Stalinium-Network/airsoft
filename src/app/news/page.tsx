@@ -37,11 +37,11 @@ export default async function NewsPage() {
   const categories = categoriesResponse.data;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white pb-12">
-      <section className="relative bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 py-16">
+    <div className="min-h-screen bg-zone-dark text-white pb-12">
+      <section className="relative bg-gradient-to-b from-zone-dark via-zone-dark-brown/30 to-zone-dark py-16">
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="text-5xl md:text-6xl font-bold text-center mb-4">
-            LATEST <span className="text-green-500">NEWS</span>
+            LATEST <span className="text-zone-gold">NEWS</span>
           </h1>
           <p className="text-xl text-gray-300 text-center max-w-2xl mx-auto">
             Stay updated with the latest events, community happenings, and

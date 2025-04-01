@@ -35,7 +35,7 @@ export function ShareButton({ title, text, url, className = '' }: ShareButtonPro
     }
   };
   
-  const shareButtonClasses = "py-3 px-4 rounded-md transition-colors font-bold bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 flex items-center justify-center";
+  const shareButtonClasses = "py-3 px-4 rounded-md transition-colors font-bold bg-zone-dark-brown/80 hover:bg-zone-dark-brown text-white border border-zone-dark-brown/40 flex items-center justify-center";
   
   return (
     <div className="relative">
@@ -51,7 +51,7 @@ export function ShareButton({ title, text, url, className = '' }: ShareButtonPro
       </button>
       
       {shareMessage && (
-        <div className="absolute top-full left-0 right-0 mt-1 p-1 bg-gray-800 text-xs text-green-400 rounded text-center border border-gray-700">
+        <div className="absolute top-full left-0 right-0 mt-1 p-1 bg-zone-dark text-xs text-zone-gold rounded text-center border border-zone-dark-brown/40">
           {shareMessage}
         </div>
       )}
@@ -64,7 +64,7 @@ interface RegisterButtonProps {
   gameName: string;
   isPast: boolean;
   isFull: boolean;
-  hasFractions?: boolean;
+  hasFactions?: boolean;
   registrationLink?: string;
   className?: string;
 }
@@ -74,7 +74,7 @@ export default function RegisterButton({
   gameName, 
   isPast, 
   isFull,
-  hasFractions = false,
+  hasFactions = false,
   registrationLink = '',
   className = '' 
 }: RegisterButtonProps) {
@@ -98,7 +98,7 @@ export default function RegisterButton({
     
     if (isPast) {
       registerButton = (
-        <div className={`${baseClasses} bg-gray-700 text-white cursor-not-allowed w-full`}>
+        <div className={`${baseClasses} bg-zone-dark-brown/80 text-white cursor-not-allowed w-full`}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -110,7 +110,7 @@ export default function RegisterButton({
       registerButton = (
         <button 
           onClick={handleRegister}
-          className={`${baseClasses} bg-yellow-600 hover:bg-yellow-700 text-white group w-full`}
+          className={`${baseClasses} bg-zone-blue hover:bg-zone-blue/80 text-white group w-full`}
           disabled={!registrationLink}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@ export default function RegisterButton({
     } else if (!registrationLink) {
       // Новый случай: нет ссылки регистрации
       registerButton = (
-        <div className={`${baseClasses} bg-gray-600 text-gray-400 cursor-not-allowed w-full`}>
+        <div className={`${baseClasses} bg-zone-dark-brown/50 text-gray-400 cursor-not-allowed w-full`}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                   d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -135,7 +135,7 @@ export default function RegisterButton({
       registerButton = (
         <button 
           onClick={handleRegister}
-          className={`${baseClasses} bg-green-500 hover:bg-green-600 text-gray-900 group w-full`}
+          className={`${baseClasses} bg-zone-gold hover:bg-zone-gold/80 text-zone-dark-brown font-bold group w-full`}
         >
           <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" 

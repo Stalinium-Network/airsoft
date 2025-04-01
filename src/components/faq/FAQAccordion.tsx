@@ -25,7 +25,7 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
       {items.map((item, index) => (
         <div 
           key={index} 
-          className="border border-gray-800 rounded-lg overflow-hidden bg-gray-900/50 backdrop-blur-sm"
+          className="border border-zone-dark-brown/40 rounded-lg overflow-hidden bg-zone-dark/70 backdrop-blur-sm"
         >
           <button
             className="w-full text-left p-6 flex justify-between items-center focus:outline-none"
@@ -35,7 +35,7 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
             <motion.div
               animate={{ rotate: activeIndex === index ? 45 : 0 }}
               transition={{ duration: 0.3 }}
-              className="text-green-500"
+              className="text-zone-gold"
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -63,9 +63,8 @@ export default function FAQAccordion({ items }: FAQAccordionProps) {
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden"
               >
-                <div className="px-6 pb-3 pt-2 border-t border-gray-800">
+                <div className="px-6 pb-3 pt-2 border-t border-zone-dark-brown/40">
                   <MarkdownRenderer content={item.answer} />
-                  {/* <p className="text-gray-300">{item.answer}</p> */}
                 </div>
               </motion.div>
             )}

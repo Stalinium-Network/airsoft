@@ -30,7 +30,7 @@ export default function NewsContent({ news, categories }: NewsContentProps) {
       {/* Header с изображением */}
       <div className="relative h-[50vh] min-h-[400px] w-full">
         {/* Фоновое изображение */}
-        <div className="absolute inset-0 bg-gray-800">
+        <div className="absolute inset-0 bg-zone-dark">
           {news.image && (
             <Image
               src={`${process.env.NEXT_PUBLIC_API_URL}/news/image/${news.image}`}
@@ -40,7 +40,7 @@ export default function NewsContent({ news, categories }: NewsContentProps) {
               className="object-cover opacity-50"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 via-gray-900/50 to-gray-900"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 via-gray-900/50 to-zone-dark"></div>
         </div>
         
         {/* Навигация */}
@@ -62,12 +62,12 @@ export default function NewsContent({ news, categories }: NewsContentProps) {
         <div className="absolute bottom-0 left-0 w-full p-6">
           <div className="container mx-auto max-w-4xl">
             <div className="flex items-center space-x-3 mb-3">
-              <span className="bg-green-600 text-white text-xs px-3 py-1 rounded-full font-medium">
+              <span className="bg-gray-300 text-zone-dark-brown text-xs px-3 py-1 rounded-full font-medium">
                 {getCategoryName(news.category)}
               </span>
               <span className="text-gray-400 text-sm">{formatDate(news.date)}</span>
               {news.pinned && (
-                <span className="bg-yellow-600/80 text-white text-xs px-3 py-1 rounded-full font-medium">
+                <span className="bg-zone-gold/80 text-white text-xs px-3 py-1 rounded-full font-medium">
                   Pinned
                 </span>
               )}
@@ -80,7 +80,7 @@ export default function NewsContent({ news, categories }: NewsContentProps) {
       {/* Контент */}
       <div className="container mx-auto max-w-4xl px-6 py-10">
         {/* Краткое описание */}
-        <div className="text-md text-gray-300 mb-8 leading-relaxed border-l-4 border-green-500 px-4 mx-4 italic">
+        <div className="text-md text-gray-300 mb-8 leading-relaxed border-l-4 border-zone-gold px-4 mx-4 italic">
           {news.description}
         </div>
         

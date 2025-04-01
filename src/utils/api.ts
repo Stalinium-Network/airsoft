@@ -99,19 +99,19 @@ export const adminApi = {
   },
   
   // Fraction endpoints
-  getFractions: () => axiosAuthInstance.get('/admin/fractions'),
-  getFraction: (id: string) => axiosAuthInstance.get(`/admin/fraction/${id}`),
+  getFactions: () => axiosAuthInstance.get('/admin/factions'),
+  getFraction: (id: string) => axiosAuthInstance.get(`/admin/faction/${id}`),
   createFraction: (formData: FormData) => {
-    return axiosAuthInstance.post('/admin/create-fraction', formData, {
+    return axiosAuthInstance.post('/admin/create-faction', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
   updateFraction: (id: string, formData: FormData) => {
-    return axiosAuthInstance.put(`/admin/update-fraction/${id}`, formData, {
+    return axiosAuthInstance.put(`/admin/update-faction/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
-  deleteFraction: (id: string) => axiosAuthInstance.delete(`/admin/delete-fraction/${id}`),
+  deleteFraction: (id: string) => axiosAuthInstance.delete(`/admin/delete-faction/${id}`),
   
   // Authentication
   verifyToken: () => axiosAuthInstance.get('/admin/verify-token'),

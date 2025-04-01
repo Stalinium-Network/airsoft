@@ -1,6 +1,6 @@
 export default function LoadingGame() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-zone-dark text-white">
       {/* Skeleton for hero section */}
       <div className="relative h-[50vh] w-full bg-gray-800 animate-pulse">
         <div className="absolute bottom-0 left-0 w-full p-8">

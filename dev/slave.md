@@ -10,3 +10,5 @@
 
 Ссылки на соцсети организации записанны в env переменных со следующими названиями: 
 NEXT_PUBLIC_LINK_FACEBOOK, NEXT_PUBLIC_LINK_INSTAGRAM, NEXT_PUBLIC_LINK_TIKTOK, NEXT_PUBLIC_LINK_YOUTUBE, NEXT_PUBLIC_LINK_DISCORD
+
+Сайт должен быть оформлен с использованием фирменных цветов, их близких аналогов или их градиентов. Физменные увета указаны в global.css в @theme {}

@@ -4,7 +4,7 @@ import { Game, Fraction } from "@/services/gameService";
 import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
-import FractionsManager from "./FractionsManager";
+import FactionsManager from "./FactionsManager";
 
 // Components
 import GameFormFields from "./game-form/GameFormFields";
@@ -36,7 +36,7 @@ export default function EditGameModal({
   const [isLoading, setIsLoading] = useState(false);
   const [editingGame, setEditingGame] = useState<Game>({ 
     ...game,
-    fractions: game.fractions || [] // Убедимся, что fractions существует
+    factions: game.factions || [] // Убедимся, что factions существует
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -118,11 +118,11 @@ export default function EditGameModal({
     }));
   };
 
-  // Handle fractions update
-  const handleFractionsChange = (updatedFractions: Fraction[]) => {
+  // Handle factions update
+  const handleFactionsChange = (updatedFactions: Fraction[]) => {
     setEditingGame((prev: any) => ({
       ...prev,
-      fractions: updatedFractions
+      factions: updatedFactions
     }));
   };
 
@@ -168,9 +168,9 @@ export default function EditGameModal({
       // Это позволит очистить ссылку если пользователь удалил значение
       formData.append("registrationLink", editingGame.registrationLink || '');
 
-      // Add fractions as JSON string
-      if (editingGame.fractions && editingGame.fractions.length > 0) {
-        formData.append("fractions", JSON.stringify(editingGame.fractions));
+      // Add factions as JSON string
+      if (editingGame.factions && editingGame.factions.length > 0) {
+        formData.append("factions", JSON.stringify(editingGame.factions));
       }
 
       // IMPORTANT FIX: Image handling
@@ -414,7 +414,7 @@ export default function EditGameModal({
               </div>
             </div>
             
-            {/* Fractions Manager with updated approach */}
+            {/* Factions Manager with updated approach */}
             <div className="bg-gray-750 p-3 rounded-lg border border-gray-700">
               <h3 className="text-lg font-medium text-blue-500 mb-3 flex items-center">
                 <svg
@@ -439,9 +439,9 @@ export default function EditGameModal({
                 </p>
               </div>
               
-              <FractionsManager 
-                fractions={editingGame.fractions || []}
-                onChange={handleFractionsChange}
+              <FactionsManager 
+                factions={editingGame.factions || []}
+                onChange={handleFactionsChange}
                 isLoading={isLoading}
               />
             </div>

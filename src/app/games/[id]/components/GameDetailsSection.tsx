@@ -5,7 +5,7 @@ import { GameFraction } from "@/services/gameService";
 interface GameDetailsSectionProps {
   game: {
     detailedDescription: string;
-    fractions?: GameFraction[];
+    factions?: GameFraction[];
   };
 }
 
@@ -16,8 +16,8 @@ export default function GameDetailsSection({ game }: GameDetailsSectionProps) {
       <MarkdownRenderer content={game.detailedDescription} />
       
       {/* Integrated Factions section */}
-      {game.fractions && game.fractions.length > 0 && (
-        <FactionsSection fractions={game.fractions} />
+      {game.factions && game.factions.length > 0 && (
+        <FactionsSection factions={game.factions} />
       )}
     </div>
   );

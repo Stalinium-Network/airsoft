@@ -15,12 +15,12 @@ export default async function FAQPage() {
   const faqItems = faqs.length > 0 ? faqs : [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-zone-dark to-black text-gray-100">
       <div className="container mx-auto px-4 py-16 max-w-6xl">
         {/* Header */}
         <div className="mb-16 text-center">
           <h1 className="text-5xl font-bold mb-6">
-            Frequently Asked <span className="text-green-500">Questions</span>
+            Frequently Asked <span className="text-zone-gold">Questions</span>
           </h1>
           <p className="text-gray-400 text-lg max-w-3xl mx-auto">
             Find answers to common questions about our STALKER-themed airsoft events. 

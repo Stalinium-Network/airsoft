@@ -21,14 +21,14 @@ export default function GameList({
   onEditGame,
   onDeleteGame,
 }: GameListProps) {
-  // Calculate total capacity from fractions
+  // Calculate total capacity from factions
   const getCapacityInfo = (game: Game) => {
-    if (!game.fractions || game.fractions.length === 0) {
+    if (!game.factions || game.factions.length === 0) {
       return { total: 0, filled: 0 };
     }
     
-    const total = game.fractions.reduce((sum, fraction) => sum + fraction.capacity, 0);
-    const filled = game.fractions.reduce((sum, fraction) => sum + fraction.filled, 0);
+    const total = game.factions.reduce((sum, faction) => sum + faction.capacity, 0);
+    const filled = game.factions.reduce((sum, faction) => sum + faction.filled, 0);
     
     return { total, filled };
   };
@@ -146,9 +146,9 @@ export default function GameList({
                         : (game.location as Location)._id}
                     </div>
 
-                    {/* Fractions information */}
+                    {/* Factions information */}
                     <div>
-                      {game.fractions && game.fractions.length > 0 ? (
+                      {game.factions && game.factions.length > 0 ? (
                         <>
                           <div className="flex justify-between items-center">
                             <span>Total Capacity:</span>
@@ -156,12 +156,12 @@ export default function GameList({
                           </div>
                           <div className="mt-1">
                             <span className="text-xs text-gray-500">
-                              Fractions: {game.fractions.length}
+                              Factions: {game.factions.length}
                             </span>
                           </div>
                         </>
                       ) : (
-                        <div>No fractions defined</div>
+                        <div>No factions defined</div>
                       )}
                     </div>
                   </div>

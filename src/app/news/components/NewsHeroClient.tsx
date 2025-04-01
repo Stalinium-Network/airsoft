@@ -119,7 +119,7 @@ export default function NewsHeroClient({ pinnedNews, categories }: NewsHeroClien
           className="absolute inset-0"
         >
           {/* Изображение */}
-          <div className="absolute inset-0 bg-gray-800 z-0">
+          <div className="absolute inset-0 bg-zone-dark z-0">
             {pinnedNews[currentIndex].image && (
               <Image
                 src={`${process.env.NEXT_PUBLIC_API_URL}/news/image/${pinnedNews[currentIndex].image}`}
@@ -141,7 +141,7 @@ export default function NewsHeroClient({ pinnedNews, categories }: NewsHeroClien
               transition={{ duration: 0.5 }}
             >
               <div className="flex items-center mb-4">
-                <span className="bg-green-600 text-white text-xs px-3 py-1 rounded-full font-medium mr-3">
+                <span className="bg-zone-gold text-zone-dark-brown text-xs px-3 py-1 rounded-full font-medium mr-3">
                   {getCategoryName(pinnedNews[currentIndex].category)}
                 </span>
                 <span className="text-gray-300 text-sm">
@@ -154,7 +154,7 @@ export default function NewsHeroClient({ pinnedNews, categories }: NewsHeroClien
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-3xl md:text-4xl font-bold mb-3 group-hover:text-green-400 transition-colors duration-300"
+              className="text-3xl md:text-4xl font-bold mb-3 group-hover:text-zone-gold transition-colors duration-300"
             >
               {pinnedNews[currentIndex].title}
             </motion.h2>
@@ -175,7 +175,7 @@ export default function NewsHeroClient({ pinnedNews, categories }: NewsHeroClien
             >
               <Link 
                 href={`/news/${pinnedNews[currentIndex]._id}`}
-                className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg inline-flex items-center group"
+                className="px-6 py-3 bg-zone-gold hover:bg-zone-gold/80 text-zone-dark-brown font-medium rounded-lg inline-flex items-center group"
               >
                 Read Full Article
                 <motion.svg 
@@ -203,7 +203,7 @@ export default function NewsHeroClient({ pinnedNews, categories }: NewsHeroClien
               onClick={() => goToIndex(index)}
               className={`w-3 h-3 rounded-full transition-all ${
                 index === currentIndex 
-                  ? "bg-green-500 w-10" 
+                  ? "bg-zone-gold w-10" 
                   : "bg-gray-500 hover:bg-gray-400"
               }`}
               aria-label={`Go to slide ${index + 1}`}

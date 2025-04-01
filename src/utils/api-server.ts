@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { NewsItem, mapNewsData } from '@/services/newsService';
+import { Game } from '@/services/gameService';
 
 // Base API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -81,7 +82,7 @@ export const serverApi = {
   },
   
   // Получение игр
-  async getGames() {
+  async getGames(): Promise<{ past: Game[]; upcoming: Game[] }> {
     try {
       const response = await serverAxios.get('/games');
       return response.data;

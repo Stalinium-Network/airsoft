@@ -34,7 +34,7 @@ export default function NewsCard({ article, index, categories }: NewsCardProps) 
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       viewport={{ once: true }}
-      className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-green-500 transition-all duration-300 shadow-lg hover:shadow-green-500/10"
+      className="bg-zone-dark-brown/20 rounded-xl overflow-hidden border border-zone-dark-brown/40 hover:border-zone-gold transition-all duration-300 shadow-lg hover:shadow-zone-gold/10"
     >
       <div className="relative h-48 overflow-hidden">
         {/* Изображение новости */}
@@ -46,11 +46,11 @@ export default function NewsCard({ article, index, categories }: NewsCardProps) 
             className="object-cover transition-transform duration-300 hover:scale-105"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-zone-dark via-zone-dark-brown/30 to-zone-dark"></div>
         )}
         
         <div className="absolute top-4 left-4 z-10">
-          <span className="bg-green-600/80 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full font-medium">
+          <span className="bg-zone-gold/80 text-zone-dark-brown backdrop-blur-sm text-xs px-3 py-1 rounded-full font-medium">
             {getCategoryName(article.category)}
           </span>
         </div>
@@ -62,7 +62,7 @@ export default function NewsCard({ article, index, categories }: NewsCardProps) 
         </div>
         
         <Link href={`/news/${article._id}`}>
-          <h3 className="text-xl font-bold mb-3 hover:text-green-400 transition-colors">
+          <h3 className="text-xl font-bold mb-3 hover:text-zone-gold transition-colors">
             {article.title}
           </h3>
         </Link>
@@ -71,10 +71,10 @@ export default function NewsCard({ article, index, categories }: NewsCardProps) 
           {article.description}
         </p>
         
-        <div className="flex justify-end">
+        <div className="flex justify-end mt-auto">
           <Link 
             href={`/news/${article._id}`}
-            className="text-green-400 hover:text-green-300 font-medium flex items-center group"
+            className="text-zone-gold hover:text-zone-gold/80 font-medium flex items-center group"
           >
             Read More
             <svg

@@ -59,7 +59,7 @@ export default async function NewsPage({ params }: any) {
       console.log(relatedNewsResponse.data)
     
     return (
-      <div className="min-h-screen bg-gray-900 text-white pb-16">
+      <div className="min-h-screen bg-zone-dark text-white pb-16">
         {/* Hero section */}
         <NewsContent news={news} categories={categories} />
         

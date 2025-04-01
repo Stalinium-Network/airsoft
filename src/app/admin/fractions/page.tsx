@@ -10,52 +10,52 @@ import EditFractionModal from "./components/EditFractionModal";
 import AuthRequired from "../components/AuthRequired";
 import useAdminAuth from "@/hooks/useAdminAuth";
 
-export default function FractionsManagement() {
+export default function FactionsManagement() {
   const { token, logout, message, isError, setMessage, setIsError } =
     useAdminAuth();
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [fractions, setFractions] = useState<Fraction[]>([]);
+  const [factions, setFactions] = useState<Fraction[]>([]);
   const [editingFraction, setEditingFraction] = useState<Fraction | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Effect for fetching fractions once authenticated
+  // Effect for fetching factions once authenticated
   useEffect(() => {
     if (token) {
-      fetchFractions();
+      fetchFactions();
     }
   }, [token]);
 
-  // Fetch fractions from the server
-  const fetchFractions = async () => {
+  // Fetch factions from the server
+  const fetchFactions = async () => {
     try {
       setIsLoading(true);
-      const response = await adminApi.getFractions();
-      setFractions(response.data);
+      const response = await adminApi.getFactions();
+      setFactions(response.data);
     } catch (error) {
-      console.error("Error fetching fractions:", error);
+      console.error("Error fetching factions:", error);
       setIsError(true);
-      setMessage("Failed to load fractions. Please try again.");
+      setMessage("Failed to load factions. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Open create fraction modal
+  // Open create faction modal
   const openCreateModal = () => {
     setIsCreateModalOpen(true);
   };
 
-  // Open the edit modal for a fraction
-  const openEditModal = (fraction: Fraction) => {
-    setEditingFraction({ ...fraction });
+  // Open the edit modal for a faction
+  const openEditModal = (faction: Fraction) => {
+    setEditingFraction({ ...faction });
     setIsEditModalOpen(true);
   };
 
-  // Delete a fraction
-  const deleteFraction = async (fractionId: string) => {
+  // Delete a faction
+  const deleteFraction = async (factionId: string) => {
     if (!token) {
       setIsError(true);
       setMessage("You must be logged in to perform this action");
@@ -64,7 +64,7 @@ export default function FractionsManagement() {
 
     if (
       !confirm(
-        "Are you sure you want to delete this fraction? This may affect games using this fraction."
+        "Are you sure you want to delete this faction? This may affect games using this faction."
       )
     ) {
       return;
@@ -75,37 +75,37 @@ export default function FractionsManagement() {
     setIsError(false);
 
     try {
-      await adminApi.deleteFraction(fractionId);
+      await adminApi.deleteFraction(factionId);
 
       setMessage("Fraction deleted successfully!");
 
       // Update local state
-      const updatedFractions = fractions.filter((f) => f._id !== fractionId);
-      setFractions(updatedFractions);
+      const updatedFactions = factions.filter((f) => f._id !== factionId);
+      setFactions(updatedFactions);
     } catch (error: any) {
-      console.error("Error deleting fraction:", error);
+      console.error("Error deleting faction:", error);
 
       // Extract error message from axios error
       const errorMessage =
         error.response?.data?.message || error.message || "Unknown error";
 
       setIsError(true);
-      setMessage(`Failed to delete fraction: ${errorMessage}`);
+      setMessage(`Failed to delete faction: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle successful fraction creation
+  // Handle successful faction creation
   const handleFractionCreated = async () => {
     setIsCreateModalOpen(false);
-    await fetchFractions();
+    await fetchFactions();
     setMessage("Fraction created successfully!");
   };
 
-  // Handle successful fraction update
+  // Handle successful faction update
   const handleFractionUpdated = async (updatedFraction: Fraction) => {
-    setFractions((prev) =>
+    setFactions((prev) =>
       prev.map((f) => (f._id === updatedFraction._id ? updatedFraction : f))
     );
     setIsEditModalOpen(false);
@@ -122,7 +122,7 @@ export default function FractionsManagement() {
     <AdminLayout>
       <div className="py-8 px-4 mx-auto max-w-7xl">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Fractions Management</h1>
+          <h1 className="text-3xl font-bold">Factions Management</h1>
           <button
             onClick={openCreateModal}
             disabled={isLoading}
@@ -148,7 +148,7 @@ export default function FractionsManagement() {
 
         {/* Fraction listing */}
         <FractionList
-          fractions={fractions}
+          factions={factions}
           isLoading={isLoading}
           onEditFraction={openEditModal}
           onDeleteFraction={deleteFraction}
@@ -169,7 +169,7 @@ export default function FractionsManagement() {
         {/* Edit Modal */}
         {isEditModalOpen && editingFraction && (
           <EditFractionModal
-            fraction={editingFraction}
+            faction={editingFraction}
             onClose={() => {
               setIsEditModalOpen(false);
               setEditingFraction(null);

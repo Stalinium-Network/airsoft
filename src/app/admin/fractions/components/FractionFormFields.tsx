@@ -2,7 +2,7 @@ import React from "react";
 import { Fraction } from "@/services/gameService";
 
 interface FractionFormFieldsProps {
-  fraction: Partial<Fraction>;
+  faction: Partial<Fraction>;
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
@@ -10,7 +10,7 @@ interface FractionFormFieldsProps {
 }
 
 export default function FractionFormFields({
-  fraction,
+  faction,
   onChange,
   isLoading = false,
 }: FractionFormFieldsProps) {
@@ -44,9 +44,9 @@ export default function FractionFormFields({
             <input
               type="text"
               name="name"
-              value={fraction._id}
+              value={faction._id}
               onChange={onChange}
-              placeholder="Enter fraction name"
+              placeholder="Enter faction name"
               className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               disabled={isLoading}
               required
@@ -64,9 +64,9 @@ export default function FractionFormFields({
             <input
               type="text"
               name="shortDescription"
-              value={fraction.shortDescription || ""}
+              value={faction.shortDescription || ""}
               onChange={onChange}
-              placeholder="Brief description of this fraction"
+              placeholder="Brief description of this faction"
               className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               disabled={isLoading}
             />
@@ -107,11 +107,11 @@ export default function FractionFormFields({
           </label>
           <textarea
             name="description"
-            value={fraction.description || ""}
+            value={faction.description || ""}
             onChange={onChange}
             rows={6}
             className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all font-mono"
-            placeholder="# Detailed description of the fraction&#10;- Background story&#10;- Special abilities&#10;- Purposes"
+            placeholder="# Detailed description of the faction&#10;- Background story&#10;- Special abilities&#10;- Purposes"
             disabled={isLoading}
           ></textarea>
           <p className="mt-1 text-xs text-gray-400">

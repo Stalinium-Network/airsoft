@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import RulesWaiver from "@/components/rules-waiver/RulesWaiver";
+import RulesWaiver from "@/app/rules/components/RulesWaiver";
 import { motion } from "framer-motion";
 import { SvgBook } from "@/components/SVG/Book";
 

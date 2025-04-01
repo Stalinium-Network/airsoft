@@ -64,7 +64,7 @@ export default function NewsFiltersClient({
             placeholder="Search news..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+            className="w-full bg-zone-dark-brown/20 border border-zone-dark-brown/40 rounded-lg px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-zone-gold transition-all"
           />
           <svg
             className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -119,10 +119,10 @@ function CategoryButton({
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition-all ${
+      className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition-all cursor-pointer ${
         isActive
-          ? "bg-green-600 text-white"
-          : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+          ? "bg-zone-gold text-zone-dark-brown font-medium"
+          : "bg-zone-dark-brown/20 text-gray-300 hover:bg-zone-dark-brown/40"
       }`}
     >
       {category.name}

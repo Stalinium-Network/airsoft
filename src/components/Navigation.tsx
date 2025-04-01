@@ -12,10 +12,12 @@ import { AiOutlineQuestionCircle } from 'react-icons/ai';
 
 // Навигационные элементы вынесены на уровень модуля
 const navItems = [
-  { href: '/', label: 'Home', svg: FaHome },
-  { href: '/gallery', label: 'Gallery', svg: BiSolidPhotoAlbum },
-  { href: '/about', label: 'About', svg: GrContactInfo },
+  // { href: '/', label: 'Home', svg: FaHome },
+  { href: '/world', label: 'Our World' },
+  { href: '/checklist', label: 'Checklist' },
+  { href: '/about', label: 'About Us' },
   { href: '/news', label: 'News', svg: HiOutlineNewspaper },
+  { href: '/gallery', label: 'Gallery', svg: BiSolidPhotoAlbum },
   { href: '/faqs', label: 'FAQs', svg: AiOutlineQuestionCircle },
   { href: '/rules', label: 'Rules' },
   { href: '/waiver', label: 'Waiver' },
@@ -26,13 +28,13 @@ const DesktopNavItem = ({ href, label, isActive }: { href: string; label: string
   <Link
     href={href}
     className={`relative px-4 py-2 text-sm font-medium rounded-md transition-colors
-      ${isActive ? 'text-green-500' : 'text-gray-300 hover:text-green-400 hover:bg-gray-800/50'}`}
+      ${isActive ? 'text-zone-gold' : 'text-gray-300 hover:text-zone-gold hover:bg-zone-dark-brown/30'}`}
   >
     {label}
     {isActive && (
       <motion.div
         layoutId="nav-underline"
-        className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 rounded-full"
+        className="absolute bottom-0 left-0 right-0 h-0.5 bg-zone-gold rounded-full"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -62,8 +64,8 @@ const MobileNavItem = ({
       href={href}
       className={`block px-3 py-2.5 rounded-md transition-colors ${
         isActive
-          ? 'bg-gray-700/70 text-green-500 font-medium border-l-2 border-green-500 pl-4'
-          : 'text-gray-300 hover:bg-gray-700/50'
+          ? 'bg-zone-dark-brown/70 text-zone-gold font-medium border-l-2 border-zone-gold pl-4'
+          : 'text-gray-300 hover:bg-zone-dark-brown/50'
       }`}
     >
       {label}
@@ -104,24 +106,21 @@ export default function Navigation() {
       id="navigation"
       className={`fixed w-full top-0 z-40 transition-all duration-500 
         ${isScrolled 
-          ? 'bg-gray-900/85 backdrop-blur-lg py-2 shadow-lg shadow-black/20' 
+          ? 'bg-zone-dark/85 backdrop-blur-lg py-2 shadow-lg shadow-black/20' 
           : 'bg-transparent py-4'}`}
     >
       <div className="container md:mx-auto px-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
-            <div className="relative h-10 w-10 overflow-hidden rounded-full mr-3 border bg-white border-gray-700 transition-transform group-hover:scale-110">
+            <div className="relative h-10 w-24 overflow-hidden mr-3 transition-transform group-hover:scale-110">
               <Image 
-                src="/logo.webp" 
+                src="/logo-header.svg" 
                 alt="Zone 37 Logo" 
                 fill
                 className="object-cover p-1"
               />
             </div>
-            <span className="text-2xl font-bold tracking-wider transition-colors group-hover:text-green-500">
-              <span className="text-green-500 group-hover:text-white">Zone</span> 37
-            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -139,7 +138,7 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800/60 focus:outline-none"
+            className="md:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-zone-dark-brown/60 focus:outline-none"
             aria-label="Toggle menu"
           >
             <div className="w-6 h-6 relative">
@@ -183,7 +182,7 @@ export default function Navigation() {
             className="md:hidden overflow-hidden"
           >
             <motion.nav
-              className="py-3 bg-gray-800/95 backdrop-blur-lg border-t border-gray-700/50 shadow-lg"
+              className="py-3 bg-zone-dark/95 backdrop-blur-lg border-t border-zone-dark-brown/50 shadow-lg"
               initial={{ y: -20 }}
               animate={{ y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}

@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { label: "Games", href: "/admin/console" },
     { label: "Gallery", href: "/admin/gallery" },
     { label: "Locations", href: "/admin/locations" },
-    { label: "Fractions", href: "/admin/fractions" },
+    { label: "Factions", href: "/admin/fractions" }, // TODO Rename to admin/factions, also rename the directory of page
     { label: "News", href: "/admin/news" },
     { label: "Content", href: "/admin/content" },
   ];

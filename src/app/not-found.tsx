@@ -15,16 +15,16 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-gray-900 to-black text-white flex items-center justify-center px-4 py-16 animate-gradient-pulse">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-zone-dark to-black text-white flex items-center justify-center px-4 py-16 animate-gradient-pulse">
       <div className="absolute inset-0 z-0">
         <DynamicBackground />
       </div>
       <div className="max-w-md mx-auto text-center z-10 relative">
         <div className="relative mb-8 mx-auto w-32 h-32">
           {/* Radiation symbol */}
-          <div className="absolute inset-0 bg-green-500 rounded-full opacity-20 animate-ping"></div>
+          <div className="absolute inset-0 bg-zone-gold rounded-full opacity-20 animate-ping"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <svg viewBox="0 0 100 100" className="w-24 h-24 text-green-500">
+            <svg viewBox="0 0 100 100" className="w-24 h-24 text-zone-gold">
               <circle cx="50" cy="50" r="20" fill="currentColor" />
               <g stroke="currentColor" strokeWidth="8" fill="none">
                 <circle cx="50" cy="50" r="40" />
@@ -42,7 +42,7 @@ export default function NotFound() {
         </div>
 
         <h1 className="text-5xl font-bold mb-4 text-white">
-          <span className="text-green-500">404</span> - ANOMALY DETECTED
+          <span className="text-zone-gold">404</span> - ANOMALY DETECTED
         </h1>
         
         <p className="text-gray-300 mb-8">
@@ -60,7 +60,7 @@ export default function NotFound() {
 
         <Link 
           href="/"
-          className="inline-block px-8 py-3 bg-green-600 hover:bg-green-700 text-black font-medium rounded-lg transition-colors"
+          className="inline-block px-8 py-3 bg-zone-gold hover:bg-zone-gold/80 text-zone-dark-brown font-medium rounded-lg transition-colors"
         >
           Return to Base Camp
         </Link>

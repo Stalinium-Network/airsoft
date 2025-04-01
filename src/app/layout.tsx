@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   title: meta.title,
   description: meta.description,
   metadataBase: new URL("https://browsenchat.com"),
-  icons: '/favicon_new.ico',
+  icons: '/logo.png',
   robots: "index, follow",
   openGraph: {
     title: meta.title,
@@ -48,23 +48,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const currentYear = new Date().getFullYear();
-
   return (
     <html lang="en">
       <head>
         {/* ...existing head content... */}
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-900 to-black text-white overflow-x-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zone-dark text-white overflow-x-hidden`}
       >
         <LoadingBar />
         <Navigation />
         {children}
         <Footer />
-        <div className="my-10 border-t border-gray-800 pt-6 text-center text-gray-400">
-            &copy; {currentYear} Zone 37 Inc. California, US
-        </div>
       </body>
     </html>
   );

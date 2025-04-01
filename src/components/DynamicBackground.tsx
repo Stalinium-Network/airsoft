@@ -33,7 +33,7 @@ export default function DynamicBackground() {
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           radius: Math.random() * 2 + 0.5,
-          color: Math.random() > 0.6 ? '#10B981' : '#6B7280',
+          color: Math.random() > 0.6 ? '#ffb000' : '#231f20',
           speedX: Math.random() * 0.5 - 0.25,
           speedY: Math.random() * 0.5 - 0.25,
           alpha: Math.random() * 0.5 + 0.1,

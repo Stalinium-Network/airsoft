@@ -5,6 +5,14 @@
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-discord: #5865F2; /* Discord color */
+  --color-discord-hover: #4752c4; /* Discord hover color */
+
+  --color-zone-blue: #0080ff; /* Используется редко */
+  --color-zone-dark: #101211; /* Для фона по умолчанию */
+  --color-zone-dark-brown: #231f20; /* Тоже редко используется */
+  --color-zone-gold: #ffb000; /* Используется для градиента текста (от белого до этого), просто для текста или для цвета кнопок */
 }
 
 :root {
@@ -14,13 +22,6 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      rgb(var(--background-start-rgb)),
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
   overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
@@ -34,17 +35,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #10b981; /* Green thumb - matches theme color */
+  background: #ffb000; /* Gold thumb - matches theme color */
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #059669; /* Darker green on hover */
+  background: #d69000; /* Darker gold on hover */
 }
 
 /* For Firefox */
 html {
-  scrollbar-color: #10b981 #1f2937;
+  scrollbar-color: #ffb000 #1f2937;
   scrollbar-width: thin;
 }
 
@@ -83,7 +84,7 @@ html {
 }
 
 .markdown-content pre::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 176, 0, 0.3);
   border-radius: 3px;
 }
 
@@ -95,8 +96,8 @@ html {
   position: absolute;
   top: 0;
   right: 0;
-  background-color: rgba(74, 222, 128, 0.2);
-  color: rgba(74, 222, 128, 0.9);
+  background-color: rgba(255, 176, 0, 0.2);
+  color: rgba(255, 176, 0, 0.9);
   font-size: 0.7rem;
   font-family: monospace;
   padding: 1px 4px;
@@ -126,7 +127,7 @@ html {
 
 /* NProgress custom styling */
 #nprogress .bar {
-  background: #4ade80 !important; /* Green color to match your theme */
+  background: #ffb000 !important; /* Gold color to match your theme */
   height: 3px !important;
   position: fixed;
   top: 0;
@@ -136,7 +137,7 @@ html {
 }
 
 #nprogress .peg {
-  box-shadow: 0 0 10px #4ade80, 0 0 5px #4ade80 !important;
+  box-shadow: 0 0 10px #ffb000, 0 0 5px #ffb000 !important;
 }
 
 @keyframes gradient-pulse {
