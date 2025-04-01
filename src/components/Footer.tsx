@@ -18,7 +18,7 @@ export default function Footer() {
       </div>
 
       <div className="container mx-auto max-w-6xl relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 select-none">
           {/* Социальные сети с упрощенным дизайном */}
           <div className="space-y-4 flex flex-col items-center">
             <h4 className="text-xl font-bold mb-6 text-white flex items-center space-x-2 border-b border-gray-800 pb-2">

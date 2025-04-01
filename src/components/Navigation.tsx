@@ -107,7 +107,7 @@ export default function Navigation() {
           ? 'bg-gray-900/85 backdrop-blur-lg py-2 shadow-lg shadow-black/20' 
           : 'bg-transparent py-4'}`}
     >
-      <div className="container mx-auto px-4">
+      <div className="container md:mx-auto px-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center group">

@@ -59,7 +59,7 @@ export default async function GallerySection() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
               {previewImages.map((image, index) => (
                 <div key={index} className="relative group">
                   {/* Background effect on hover */}
