@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Game, Fraction } from "@/services/gameService";
+import { Game, Faction } from "@/services/gameService";
 import { formatDateTime } from "@/utils/time-format";
 import { Location } from "@/services/locationService";
 
@@ -94,7 +94,7 @@ export default function GameList({
             const { total, filled } = getCapacityInfo(game);
             
             // Check if any faction has details
-            const hasFractionDetails = game.factions?.some(f => !!f.details);
+            const hasFactionDetails = game.factions?.some(f => !!f.details);
             
             return (
               <motion.div
@@ -159,7 +159,7 @@ export default function GameList({
                             <span className="text-xs text-gray-500">
                               Factions: {game.factions.length}
                             </span>
-                            {hasFractionDetails && (
+                            {hasFactionDetails && (
                               <span className="text-xs text-green-500 flex items-center">
                                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

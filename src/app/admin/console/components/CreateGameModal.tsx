@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Game, Fraction } from "@/services/gameService";
+import { Game, Faction } from "@/services/gameService";
 import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview, prepareImageForUpload } from '@/utils/imageUtils';
@@ -128,7 +128,7 @@ export default function CreateGameModal({
   };
 
   // Handle factions update
-  const handleFactionsChange = (updatedFactions: Fraction[]) => {
+  const handleFactionsChange = (updatedFactions: Faction[]) => {
     setNewGame((prev: any) => ({
       ...prev,
       factions: updatedFactions,
@@ -345,25 +345,6 @@ export default function CreateGameModal({
                 onImageRemove={handleRemoveImage}
                 fileInputDisabled={isLoading}
               />
-            </div>
-
-            {/* Detailed Description */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Detailed Description <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                name="detailedDescription"
-                value={newGame.detailedDescription || ""}
-                onChange={handleDetailedDescriptionChange}
-                placeholder="Enter detailed description of the game..."
-                rows={10}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Provide complete details about the game.
-              </p>
             </div>
           </div>
 

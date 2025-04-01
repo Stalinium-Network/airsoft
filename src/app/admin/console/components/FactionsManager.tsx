@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Fraction, GameFraction } from "@/services/gameService";
+import { Faction, GameFaction } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface FactionsManagerProps {
-  factions: GameFraction[];
-  onChange: (factions: GameFraction[]) => void;
+  factions: GameFaction[];
+  onChange: (factions: GameFaction[]) => void;
   isLoading: boolean;
 }
 
@@ -15,8 +15,8 @@ export default function FactionsManager({
   onChange,
   isLoading,
 }: FactionsManagerProps) {
-  const [availableFactions, setAvailableFactions] = useState<Fraction[]>([]);
-  const [selectedFractionId, setSelectedFractionId] = useState<string>("");
+  const [availableFactions, setAvailableFactions] = useState<Faction[]>([]);
+  const [selectedFactionId, setSelectedFactionId] = useState<string>("");
   const [isLoadingFactions, setIsLoadingFactions] = useState(false);
 
 
@@ -38,12 +38,12 @@ export default function FactionsManager({
   };
 
   // Handle adding a faction to the game
-  const handleAddFraction = () => {
-    if (!selectedFractionId || isLoading) return;
+  const handleAddFaction = () => {
+    if (!selectedFactionId || isLoading) return;
 
     // Find the selected faction from available factions
     const factionToAdd = availableFactions.find(
-      (f) => f._id === selectedFractionId
+      (f) => f._id === selectedFactionId
     );
 
     if (!factionToAdd) return;
@@ -52,8 +52,8 @@ export default function FactionsManager({
     const isAlreadyAdded = factions.some((f) => f._id === factionToAdd._id);
     if (isAlreadyAdded) return;
 
-    // Create a new GameFraction by adding game-specific fields to the base Fraction
-    const newGameFraction: GameFraction = {
+    // Create a new GameFaction by adding game-specific fields to the base Faction
+    const newGameFaction: GameFaction = {
       ...factionToAdd,
       capacity: 20, // Default capacity
       filled: 0, // Default filled (starts empty)
@@ -61,15 +61,15 @@ export default function FactionsManager({
     };
 
     // Update factions array
-    const updatedFactions = [...factions, newGameFraction];
+    const updatedFactions = [...factions, newGameFaction];
     onChange(updatedFactions);
 
     // Reset selection
-    setSelectedFractionId("");
+    setSelectedFactionId("");
   };
 
   // Handle removing a faction from the game
-  const handleRemoveFraction = (factionId: string) => {
+  const handleRemoveFaction = (factionId: string) => {
     if (isLoading) return;
     
     const updatedFactions = factions.filter((f) => f._id !== factionId);
@@ -77,7 +77,7 @@ export default function FactionsManager({
   };
 
   // Handle updating a faction's capacity and filled count
-  const handleFractionChange = (
+  const handleFactionChange = (
     factionId: string,
     field: "capacity" | "filled" | "details" | "registrationLink",
     value: any
@@ -103,13 +103,13 @@ export default function FactionsManager({
 
   return (
     <div className="space-y-6">
-      {/* Fraction selection dropdown */}
+      {/* Faction selection dropdown */}
       <div className="flex items-center mb-4">
         <div className="flex-grow mr-2">
           <select
             className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
-            value={selectedFractionId}
-            onChange={(e) => setSelectedFractionId(e.target.value)}
+            value={selectedFactionId}
+            onChange={(e) => setSelectedFactionId(e.target.value)}
             disabled={isLoading || isLoadingFactions}
           >
             <option value="">Select a faction to add...</option>
@@ -126,8 +126,8 @@ export default function FactionsManager({
         </div>
         <button
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md disabled:opacity-50"
-          onClick={handleAddFraction}
-          disabled={!selectedFractionId || isLoading || isLoadingFactions}
+          onClick={handleAddFaction}
+          disabled={!selectedFactionId || isLoading || isLoadingFactions}
         >
           Add
         </button>
@@ -155,7 +155,7 @@ export default function FactionsManager({
                     {faction.name || faction._id}
                   </h4>
                   <button
-                    onClick={() => handleRemoveFraction(faction._id)}
+                    onClick={() => handleRemoveFaction(faction._id)}
                     className="text-red-400 hover:text-red-300"
                     disabled={isLoading}
                   >
@@ -191,7 +191,7 @@ export default function FactionsManager({
                       min="0"
                       value={faction.capacity}
                       onChange={(e) =>
-                        handleFractionChange(
+                        handleFactionChange(
                           faction._id,
                           "capacity",
                           e.target.value
@@ -211,7 +211,7 @@ export default function FactionsManager({
                       max={faction.capacity}
                       value={faction.filled}
                       onChange={(e) =>
-                        handleFractionChange(
+                        handleFactionChange(
                           faction._id,
                           "filled",
                           e.target.value
@@ -225,14 +225,14 @@ export default function FactionsManager({
 
                 {/* <div className="mb-3">
                   <label className="block text-sm font-medium text-gray-400 mb-1">
-                    Fraction- Registration Link (optional)
+                    Faction- Registration Link (optional)
                   </label>
                   <input
                     type="text"
                     placeholder="https://example.com/register/faction"
                     value={faction.registrationLink || ""}
                     onChange={(e) =>
-                      handleFractionChange(
+                      handleFactionChange(
                         faction._id,
                         "registrationLink",
                         e.target.value
@@ -249,12 +249,12 @@ export default function FactionsManager({
                 {/* Поле для деталей фракции */}
                 <div className="mb-1 mt-4">
                   <label className="block text-sm font-medium text-gray-400 mb-1 flex items-center">
-                    <span>Fraction Details</span>
+                    <span>Faction Details</span>
                   </label>
                   
                   <textarea
                     value={faction.details || ""}
-                    onChange={(e) => handleFractionChange(faction._id, "details", e.target.value)}
+                    onChange={(e) => handleFactionChange(faction._id, "details", e.target.value)}
                     placeholder="Enter details specific to this faction in this game..."
                     rows={6}
                     className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"

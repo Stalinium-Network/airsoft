@@ -1,19 +1,19 @@
-import { Fraction } from '@/services/gameService';
+import { Faction } from '@/services/gameService';
 import Image from 'next/image';
 
-interface FractionListProps {
-  factions: Fraction[];
+interface FactionListProps {
+  factions: Faction[];
   isLoading: boolean;
-  onEditFraction: (faction: Fraction) => void;
-  onDeleteFraction: (factionId: string) => void;
+  onEditFaction: (faction: Faction) => void;
+  onDeleteFaction: (factionId: string) => void;
 }
 
-export default function FractionList({
+export default function FactionList({
   factions,
   isLoading,
-  onEditFraction,
-  onDeleteFraction,
-}: FractionListProps) {
+  onEditFaction,
+  onDeleteFaction,
+}: FactionListProps) {
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-8">
       <h2 className="text-xl font-semibold mb-6">All Factions</h2>
@@ -30,14 +30,14 @@ export default function FractionList({
         </div>
       )}
 
-      {/* Fraction grid */}
+      {/* Faction grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {factions.map((faction) => (
           <div
             key={faction._id}
             className="bg-gray-700 rounded-lg overflow-hidden shadow-lg border border-gray-600"
           >
-            {/* Fraction image */}
+            {/* Faction image */}
             <div className="h-40 relative">
               {faction.image ? (
                 <Image
@@ -60,7 +60,7 @@ export default function FractionList({
               </div>
             </div>
 
-            {/* Fraction info */}
+            {/* Faction info */}
             <div className="p-4">
               {faction.shortDescription && (
                 <p className="text-gray-300 mb-3 line-clamp-2">{faction.shortDescription}</p>
@@ -75,20 +75,20 @@ export default function FractionList({
               {/* Usage indicators - could show in how many games the faction is used */}
               <div className="flex gap-2 mb-4">
                 <span className="text-xs bg-blue-900/60 text-blue-300 px-2 py-1 rounded">
-                  Fraction
+                  Faction
                 </span>
               </div>
 
               {/* Action buttons */}
               <div className="flex gap-2">
                 <button
-                  onClick={() => onEditFraction(faction)}
+                  onClick={() => onEditFaction(faction)}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded text-sm"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => onDeleteFraction(faction._id)}
+                  onClick={() => onDeleteFaction(faction._id)}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white py-1.5 rounded text-sm"
                 >
                   Delete

@@ -1,14 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Fraction } from "@/services/gameService";
+import { Faction } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 import AdminLayout from "@/app/admin/components/AdminLayout";
-import FractionList from "./components/FractionList";
-import CreateFractionModal from "./components/CreateFractionModal";
-import EditFractionModal from "./components/EditFractionModal";
 import AuthRequired from "../components/AuthRequired";
 import useAdminAuth from "@/hooks/useAdminAuth";
+import EditFactionModal from "./components/EditFractionModal";
+import CreateFactionModal from "./components/CreateFractionModal";
+import FactionList from "./components/FractionList";
 
 export default function FactionsManagement() {
   const { token, logout, message, isError, setMessage, setIsError } =
@@ -16,8 +16,8 @@ export default function FactionsManagement() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [factions, setFactions] = useState<Fraction[]>([]);
-  const [editingFraction, setEditingFraction] = useState<Fraction | null>(null);
+  const [factions, setFactions] = useState<Faction[]>([]);
+  const [editingFaction, setEditingFaction] = useState<Faction | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -49,13 +49,13 @@ export default function FactionsManagement() {
   };
 
   // Open the edit modal for a faction
-  const openEditModal = (faction: Fraction) => {
-    setEditingFraction({ ...faction });
+  const openEditModal = (faction: Faction) => {
+    setEditingFaction({ ...faction });
     setIsEditModalOpen(true);
   };
 
   // Delete a faction
-  const deleteFraction = async (factionId: string) => {
+  const deleteFaction = async (factionId: string) => {
     if (!token) {
       setIsError(true);
       setMessage("You must be logged in to perform this action");
@@ -75,9 +75,9 @@ export default function FactionsManagement() {
     setIsError(false);
 
     try {
-      await adminApi.deleteFraction(factionId);
+      await adminApi.deleteFaction(factionId);
 
-      setMessage("Fraction deleted successfully!");
+      setMessage("Faction deleted successfully!");
 
       // Update local state
       const updatedFactions = factions.filter((f) => f._id !== factionId);
@@ -97,20 +97,20 @@ export default function FactionsManagement() {
   };
 
   // Handle successful faction creation
-  const handleFractionCreated = async () => {
+  const handleFactionCreated = async () => {
     setIsCreateModalOpen(false);
     await fetchFactions();
-    setMessage("Fraction created successfully!");
+    setMessage("Faction created successfully!");
   };
 
   // Handle successful faction update
-  const handleFractionUpdated = async (updatedFraction: Fraction) => {
+  const handleFactionUpdated = async (updatedFaction: Faction) => {
     setFactions((prev) =>
-      prev.map((f) => (f._id === updatedFraction._id ? updatedFraction : f))
+      prev.map((f) => (f._id === updatedFaction._id ? updatedFaction : f))
     );
     setIsEditModalOpen(false);
-    setEditingFraction(null);
-    setMessage("Fraction updated successfully!");
+    setEditingFaction(null);
+    setMessage("Faction updated successfully!");
   };
 
   // If not authenticated, show login prompt
@@ -129,7 +129,7 @@ export default function FactionsManagement() {
             className={`bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium
               ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
           >
-            Create New Fraction
+            Create New Faction
           </button>
         </div>
 
@@ -146,19 +146,19 @@ export default function FactionsManagement() {
           </div>
         )}
 
-        {/* Fraction listing */}
-        <FractionList
+        {/* Faction listing */}
+        <FactionList
           factions={factions}
           isLoading={isLoading}
-          onEditFraction={openEditModal}
-          onDeleteFraction={deleteFraction}
+          onEditFaction={openEditModal}
+          onDeleteFaction={deleteFaction}
         />
 
-        {/* Create Fraction Modal */}
+        {/* Create Faction Modal */}
         {isCreateModalOpen && (
-          <CreateFractionModal
+          <CreateFactionModal
             onClose={() => setIsCreateModalOpen(false)}
-            onFractionCreated={handleFractionCreated}
+            onFactionCreated={handleFactionCreated}
             onError={(errorMessage) => {
               setIsError(true);
               setMessage(errorMessage);
@@ -167,14 +167,14 @@ export default function FactionsManagement() {
         )}
 
         {/* Edit Modal */}
-        {isEditModalOpen && editingFraction && (
-          <EditFractionModal
-            faction={editingFraction}
+        {isEditModalOpen && editingFaction && (
+          <EditFactionModal
+            faction={editingFaction}
             onClose={() => {
               setIsEditModalOpen(false);
-              setEditingFraction(null);
+              setEditingFaction(null);
             }}
-            onFractionUpdated={handleFractionUpdated}
+            onFactionUpdated={handleFactionUpdated}
             onError={(errorMessage) => {
               setIsError(true);
               setMessage(errorMessage);

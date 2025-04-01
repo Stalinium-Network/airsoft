@@ -1,29 +1,29 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Fraction } from "@/services/gameService";
+import { Faction } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
 import ModalHeader from "../../console/components/modal/ModalHeader";
 import ModalFooter from "../../console/components/modal/ModalFooter";
-import FractionFormFields from "./FractionFormFields";
 import ImageUploadSection from "../../console/components/game-form/ImageUploadSection";
 import ProgressBar from "../../console/components/game-form/ProgressBar";
+import FactionFormFields from "./FractionFormFields";
 
-interface EditFractionModalProps {
-  faction: Fraction;
+interface EditFactionModalProps {
+  faction: Faction;
   onClose: () => void;
-  onFractionUpdated: (faction: Fraction) => void;
+  onFactionUpdated: (faction: Faction) => void;
   onError: (message: string) => void;
 }
 
-export default function EditFractionModal({
+export default function EditFactionModal({
   faction,
   onClose,
-  onFractionUpdated,
+  onFactionUpdated,
   onError,
-}: EditFractionModalProps) {
+}: EditFactionModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [editingFraction, setEditingFraction] = useState<Fraction>({ 
+  const [editingFaction, setEditingFaction] = useState<Faction>({ 
     ...faction
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -41,7 +41,7 @@ export default function EditFractionModal({
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setEditingFraction(prev => ({
+    setEditingFaction(prev => ({
       ...prev,
       [name]: value
     }));
@@ -54,7 +54,7 @@ export default function EditFractionModal({
       setImagePreview(preview);
       setImageFile(file);
       setImageChanged(true);
-      setEditingFraction(prev => ({
+      setEditingFaction(prev => ({
         ...prev,
         image: "file_upload" // Placeholder
       }));
@@ -69,19 +69,19 @@ export default function EditFractionModal({
     setImageFile(null);
     setImagePreview(null);
     setImageChanged(true);
-    setEditingFraction(prev => ({
+    setEditingFaction(prev => ({
       ...prev,
       image: ""
     }));
   };
 
   // Update faction
-  const handleUpdateFraction = async () => {
+  const handleUpdateFaction = async () => {
     setIsLoading(true);
     setUploadProgress(0);
 
     // Validate form
-    if (!editingFraction._id) {
+    if (!editingFaction._id) {
       onError("Please provide a name for the faction");
       setIsLoading(false);
       return;
@@ -92,14 +92,14 @@ export default function EditFractionModal({
       const formData = new FormData();
       
       // Append form fields
-      formData.append("name", editingFraction._id);
+      formData.append("name", editingFaction._id);
       
-      if (editingFraction.shortDescription) {
-        formData.append("shortDescription", editingFraction.shortDescription);
+      if (editingFaction.shortDescription) {
+        formData.append("shortDescription", editingFaction.shortDescription);
       }
       
-      if (editingFraction.description) {
-        formData.append("description", editingFraction.description);
+      if (editingFaction.description) {
+        formData.append("description", editingFaction.description);
       }
       
       // Удаляем передачу registrationLink - его больше нет в модели фракции
@@ -107,8 +107,8 @@ export default function EditFractionModal({
       // Image handling
       if (imageFile) {
         formData.append("file", imageFile);
-      } else if (editingFraction.image && !imageChanged) {
-        formData.append("image", editingFraction.image);
+      } else if (editingFaction.image && !imageChanged) {
+        formData.append("image", editingFaction.image);
       } else if (imageChanged && !imageFile) {
         formData.append("image", "");
       }
@@ -131,13 +131,13 @@ export default function EditFractionModal({
       }, 300);
 
       // Submit the form data
-      await adminApi.updateFraction(editingFraction._id, formData);
+      await adminApi.updateFaction(editingFaction._id, formData);
 
       // Complete progress
       clearInterval(progressInterval);
       setUploadProgress(100);
       
-      onFractionUpdated(editingFraction);
+      onFactionUpdated(editingFaction);
     } catch (error: any) {
       console.error("Error updating faction:", error);
       const errorMessage = error.response?.data?.message || error.message || "Unknown error";
@@ -226,9 +226,9 @@ export default function EditFractionModal({
           )}
 
           <div className="grid grid-cols-1 gap-6">
-            {/* Fraction form fields */}
-            <FractionFormFields
-              faction={editingFraction}
+            {/* Faction form fields */}
+            <FactionFormFields
+              faction={editingFaction}
               onChange={handleInputChange}
               isLoading={isLoading}
             />
@@ -249,7 +249,7 @@ export default function EditFractionModal({
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                Fraction Image
+                Faction Image
               </h3>
 
               <ImageUploadSection
@@ -270,7 +270,7 @@ export default function EditFractionModal({
           {/* Footer with action buttons */}
           <ModalFooter
             onCancel={onClose}
-            onConfirm={handleUpdateFraction}
+            onConfirm={handleUpdateFaction}
             isLoading={isLoading}
             confirmLabel="Save Changes"
             confirmIcon={saveIcon}

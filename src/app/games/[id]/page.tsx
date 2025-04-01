@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { GameFraction } from "@/services/gameService";
+import { GameFaction } from "@/services/gameService";
 import HeroSection from "./components/HeroSection";
 import GameDetailsSection from "./components/GameDetailsSection";
 import RegistrationSection from "./components/RegistrationSection";
@@ -21,7 +21,7 @@ interface GameDetails {
     total: number;
     filled: number;
   };
-  factions?: GameFraction[];
+  factions?: GameFaction[];
   location: {
     _id: string;
     coordinates: string;

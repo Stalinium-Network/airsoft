@@ -1,35 +1,35 @@
 "use client";
 import { useState } from "react";
-import { Fraction } from "@/services/gameService";
+import { Faction } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
 import ModalHeader from "../../console/components/modal/ModalHeader";
 import ModalFooter from "../../console/components/modal/ModalFooter";
-import FractionFormFields from "./FractionFormFields";
 import ImageUploadSection from "../../console/components/game-form/ImageUploadSection";
 import ProgressBar from "../../console/components/game-form/ProgressBar";
+import FactionFormFields from "./FractionFormFields";
 
 // Default faction data - удаляем registrationLink
-const defaultFractionData: Omit<Fraction, "_id"> = {
+const defaultFactionData: Omit<Faction, "_id"> = {
   name: "",
   shortDescription: "",
   description: "",
   image: "",
 };
 
-interface CreateFractionModalProps {
+interface CreateFactionModalProps {
   onClose: () => void;
-  onFractionCreated: () => void;
+  onFactionCreated: () => void;
   onError: (message: string) => void;
 }
 
-export default function CreateFractionModal({
+export default function CreateFactionModal({
   onClose,
-  onFractionCreated,
+  onFactionCreated,
   onError,
-}: CreateFractionModalProps) {
+}: CreateFactionModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [newFraction, setNewFraction] = useState<Omit<Fraction, "_id">>(defaultFractionData);
+  const [newFaction, setNewFaction] = useState<Omit<Faction, "_id">>(defaultFactionData);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -37,7 +37,7 @@ export default function CreateFractionModal({
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setNewFraction(prev => ({
+    setNewFaction(prev => ({
       ...prev,
       [name]: value
     }));
@@ -49,7 +49,7 @@ export default function CreateFractionModal({
       const preview = await createImagePreview(file);
       setImagePreview(preview);
       setImageFile(file);
-      setNewFraction(prev => ({
+      setNewFaction(prev => ({
         ...prev,
         image: "file_upload" // Placeholder
       }));
@@ -63,19 +63,19 @@ export default function CreateFractionModal({
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(null);
-    setNewFraction(prev => ({
+    setNewFaction(prev => ({
       ...prev,
       image: ""
     }));
   };
 
   // Create new faction
-  const handleCreateFraction = async () => {
+  const handleCreateFaction = async () => {
     setIsLoading(true);
     setUploadProgress(0);
 
     // Validate form
-    if (!newFraction.name) {
+    if (!newFaction.name) {
       onError("Please provide a name for the faction");
       setIsLoading(false);
       return;
@@ -86,14 +86,14 @@ export default function CreateFractionModal({
       const formData = new FormData();
       
       // Append form fields
-      formData.append("name", newFraction.name);
+      formData.append("name", newFaction.name);
       
-      if (newFraction.shortDescription) {
-        formData.append("shortDescription", newFraction.shortDescription);
+      if (newFaction.shortDescription) {
+        formData.append("shortDescription", newFaction.shortDescription);
       }
       
-      if (newFraction.description) {
-        formData.append("description", newFraction.description);
+      if (newFaction.description) {
+        formData.append("description", newFaction.description);
       }
       
       // Удаляем передачу registrationLink - его больше нет в модели фракции
@@ -116,13 +116,13 @@ export default function CreateFractionModal({
       }, 300);
 
       // Submit the form data
-      await adminApi.createFraction(formData);
+      await adminApi.createFaction(formData);
 
       // Complete progress
       clearInterval(progressInterval);
       setUploadProgress(100);
       
-      onFractionCreated();
+      onFactionCreated();
     } catch (error: any) {
       console.error("Error creating faction:", error);
       const errorMessage = error.response?.data?.message || error.message || "Unknown error";
@@ -177,7 +177,7 @@ export default function CreateFractionModal({
       <div className="bg-gray-800 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
         {/* Header */}
         <ModalHeader 
-          title="Create New Fraction"
+          title="Create New Faction"
           icon={createIcon}
           onClose={onClose}
           isLoading={isLoading}
@@ -194,9 +194,9 @@ export default function CreateFractionModal({
           )}
 
           <div className="grid grid-cols-1 gap-6">
-            {/* Fraction form fields */}
-            <FractionFormFields
-              faction={newFraction}
+            {/* Faction form fields */}
+            <FactionFormFields
+              faction={newFaction}
               onChange={handleInputChange}
               isLoading={isLoading}
             />
@@ -217,7 +217,7 @@ export default function CreateFractionModal({
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                Fraction Image
+                Faction Image
               </h3>
 
               <ImageUploadSection
@@ -238,9 +238,9 @@ export default function CreateFractionModal({
           {/* Footer with action buttons */}
           <ModalFooter
             onCancel={onClose}
-            onConfirm={handleCreateFraction}
+            onConfirm={handleCreateFaction}
             isLoading={isLoading}
-            confirmLabel="Create Fraction"
+            confirmLabel="Create Faction"
             confirmIcon={<span className="w-5 h-5 mr-1">{createIcon}</span>}
             loadingLabel="Creating..."
             loadingIcon={loadingIcon}

@@ -3,15 +3,15 @@
 import Image from "next/image";
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GameFraction } from "@/services/gameService";
+import { GameFaction } from "@/services/gameService";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 interface FactionsSectionProps {
-  factions: GameFraction[];
+  factions: GameFaction[];
 }
 
 export default function FactionsSection({ factions }: FactionsSectionProps) {
-  const [selectedFraction, setSelectedFraction] = useState<GameFraction | null>(
+  const [selectedFaction, setSelectedFaction] = useState<GameFaction | null>(
     null
   );
   const [cardPosition, setCardPosition] = useState<{
@@ -22,7 +22,7 @@ export default function FactionsSection({ factions }: FactionsSectionProps) {
   } | null>(null);
   const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  const openDetails = (faction: GameFraction) => {
+  const openDetails = (faction: GameFaction) => {
     if (cardRefs.current[faction._id]) {
       const card = cardRefs.current[faction._id];
       const rect = card?.getBoundingClientRect();
@@ -35,12 +35,12 @@ export default function FactionsSection({ factions }: FactionsSectionProps) {
         });
       }
     }
-    setSelectedFraction(faction);
+    setSelectedFaction(faction);
     document.body.style.overflow = "hidden";
   };
 
   const closeDetails = () => {
-    setSelectedFraction(null);
+    setSelectedFaction(null);
     document.body.style.overflow = "";
   };
 
@@ -195,7 +195,7 @@ export default function FactionsSection({ factions }: FactionsSectionProps) {
 
       {/* Анимированное модальное окно */}
       <AnimatePresence>
-        {selectedFraction && cardPosition && (
+        {selectedFaction && cardPosition && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center"
             initial={{ opacity: 0 }}
@@ -256,17 +256,17 @@ export default function FactionsSection({ factions }: FactionsSectionProps) {
               {/* Заголовок */}
               <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-4 flex justify-between items-center border-b border-gray-700">
                 <h3 className="text-xl font-bold text-green-400 flex items-center">
-                  {selectedFraction.image && (
+                  {selectedFaction.image && (
                     <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-gray-600 relative">
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${selectedFraction.image}`}
-                        alt={selectedFraction.name || selectedFraction._id}
+                        src={`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${selectedFaction.image}`}
+                        alt={selectedFaction.name || selectedFaction._id}
                         fill
                         className="object-cover"
                       />
                     </div>
                   )}
-                  {selectedFraction.name || selectedFraction._id}
+                  {selectedFaction.name || selectedFaction._id}
                 </h3>
                 <button
                   onClick={closeDetails}
@@ -292,7 +292,7 @@ export default function FactionsSection({ factions }: FactionsSectionProps) {
               <div className="p-6 max-h-[70vh] overflow-y-auto">
                 {/* Детали фракции */}
                 <div className="prose prose-invert max-w-none bg-gray-700/30 p-4 rounded-lg whitespace-pre-wrap">
-                  <MarkdownRenderer content={selectedFraction.details} />
+                  <MarkdownRenderer content={selectedFaction.details} />
                 </div>
               </div>
             </motion.div>

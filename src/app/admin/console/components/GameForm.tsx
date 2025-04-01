@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Game, Fraction } from "@/services/gameService";
+import { Game, Faction } from "@/services/gameService";
 import { formatDateTime } from "@/utils/time-format";
 import { Location } from "@/services/locationService";
 

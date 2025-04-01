@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react';
 import { adminApi } from '@/utils/api';
-import { Fraction, GameFraction } from '@/services/gameService';
+import { Faction, GameFaction } from '@/services/gameService';
 import Image from 'next/image';
 
-interface FractionSelectorProps {
-  selectedFactions: GameFraction[];
-  onSelect: (faction: GameFraction) => void;
+interface FactionSelectorProps {
+  selectedFactions: GameFaction[];
+  onSelect: (faction: GameFaction) => void;
   onRemove: (factionId: string) => void;
   isLoading?: boolean;
 }
 
-export default function FractionSelector({ 
+export default function FactionSelector({ 
   selectedFactions, 
   onSelect, 
   onRemove,
   isLoading = false 
-}: FractionSelectorProps) {
-  const [factions, setFactions] = useState<Fraction[]>([]);
+}: FactionSelectorProps) {
+  const [factions, setFactions] = useState<Faction[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string>('');
 
@@ -41,13 +41,13 @@ export default function FractionSelector({
     faction => !selectedFactions.some(selected => selected._id === faction._id)
   );
 
-  const handleAddFraction = () => {
+  const handleAddFaction = () => {
     if (!selectedId) return;
     
     const faction = factions.find(f => f._id === selectedId);
     if (faction) {
       // Add default capacity, filled values и пустую registrationLink для конкретной игры
-      const gameFraction: GameFraction = {
+      const GameFaction: GameFaction = {
         ...faction,
         details: '', // Default empty details
         capacity: 20, // Default capacity
@@ -55,7 +55,7 @@ export default function FractionSelector({
         registrationLink: '' // Default empty registration link
       };
       
-      onSelect(gameFraction);
+      onSelect(GameFaction);
       setSelectedId(''); // Reset selection
     }
   };
@@ -125,7 +125,7 @@ export default function FractionSelector({
           </select>
           
           <button
-            onClick={handleAddFraction}
+            onClick={handleAddFaction}
             disabled={!selectedId || isLoading}
             className={`px-4 py-2 rounded-md font-medium sm:w-auto w-full ${
               !selectedId

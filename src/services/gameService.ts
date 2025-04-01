@@ -1,7 +1,7 @@
 import { Location } from './locationService';
 
 // Базовая модель фракции - без registrationLink
-export interface Fraction {
+export interface Faction {
   _id: string;
   name?: string;
   image?: string;
@@ -10,7 +10,7 @@ export interface Fraction {
 }
 
 // Расширенная модель для фракции внутри игры - с capacity, filled и registrationLink
-export interface GameFraction extends Fraction {
+export interface GameFaction extends Faction {
   capacity: number;
   filled: number;
   registrationLink?: string; // Скрыто, но оставлено для будущего использования
@@ -26,8 +26,8 @@ export interface Game {
   description: string;  // Short description
   detailedDescription?: string;  // Detailed description
   image: string;
-  // Используем GameFraction вместо Fraction для игр
-  factions: GameFraction[];
+  // Используем GameFaction вместо Faction для игр
+  factions: GameFaction[];
   price: number;
   isPast: boolean;
   registrationLink?: string; // Новое поле для общей ссылки регистрации

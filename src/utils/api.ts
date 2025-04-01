@@ -98,20 +98,20 @@ export const adminApi = {
     return axiosAuthInstance.delete(`/admin/delete-location/${id}`);
   },
   
-  // Fraction endpoints
+  // Faction endpoints
   getFactions: () => axiosAuthInstance.get('/admin/factions'),
-  getFraction: (id: string) => axiosAuthInstance.get(`/admin/faction/${id}`),
-  createFraction: (formData: FormData) => {
+  getFaction: (id: string) => axiosAuthInstance.get(`/admin/faction/${id}`),
+  createFaction: (formData: FormData) => {
     return axiosAuthInstance.post('/admin/create-faction', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
-  updateFraction: (id: string, formData: FormData) => {
+  updateFaction: (id: string, formData: FormData) => {
     return axiosAuthInstance.put(`/admin/update-faction/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
-  deleteFraction: (id: string) => axiosAuthInstance.delete(`/admin/delete-faction/${id}`),
+  deleteFaction: (id: string) => axiosAuthInstance.delete(`/admin/delete-faction/${id}`),
   
   // Authentication
   verifyToken: () => axiosAuthInstance.get('/admin/verify-token'),

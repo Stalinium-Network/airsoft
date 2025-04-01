@@ -1,19 +1,19 @@
 import React from "react";
-import { Fraction } from "@/services/gameService";
+import { Faction } from "@/services/gameService";
 
-interface FractionFormFieldsProps {
-  faction: Partial<Fraction>;
+interface FactionFormFieldsProps {
+  faction: Partial<Faction>;
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   isLoading?: boolean;
 }
 
-export default function FractionFormFields({
+export default function FactionFormFields({
   faction,
   onChange,
   isLoading = false,
-}: FractionFormFieldsProps) {
+}: FactionFormFieldsProps) {
   return (
     <div className="space-y-6">
       {/* Basic Information */}
@@ -36,10 +36,10 @@ export default function FractionFormFields({
         </h3>
 
         <div className="grid grid-cols-1 gap-4">
-          {/* Fraction name field */}
+          {/* Faction name field */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
-              Fraction Name <span className="text-red-500">*</span>
+              Faction Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"

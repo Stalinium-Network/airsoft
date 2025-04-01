@@ -1,11 +1,11 @@
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import FactionsSection from "./FactionsSection";
-import { GameFraction } from "@/services/gameService";
+import { GameFaction } from "@/services/gameService";
 
 interface GameDetailsSectionProps {
   game: {
     detailedDescription: string;
-    factions?: GameFraction[];
+    factions?: GameFaction[];
   };
 }
 
