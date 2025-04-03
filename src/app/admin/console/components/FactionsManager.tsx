@@ -19,7 +19,6 @@ export default function FactionsManager({
   const [selectedFactionId, setSelectedFactionId] = useState<string>("");
   const [isLoadingFactions, setIsLoadingFactions] = useState(false);
 
-
   // Fetch available factions on component mount
   useEffect(() => {
     fetchFactions();
@@ -57,7 +56,7 @@ export default function FactionsManager({
       ...factionToAdd,
       capacity: 20, // Default capacity
       filled: 0, // Default filled (starts empty)
-      details: "", // Добавляем пустое поле details для каждой новой фракции
+      details: "", // Empty details field for each new faction
     };
 
     // Update factions array
@@ -71,35 +70,59 @@ export default function FactionsManager({
   // Handle removing a faction from the game
   const handleRemoveFaction = (factionId: string) => {
     if (isLoading) return;
-    
+
     const updatedFactions = factions.filter((f) => f._id !== factionId);
     onChange(updatedFactions);
   };
 
-  // Handle updating a faction's capacity and filled count
+  // Handle updating a faction's fields
   const handleFactionChange = (
     factionId: string,
-    field: "capacity" | "filled" | "details" | "registrationLink",
+    field: "capacity" | "filled" | "details",
     value: any
   ) => {
     if (isLoading) return;
-    
+
     const updatedFactions = factions.map((faction) => {
       if (faction._id === factionId) {
         return {
           ...faction,
-          [field]: field === "capacity" || field === "filled" ? parseInt(value, 10) || 0 : value,
+          [field]:
+            field === "capacity" || field === "filled"
+              ? parseInt(value, 10) || 0
+              : value,
         };
       }
       return faction;
     });
-    
+
+    onChange(updatedFactions);
+  };
+
+  // Handle updating a faction's registration info
+  const handleRegInfoChange = (
+    factionId: string,
+    regInfoField: "link" | "opens" | "closes",
+    value: string
+  ) => {
+    if (isLoading) return;
+
+    const updatedFactions = factions.map((faction) => {
+      return faction;
+    });
+
     onChange(updatedFactions);
   };
 
   // Calculate totals for summary
-  const totalCapacity = factions.reduce((sum, faction) => sum + faction.capacity, 0);
-  const totalFilled = factions.reduce((sum, faction) => sum + faction.filled, 0);
+  const totalCapacity = factions.reduce(
+    (sum, faction) => sum + faction.capacity,
+    0
+  );
+  const totalFilled = factions.reduce(
+    (sum, faction) => sum + faction.filled,
+    0
+  );
 
   return (
     <div className="space-y-6">
@@ -114,9 +137,7 @@ export default function FactionsManager({
           >
             <option value="">Select a faction to add...</option>
             {availableFactions
-              .filter(
-                (f) => !factions.some((added) => added._id === f._id)
-              )
+              .filter((f) => !factions.some((added) => added._id === f._id))
               .map((faction) => (
                 <option key={faction._id} value={faction._id}>
                   {faction.name || faction._id}
@@ -223,20 +244,17 @@ export default function FactionsManager({
                   </div>
                 </div>
 
-                {/* <div className="mb-3">
+                {/* Registration Info - Uncomment if you want to expose faction-specific registration links
+                <div className="mb-3">
                   <label className="block text-sm font-medium text-gray-400 mb-1">
-                    Faction- Registration Link (optional)
+                    Faction Registration Link (optional)
                   </label>
                   <input
                     type="text"
                     placeholder="https://example.com/register/faction"
-                    value={faction.registrationLink || ""}
+                    value={(faction.regInfo?.link) || ""}
                     onChange={(e) =>
-                      handleFactionChange(
-                        faction._id,
-                        "registrationLink",
-                        e.target.value
-                      )
+                      handleRegInfoChange(faction._id, "link", e.target.value)
                     }
                     className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
                     disabled={isLoading}
@@ -244,25 +262,33 @@ export default function FactionsManager({
                   <p className="text-xs text-gray-500 mt-1">
                     Leave empty to use the game-wide registration link.
                   </p>
-                </div> */}
+                </div>
+                */}
 
-                {/* Поле для деталей фракции */}
+                {/* Faction details field */}
                 <div className="mb-1 mt-4">
                   <label className="block text-sm font-medium text-gray-400 mb-1 flex items-center">
                     <span>Faction Details</span>
                   </label>
-                  
+
                   <textarea
                     value={faction.details || ""}
-                    onChange={(e) => handleFactionChange(faction._id, "details", e.target.value)}
+                    onChange={(e) =>
+                      handleFactionChange(
+                        faction._id,
+                        "details",
+                        e.target.value
+                      )
+                    }
                     placeholder="Enter details specific to this faction in this game..."
                     rows={6}
                     className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
                     disabled={isLoading}
                   />
-                  
+
                   <p className="text-xs text-gray-500 mt-1">
-                    These details will be shown when players hover over this faction on the game details page.
+                    These details will be shown when players hover over this
+                    faction on the game details page.
                   </p>
                 </div>
 
@@ -294,9 +320,6 @@ export default function FactionsManager({
           )}
         </AnimatePresence>
       </div>
-
-      {/* Capacity management area */}
-      
     </div>
   );
 }

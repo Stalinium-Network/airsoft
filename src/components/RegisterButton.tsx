@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { RegistrationInfo } from '@/services/gameService';
 
 // New ShareButton component
 interface ShareButtonProps {
@@ -65,7 +66,7 @@ interface RegisterButtonProps {
   isPast: boolean;
   isFull: boolean;
   hasFactions?: boolean;
-  registrationLink?: string;
+  regInfo?: RegistrationInfo;
   className?: string;
 }
 
@@ -75,17 +76,36 @@ export default function RegisterButton({
   isPast, 
   isFull,
   hasFactions = false,
-  registrationLink = '',
+  regInfo,
   className = '' 
 }: RegisterButtonProps) {
   const router = useRouter();
   
   const handleRegister = () => {
-    // Проверяем, что ссылка существует и перенаправляем только если она есть
-    if (registrationLink) {
-      window.open(registrationLink, '_blank');
+    // Check if regInfo exists and has a link
+    if (regInfo?.link) {
+      window.open(regInfo.link, '_blank');
     }
-    // Убираем перенаправление на страницу деталей, если ссылки нет
+  };
+  
+  // Check if registration is open
+  const isRegistrationOpen = () => {
+    if (!regInfo) return false;
+    
+    // If no dates are specified, check if link exists
+    if (!regInfo.opens && !regInfo.closes) {
+      return !!regInfo.link;
+    }
+    
+    const now = new Date();
+    const opensDate = regInfo.opens ? new Date(regInfo.opens) : null;
+    const closesDate = regInfo.closes ? new Date(regInfo.closes) : null;
+    
+    // Check if registration is open based on dates
+    if (opensDate && now < opensDate) return false;
+    if (closesDate && now > closesDate) return false;
+    
+    return !!regInfo.link;
   };
   
   // Base button classes
@@ -111,7 +131,7 @@ export default function RegisterButton({
         <button 
           onClick={handleRegister}
           className={`${baseClasses} bg-zone-blue hover:bg-zone-blue/80 text-white group w-full`}
-          disabled={!registrationLink}
+          disabled={!regInfo?.link}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
@@ -120,8 +140,8 @@ export default function RegisterButton({
           You can still register
         </button>
       );
-    } else if (!registrationLink) {
-      // Новый случай: нет ссылки регистрации
+    } else if (!isRegistrationOpen()) {
+      // Case: registration is not available or not open yet
       registerButton = (
         <div className={`${baseClasses} bg-zone-dark-brown/50 text-gray-400 cursor-not-allowed w-full`}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -75,7 +75,27 @@ export default function FactionFormFields({
             </p>
           </div>
 
-          {/* Удаляем поле registrationLink из формы создания/редактирования фракции */}
+          {/* Camo Sample field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Camo Sample
+              <span className="text-xs text-gray-500 ml-2">
+                (Reference for uniform requirement)
+              </span>
+            </label>
+            <input
+              type="text"
+              name="camoSample"
+              value={faction.camoSample || ""}
+              onChange={onChange}
+              placeholder="Filename of camo sample image"
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              disabled={isLoading}
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              Enter the filename of the camo sample image to be displayed with this faction.
+            </p>
+          </div>
         </div>
       </div>
 

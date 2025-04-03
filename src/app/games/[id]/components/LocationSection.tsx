@@ -1,71 +1,67 @@
+import LocationLink from "@/components/home/LocationLink";
 import Image from "next/image";
 
 interface LocationSectionProps {
   location: {
     _id: string;
     coordinates: string;
-    image?: string;
+    images: string[];
     description?: string;
   };
 }
 
 export default function LocationSection({ location }: LocationSectionProps) {
-  return (
-    <div className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
-      <h3 className="text-xl font-bold mb-4">Location</h3>
+  // Get the first image from the images array, or use an empty string if no images
+  const locationImage =
+    location.images && location.images.length > 0 ? location.images[0] : "";
+  // Get the remaining images (if any)
+  const remainingImages =
+    location.images && location.images.length > 1
+      ? location.images.slice(1)
+      : [];
 
-      {/* Display location image if available */}
-      {location.image && (
-        <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
-          <Image
-            src={`${process.env.NEXT_PUBLIC_LOCATION_IMAGES_URL}${location.image}`}
-            alt={location._id}
-            fill
-            className="object-cover"
-          />
+  return (
+    <div className="mx-auto py-8">
+      <h2 className="text-zone-gold-lite uppercase mb-4 text-sm">Location</h2>
+      <LocationLink
+        coordinates={location.coordinates}
+        locationName={location._id}
+      />
+
+      <p className="text-gray-400 my-8">{location.description}</p>
+
+      {/* Main location image */}
+      <div className="relative w-full h-64 md:h-96 mb-4">
+        <Image
+          src={
+            process.env.NEXT_PUBLIC_API_URL +
+            "/locations/image/" +
+            locationImage
+          }
+          alt={location._id}
+          fill
+          className="object-cover rounded-lg"
+        />
+      </div>
+
+      {/* Remaining images grid */}
+      {remainingImages.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          {remainingImages.map((image, index) => (
+            <div
+              key={`${location._id}-image-${index}`}
+              className="relative h-32 md:h-40 w-full"
+            >
+              <Image
+                src={`${process.env.NEXT_PUBLIC_API_URL}/locations/image/${image}`}
+                alt={`${location._id} - image ${index + 2}`}
+                fill
+                className="object-cover rounded-md hover:opacity-90 transition-opacity"
+              />
+            </div>
+          ))}
         </div>
       )}
-
-      {/* Location details */}
-      <div className="space-y-2">
-        <h4 className="font-bold text-lg">{location._id}</h4>
-
-        {location.description && (
-          <p className="text-gray-300 text-sm mb-3">
-            {location.description}
-          </p>
-        )}
-
-        <div className="flex items-center">
-          <svg
-            className="w-5 h-5 mr-2 text-green-400 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 11a3 3 0 11-6 0 3 3 0z"
-            />
-          </svg>
-          <a
-            href={`https://maps.google.com/?q=${location.coordinates}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-green-400 hover:text-green-300"
-          >
-            {location.coordinates}
-          </a>
-        </div>
-      </div>
     </div>
   );
 }

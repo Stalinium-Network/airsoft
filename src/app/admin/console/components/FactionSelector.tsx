@@ -46,13 +46,12 @@ export default function FactionSelector({
     
     const faction = factions.find(f => f._id === selectedId);
     if (faction) {
-      // Add default capacity, filled values и пустую registrationLink для конкретной игры
+      // Add default values for the faction in the game context
       const GameFaction: GameFaction = {
         ...faction,
         details: '', // Default empty details
         capacity: 20, // Default capacity
         filled: 0, // Default filled
-        registrationLink: '' // Default empty registration link
       };
       
       onSelect(GameFaction);

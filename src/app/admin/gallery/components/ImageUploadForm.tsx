@@ -5,13 +5,6 @@ import { FaUpload, FaImage, FaSpinner } from "react-icons/fa";
 import { compressImageToWebP } from "@/utils/imageUtils";
 import { Game } from "@/services/gameService";
 
-// interface Game {
-//   _id: string;
-//   name: string;
-//   date: string;
-//   isPast: boolean;
-// }
-
 interface ImageUploadFormProps {
   onImageUploaded: () => void;
   token: string | null;

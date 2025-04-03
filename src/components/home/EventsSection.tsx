@@ -10,20 +10,11 @@ export default function EventsSection({ games = [] }: EventsSectionProps) {
   const [nextGame, ...otherGames] = games || [];
 
   return (
-    <div
-      id="upcoming-events"
-      className="bg-zone-dark"
-    >
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            UPCOMING <span className="text-zone-gold">EVENTS</span>
-          </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-            Join our next immersive STALKER-themed airsoft experience. Limited
-            slots available.
-          </p>
-        </div>
+    <div id="upcoming-events" className="bg-zone-dark px-2">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <h2 className="mb-9 mt-18 text-zone-gold-lite">
+          UPCOMING EVENT{games.length > 1 ? "S" : ""}
+        </h2>
 
         {/* Отображаем основную игру, если она есть */}
         {nextGame && <FeaturedGameCard game={nextGame} />}

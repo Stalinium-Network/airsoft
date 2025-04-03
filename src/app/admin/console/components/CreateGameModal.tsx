@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Game, Faction } from "@/services/gameService";
+import { Game, Faction, RegistrationInfo } from "@/services/gameService";
 import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview, prepareImageForUpload } from '@/utils/imageUtils';
@@ -13,18 +13,24 @@ import ProgressBar from "./game-form/ProgressBar";
 import ModalHeader from "./modal/ModalHeader";
 import ModalFooter from "./modal/ModalFooter";
 
-// Default game data template with Date object - обновлено для фракций
 const defaultGameData: Omit<Game, "_id"> = {
   name: "",
-  date: new Date(),
+  date: new Date().toISOString(),
   duration: 3,
   location: "",
   description: "",
   detailedDescription: "",
-  image: "",
-  factions: [], // Используем только фракции, без capacity
+  preview: "", // Changed from 'image' to 'preview'
+  factions: [],
   price: 25,
   isPast: false,
+  regInfo: {
+    link: "",
+    opens: "", 
+    closes: "", 
+    status: "not-open",
+    details: "",
+  }
 };
 
 // Define the mixed event type for consistent typing
@@ -50,6 +56,8 @@ export default function CreateGameModal({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isYoutubeUrl, setIsYoutubeUrl] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
 
   // Handle input changes for new game, including start date that affects end date
   const handleInputChange = (e: MixedChangeEvent) => {
@@ -65,7 +73,7 @@ export default function CreateGameModal({
       const isPastValue = isPastGame(value);
       setNewGame((prev) => ({
         ...prev,
-        date: new Date(value),
+        date: value, // Keep as string instead of converting to Date
         isPast: isPastValue,
       }));
     } else if (name === "endDate") {
@@ -74,6 +82,24 @@ export default function CreateGameModal({
         ...prev,
         endDate: value,
       })); 
+    } else if (name === "regInfo") {
+      // Handle regInfo object changes
+      setNewGame((prev) => ({
+        ...prev,
+        regInfo: {
+          ...prev.regInfo,
+          ...value
+        }
+      }));
+    } else if (name === "youtubeUrl") {
+      // Handle YouTube URL input
+      setYoutubeUrl(value);
+      if (value.trim() !== "") {
+        setNewGame((prev) => ({
+          ...prev,
+          preview: value.trim(),
+        }));
+      }
     } else {
       setNewGame((prev) => ({
         ...prev,
@@ -82,12 +108,27 @@ export default function CreateGameModal({
     }
   };
 
-  // Handle description changes
-  const handleDetailedDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNewGame({
-      ...newGame,
-      detailedDescription: e.target.value
-    });
+  // Toggle between image upload and YouTube URL input
+  const togglePreviewType = () => {
+    setIsYoutubeUrl(!isYoutubeUrl);
+    
+    // Reset preview values when switching
+    if (!isYoutubeUrl) {
+      setImageFile(null);
+      setImagePreview(null);
+      if (youtubeUrl) {
+        setNewGame((prev) => ({
+          ...prev,
+          preview: youtubeUrl,
+        }));
+      }
+    } else {
+      setYoutubeUrl("");
+      setNewGame((prev) => ({
+        ...prev,
+        preview: "",
+      }));
+    }
   };
 
   // Handle image file selection
@@ -101,7 +142,7 @@ export default function CreateGameModal({
       // Update the game state to indicate we have an image
       setNewGame((prev) => ({
         ...prev,
-        image: "file_upload", // This will be replaced by the server with the actual URL
+        preview: "file_upload", // This will be replaced by the server with the actual URL
       }));
     } catch (error) {
       console.error("Error handling image:", error);
@@ -115,7 +156,7 @@ export default function CreateGameModal({
     setImagePreview(null);
     setNewGame((prev) => ({
       ...prev,
-      image: "",
+      preview: "",
     }));
   };
 
@@ -147,9 +188,9 @@ export default function CreateGameModal({
       !newGame.duration ||
       !newGame.location ||
       !newGame.description ||
-      (!imageFile && !newGame.image)
+      ((!imageFile && !isYoutubeUrl) || (isYoutubeUrl && !youtubeUrl))
     ) {
-      onError("Please fill in all required fields and provide an image");
+      onError("Please fill in all required fields and provide an image or YouTube URL");
       setIsLoading(false);
       return;
     }
@@ -158,15 +199,9 @@ export default function CreateGameModal({
       // Create FormData for multipart/form-data submission
       const formData = new FormData();
 
-      // Convert Date object to ISO string for API
-      const dateString =
-        newGame.date instanceof Date
-          ? newGame.date.toISOString()
-          : newGame.date;
-
       // Append individual form fields directly
       formData.append("name", newGame.name);
-      formData.append("date", dateString);
+      formData.append("date", newGame.date);
       formData.append("duration", newGame.duration.toString());
       formData.append("location", typeof newGame.location === 'string' ? newGame.location : (newGame.location as any)._id);
       formData.append("description", newGame.description);
@@ -174,19 +209,28 @@ export default function CreateGameModal({
       formData.append("price", newGame.price.toString());
       formData.append("isPast", newGame.isPast.toString());
       
-      // Всегда добавляем поле registrationLink, даже если оно пустое
-      formData.append("registrationLink", newGame.registrationLink || '');
+      // Add registration info as JSON string
+      if (newGame.regInfo) {
+        const cleanRegInfo = {
+          link: newGame.regInfo.link || "",
+          opens: newGame.regInfo.opens || "",  // Now using string
+          closes: newGame.regInfo.closes || "", // Now using string
+          details: newGame.regInfo.details || ""
+        };
+        formData.append("regInfoJson", JSON.stringify(cleanRegInfo));
+      }
 
       // Add factions as JSON string
       if (newGame.factions && newGame.factions.length > 0) {
         formData.append("factions", JSON.stringify(newGame.factions));
       }
 
-      // Image handling
-      if (imageFile) {
+      // Handle preview content (either file or YouTube URL)
+      if (isYoutubeUrl && youtubeUrl) {
+        formData.append("preview", youtubeUrl);
+        formData.append("isYoutubeUrl", "true");
+      } else if (imageFile) {
         formData.append("file", imageFile);
-      } else if (newGame.image) {
-        formData.append("image", newGame.image);
       }
 
       // Simulate upload progress (for demo)
@@ -320,7 +364,7 @@ export default function CreateGameModal({
               />
             </div>
 
-            {/* Image upload section */}
+            {/* Preview section (Image or YouTube) */}
             <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
               <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
                 <svg
@@ -336,15 +380,72 @@ export default function CreateGameModal({
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                Event Image <span className="text-red-500">*</span>
+                Event Preview <span className="text-red-500">*</span>
               </h3>
-
-              <ImageUploadSection
-                imagePreview={imagePreview}
-                onImageChange={handleImageSelected}
-                onImageRemove={handleRemoveImage}
-                fileInputDisabled={isLoading}
-              />
+              
+              {/* Toggle switch between image and YouTube URL */}
+              <div className="flex items-center mb-4">
+                <button
+                  type="button"
+                  onClick={togglePreviewType}
+                  className={`px-4 py-2 rounded-l-md ${
+                    !isYoutubeUrl 
+                      ? "bg-green-600 text-white" 
+                      : "bg-gray-700 text-gray-300"
+                  }`}
+                  disabled={isLoading}
+                >
+                  Upload Image
+                </button>
+                <button
+                  type="button"
+                  onClick={togglePreviewType}
+                  className={`px-4 py-2 rounded-r-md ${
+                    isYoutubeUrl 
+                      ? "bg-green-600 text-white" 
+                      : "bg-gray-700 text-gray-300"
+                  }`}
+                  disabled={isLoading}
+                >
+                  YouTube URL
+                </button>
+              </div>
+              
+              {isYoutubeUrl ? (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    YouTube Video URL
+                  </label>
+                  <input
+                    type="url"
+                    name="youtubeUrl"
+                    value={youtubeUrl}
+                    onChange={handleInputChange}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    disabled={isLoading}
+                  />
+                  {youtubeUrl && (
+                    <div className="mt-4 aspect-video w-full">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${youtubeUrl.split('v=')[1]?.split('&')[0] || ''}`}
+                        title="YouTube video"
+                        className="w-full h-full rounded"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <ImageUploadSection
+                  imagePreview={imagePreview}
+                  onImageChange={handleImageSelected}
+                  onImageRemove={handleRemoveImage}
+                  fileInputDisabled={isLoading}
+                />
+              )}
             </div>
           </div>
 

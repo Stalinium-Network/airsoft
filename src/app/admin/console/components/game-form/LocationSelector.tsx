@@ -139,18 +139,6 @@ export default function LocationSelector({
         </div>
       )}
       
-      <div className="flex justify-between items-center mb-2">
-        <label className="block text-sm font-medium text-gray-300">Location</label>
-        <button
-          type="button"
-          onClick={handleOpenCreateModal}
-          className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded transition-colors"
-          disabled={isLoading}
-        >
-          + New Location
-        </button>
-      </div>
-      
       <div className="relative">
         {/* Selected location display - click to open dropdown */}
         <div 
@@ -213,14 +201,6 @@ export default function LocationSelector({
           </div>
         )}
       </div>
-      
-      {/* Create location modal */}
-      {isCreateModalOpen && (
-        <CreateLocationModal
-          onClose={() => setIsCreateModalOpen(false)}
-          onLocationCreated={handleLocationCreated}
-        />
-      )}
       
       {/* Delete confirmation dialog */}
       {isDeleteDialogOpen && (

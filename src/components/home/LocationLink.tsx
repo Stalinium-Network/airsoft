@@ -41,10 +41,10 @@ export default function LocationLink({ coordinates, locationName }: LocationLink
   return (
     <button
       onClick={handleOpenMap}
-      className="inline-flex items-center text-zone-gold hover:underline"
+      className="inline-flex items-center underline cursor-pointer w-fit"
       aria-label={`View location on map: ${locationName}`}
     >
-      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+      <svg className="w-4 h-4 mr-1 text-zone-gold-lite" fill="currentColor" viewBox="0 0 20 20">
         <path
           fillRule="evenodd"
           d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"

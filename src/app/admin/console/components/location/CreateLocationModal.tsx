@@ -25,8 +25,9 @@ export default function CreateLocationModal({
     coordinates: '',
     description: ''
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -34,25 +35,33 @@ export default function CreateLocationModal({
     setLocation(prev => ({ ...prev, [name]: value }));
   };
   
-  // Handle image selection
-  const handleImageSelected = async (file: File) => {
+  // Handle image selection - updated for multiple files
+  const handleImagesSelected = async (files: FileList) => {
     try {
-      const preview = await createImagePreview(file);
-      setImagePreview(preview);
-      setImageFile(file);
+      const newFiles: File[] = Array.from(files);
+      const newPreviews: string[] = [];
+      
+      for (const file of newFiles) {
+        const preview = await createImagePreview(file);
+        newPreviews.push(preview);
+      }
+      
+      // Append to existing images
+      setImageFiles(prev => [...prev, ...newFiles]);
+      setImagePreviews(prev => [...prev, ...newPreviews]);
     } catch (error) {
-      console.error("Error handling image:", error);
-      setError("Failed to process image. Please try another file.");
+      console.error("Error handling images:", error);
+      setError("Failed to process images. Please try again with different files.");
     }
   };
   
-  // Remove selected image
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  // Remove selected image by index
+  const handleRemoveImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
   
-  // Handle form submission - now just a button click handler
+  // Handle form submission - now supporting multiple images
   const handleCreateLocation = async () => {    
     setError('');
     setIsLoading(true);
@@ -75,9 +84,10 @@ export default function CreateLocationModal({
         formData.append('description', location.description);
       }
       
-      if (imageFile) {
-        formData.append('file', imageFile);
-      }
+      // Append each image file with a consistent field name
+      imageFiles.forEach((file, index) => {
+        formData.append('files', file);
+      });
       
       // Simulate upload progress
       const progressInterval = setInterval(() => {
@@ -109,7 +119,7 @@ export default function CreateLocationModal({
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg w-full max-w-md overflow-y-auto shadow-xl border border-gray-700">
+      <div className="bg-gray-800 rounded-lg w-full max-w-xl overflow-y-auto shadow-xl border border-gray-700">
         <div className="p-6 border-b border-gray-700 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-white flex items-center">
             <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +141,6 @@ export default function CreateLocationModal({
           </button>
         </div>
         
-        {/* Removed the form element and kept only the div */}
         <div className="p-6">
           {error && (
             <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded-md text-white text-sm">
@@ -200,50 +209,59 @@ export default function CreateLocationModal({
             
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
-                Location Image
+                Location Images
               </label>
-              <div className="mt-2">
-                {imagePreview ? (
-                  <div className="relative rounded-md overflow-hidden">
-                    <img 
-                      src={imagePreview} 
-                      alt="Location preview" 
-                      className="w-full h-48 object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full"
-                      disabled={isLoading}
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-600 rounded-md px-6 py-8 text-center">
-                    <label className="cursor-pointer flex flex-col items-center">
-                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span className="mt-2 block text-sm font-medium text-gray-300">
-                        Click to upload location image
-                      </span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            handleImageSelected(e.target.files[0]);
-                          }
-                        }}
-                        disabled={isLoading}
+              
+              {/* Image gallery - displays multiple images */}
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative rounded-md overflow-hidden h-40">
+                      <img 
+                        src={preview} 
+                        alt={`Location preview ${index + 1}`} 
+                        className="w-full h-full object-cover"
                       />
-                    </label>
-                  </div>
-                )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full"
+                        disabled={isLoading}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Image upload section */}
+              <div className="border-2 border-dashed border-gray-600 rounded-md px-6 py-8 text-center">
+                <label className="cursor-pointer flex flex-col items-center">
+                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="mt-2 block text-sm font-medium text-gray-300">
+                    Click to upload location images
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    You can select multiple images
+                  </span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        handleImagesSelected(e.target.files);
+                      }
+                    }}
+                    disabled={isLoading}
+                  />
+                </label>
               </div>
             </div>
           </div>

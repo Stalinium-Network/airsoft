@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatDateTime } from "@/utils/time-format";
+import LocationLink from "@/components/home/LocationLink";
+import { isPreviewUrl } from "@/services/gameService";
 
 interface HeroSectionProps {
   game: {
     name: string;
     date: string | Date;
-    image: string;
+    preview: string; // Changed from image to preview
     duration: number;
     price: number;
     isPast: boolean;
@@ -18,22 +20,46 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ game }: HeroSectionProps) {
+  const isYoutubeVideo = isPreviewUrl(game.preview);
+  
+  // Extract YouTube video ID if it's a YouTube URL
+  const getYoutubeVideoId = (url: string): string | null => {
+    const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+  
+  const youtubeVideoId = isYoutubeVideo ? getYoutubeVideoId(game.preview) : null;
+
   return (
     <div className="relative h-[50vh] w-full">
-      <Image
-        src={process.env.NEXT_PUBLIC_IMAGES_URL + game.image}
-        alt={game.name}
-        fill
-        priority
-        className="object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent"></div>
+      {isYoutubeVideo && youtubeVideoId ? (
+        <div className="absolute inset-0 overflow-hidden">
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeVideoId}`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            className="w-full h-full"
+            frameBorder="0"
+          />
+          <div className="absolute inset-0" style={{ pointerEvents: 'none' }}></div>
+        </div>
+      ) : (
+        <Image
+          src={isYoutubeVideo ? game.preview : `${process.env.NEXT_PUBLIC_IMAGES_URL}${game.preview}`}
+          alt={game.name}
+          fill
+          priority
+          className="object-cover"
+        />
+      )}
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-zone-dark via-gray-900/70 to-transparent"></div>
 
       <div className="absolute bottom-0 left-0 w-full p-8">
         <div className="max-w-6xl mx-auto">
           <Link
             href="/"
-            className="inline-flex items-center text-green-400 hover:text-green-300 mb-4"
+            className="inline-flex items-center text-zone-gold-lite hover:text-zone-gold-lite mb-4"
           >
             <svg
               className="w-4 h-4 mr-1"
@@ -54,7 +80,7 @@ export default function HeroSection({ game }: HeroSectionProps) {
           <h1 className="text-4xl md:text-5xl font-bold">{game.name}</h1>
 
           <div className="flex flex-wrap items-center gap-4 mt-4">
-            <div className="flex items-center text-green-400">
+            <div className="flex items-center text-zone-gold">
               <svg
                 className="w-5 h-5 mr-2"
                 fill="none"
@@ -71,56 +97,11 @@ export default function HeroSection({ game }: HeroSectionProps) {
               {formatDateTime(game.date)}
             </div>
 
-            <div className="flex items-center text-green-400">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              {game.duration} hours
-            </div>
-
-            <div className="flex items-center">
-              <svg
-                className="w-5 h-5 mr-2 text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0z"
-                />
-              </svg>
-              <a
-                href={`https://maps.google.com/?q=${game.location.coordinates}`}
-                target="_blank"
-                rel="noreferrer"
-                className="text-green-400 hover:text-green-300"
-              >
-                {game.location._id}
-              </a>
-            </div>
+            <LocationLink coordinates={game.location.coordinates} locationName={game.location._id} />
 
             {!game.isPast && (
               <div className="flex items-center ml-auto">
-                <span className="bg-green-500 text-gray-900 font-bold px-4 py-1 rounded">
+                <span className="bg-zone-gold-lite text-zone-dark-brown font-bold px-4 py-1 rounded">
                   ${game.price}/person
                 </span>
               </div>

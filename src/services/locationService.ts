@@ -3,7 +3,7 @@ import { adminApi, publicApi } from '@/utils/api';
 export interface Location {
   _id: string;       // The location name (acts as ID)
   coordinates: string;
-  image?: string;    // Filename of the saved image
+  images: string[];    // Array of filenames for saved images
   description?: string;
 }
 

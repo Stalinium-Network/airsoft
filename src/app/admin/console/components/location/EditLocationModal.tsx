@@ -31,53 +31,78 @@ export default function EditLocationModal({
     description: initialLocation.description || ''
   });
   
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageChanged, setImageChanged] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [removedImages, setRemovedImages] = useState<string[]>([]);
   
-  // Initialize image preview if location has an image
   useEffect(() => {
-    if (initialLocation.image) {
-      // Create URL for the image - this assumes the image path needs to be constructed
-      const image = `${process.env.NEXT_PUBLIC_API_URL}/locations/image/${initialLocation.image}`;
-      setImagePreview(image);
+    if (initialLocation.images && initialLocation.images.length > 0) {
+      const previews = initialLocation.images.map(
+        img => `${process.env.NEXT_PUBLIC_API_URL}/locations/image/${img}`
+      );
+      setExistingImages(initialLocation.images);
+      setImagePreviews(previews);
     }
   }, [initialLocation]);
 
-  // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setLocation(prev => ({ ...prev, [name]: value }));
   };
   
-  // Handle image selection
-  const handleImageSelected = async (file: File) => {
+  const handleImagesSelected = async (files: FileList) => {
     try {
-      const preview = await createImagePreview(file);
-      setImagePreview(preview);
-      setImageFile(file);
-      setImageChanged(true);
-      console.log('DEBUG: Image selected for edit', { name: file.name, type: file.type, size: file.size });
+      const newFiles: File[] = Array.from(files);
+      const newPreviews: string[] = [];
+      
+      for (const file of newFiles) {
+        const preview = await createImagePreview(file);
+        newPreviews.push(preview);
+      }
+      
+      setImageFiles(prev => [...prev, ...newFiles]);
+      setImagePreviews(prev => [...prev, ...newPreviews]);
+      
+      console.log('DEBUG: Images selected for edit', newFiles.length);
     } catch (error) {
-      console.error("Error handling image:", error);
-      setError("Failed to process image. Please try another file.");
+      console.error("Error handling images:", error);
+      setError("Failed to process images. Please try again with different files.");
     }
   };
   
-  // Remove selected image
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setImageChanged(true);
+  const handleRemoveExistingImage = (index: number) => {
+    const imageToRemove = existingImages[index];
+    setRemovedImages(prev => [...prev, imageToRemove]);
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setExistingImages(prev => prev.filter((_, i) => i !== index));
   };
   
-  // Handle save changes (update location)
+  const handleRemoveNewImage = (index: number) => {
+    const adjustedIndex = index - existingImages.length;
+    if (adjustedIndex >= 0) {
+      setImageFiles(prev => prev.filter((_, i) => i !== adjustedIndex));
+      setImagePreviews(prev => {
+        const newPreviews = [...prev];
+        newPreviews.splice(index, 1);
+        return newPreviews;
+      });
+    }
+  };
+  
+  const handleRemoveImage = (index: number) => {
+    if (index < existingImages.length) {
+      handleRemoveExistingImage(index);
+    } else {
+      handleRemoveNewImage(index);
+    }
+  };
+  
   const handleUpdateLocation = async () => {        
     setError('');
     setIsLoading(true);
     setUploadProgress(0);
     
-    // Validate data
     if (!location.name || !location.coordinates) {
       setError('Location name and coordinates are required');
       setIsLoading(false);
@@ -85,7 +110,6 @@ export default function EditLocationModal({
     }
     
     try {
-      // Prepare form data
       const formData = new FormData();
       formData.append('name', location.name);
       formData.append('coordinates', location.coordinates);
@@ -94,15 +118,18 @@ export default function EditLocationModal({
         formData.append('description', location.description);
       }
       
-      // Handle image change logic
-      if (imageChanged) {
-        formData.append('imageChanged', 'true');
-        if (imageFile) {
-          formData.append('file', imageFile);
-        }
+      if (removedImages.length > 0) {
+        formData.append('removedImages', JSON.stringify(removedImages));
       }
+      
+      if (existingImages.length > 0) {
+        formData.append('existingImages', JSON.stringify(existingImages));
+      }
+      
+      imageFiles.forEach((file, index) => {
+        formData.append('files', file);
+      });
     
-      // Simulate upload progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           const newProgress = prev + 10;
@@ -114,18 +141,15 @@ export default function EditLocationModal({
         });
       }, 300);
       
-      // Submit the update request
       console.log('Submitting location update to API...');
       const response = await adminApi.updateLocation(initialLocation._id, formData);
       
-      // Complete progress
       clearInterval(progressInterval);
       setUploadProgress(100);
       
       console.log('=== LOCATION UPDATED SUCCESSFULLY ===');
       console.log('Response data:', response.data);
       
-      // Call the callback with the updated location
       onLocationUpdated(response.data);
     } catch (error: any) {
       console.error('=== ERROR UPDATING LOCATION ===');
@@ -146,7 +170,7 @@ export default function EditLocationModal({
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg w-full max-w-md overflow-y-auto shadow-xl border border-gray-700">
+      <div className="bg-gray-800 rounded-lg w-full max-w-xl overflow-y-auto shadow-xl border border-gray-700">
         <div className="p-6 border-b border-gray-700 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-white flex items-center">
             <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +220,7 @@ export default function EditLocationModal({
                 placeholder="Airsoft Field 228"
                 required
                 disabled={isLoading}
-                readOnly // Location ID (name) typically cannot be changed
+                readOnly
               />
               <p className="mt-1 text-xs text-gray-400">
                 Location name (ID) cannot be changed after creation
@@ -239,55 +263,61 @@ export default function EditLocationModal({
             
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
-                Location Image
+                Location Images
               </label>
-              <div className="mt-2">
-                {imagePreview ? (
-                  <div className="relative rounded-md overflow-hidden">
-                    <img 
-                      src={imagePreview} 
-                      alt="Location preview" 
-                      className="w-full h-48 object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full"
-                      disabled={isLoading}
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-600 rounded-md px-6 py-8 text-center">
-                    <label className="cursor-pointer flex flex-col items-center">
-                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span className="mt-2 block text-sm font-medium text-gray-300">
-                        Click to upload location image
-                      </span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            handleImageSelected(e.target.files[0]);
-                          }
-                        }}
-                        disabled={isLoading}
+              
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative rounded-md overflow-hidden h-40">
+                      <img 
+                        src={preview} 
+                        alt={`Location preview ${index + 1}`} 
+                        className="w-full h-full object-cover"
                       />
-                    </label>
-                  </div>
-                )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full"
+                        disabled={isLoading}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className="border-2 border-dashed border-gray-600 rounded-md px-6 py-8 text-center">
+                <label className="cursor-pointer flex flex-col items-center">
+                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="mt-2 block text-sm font-medium text-gray-300">
+                    Click to upload additional images
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    You can select multiple images
+                  </span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        handleImagesSelected(e.target.files);
+                      }
+                    }}
+                    disabled={isLoading}
+                  />
+                </label>
               </div>
             </div>
           </div>
           
-          {/* Upload progress indicator */}
           <ProgressBar progress={uploadProgress} show={isLoading && uploadProgress > 0} />
           
           <div className="flex justify-end gap-3 mt-6">

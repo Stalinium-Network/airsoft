@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
-import LoadingBar from '@/components/LoadingBar';
-import Footer from '@/components/Footer';
+import LoadingBar from "@/components/LoadingBar";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   title: meta.title,
   description: meta.description,
   metadataBase: new URL("https://browsenchat.com"),
-  icons: '/logo.png',
+  icons: "/logo.png",
   robots: "index, follow",
   openGraph: {
     title: meta.title,
@@ -51,7 +51,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* ...existing head content... */}
+        <meta name="theme-color" content="#101211" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zone-dark text-white overflow-x-hidden`}

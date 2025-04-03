@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Game, Faction } from "@/services/gameService";
+import { Game, GameFaction, RegistrationInfo, isPreviewUrl } from "@/services/gameService";
 import { isPastGame } from "@/services/adminService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
@@ -34,21 +34,40 @@ export default function EditGameModal({
   onError,
 }: EditGameModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [editingGame, setEditingGame] = useState<Game>({ 
+  const [editingGame, setEditingGame] = useState<Game>({
     ...game,
-    factions: game.factions || [] // Убедимся, что factions существует
+    // Ensure date is handled as string, matching the updated Game interface
+    date: game.date, // Directly use the string date from props
+    factions: game.factions || [],
+    regInfo: game.regInfo || {
+      link: null,
+      opens: null, // Use string
+      closes: null, // Use string
+      details: "",
+      status: 'not-open',
+    },
   });
+
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageChanged, setImageChanged] = useState(false);
+  const [isYoutubeUrl, setIsYoutubeUrl] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
 
-  // Initialize image preview from existing URL if available
+  // Initialize preview based on game data
   useEffect(() => {
-    if (game.image && game.image.startsWith("http")) {
-      setImagePreview(game.image);
+    if (game.preview) {
+      const isVideo = isPreviewUrl(game.preview);
+      setIsYoutubeUrl(isVideo);
+      
+      if (isVideo) {
+        setYoutubeUrl(game.preview);
+      } else if (game.preview.startsWith("http")) {
+        setImagePreview(game.preview);
+      }
     }
-  }, [game.image]);
+  }, [game.preview]);
 
   // Handle form input changes
   const handleInputChange = (e: MixedChangeEvent) => {
@@ -62,7 +81,7 @@ export default function EditGameModal({
     } else if (name === "date") {
       setEditingGame({
         ...editingGame,
-        date: new Date(value),
+        date: value, // Keep as string
         isPast: isPastGame(value),
       });
     } else if (name === "isPast") {
@@ -70,11 +89,54 @@ export default function EditGameModal({
         ...editingGame,
         isPast: value === "true",
       });
+    } else if (name === "regInfo") {
+      // Handle regInfo object changes
+      setEditingGame((prev) => ({
+        ...prev,
+        regInfo: {
+          ...prev.regInfo,
+          ...value,
+        },
+      }));
+    } else if (name === "youtubeUrl") {
+      // Handle YouTube URL input
+      setYoutubeUrl(value);
+      if (value.trim() !== "") {
+        setEditingGame((prev) => ({
+          ...prev,
+          preview: value.trim(),
+        }));
+        setImageChanged(true);
+      }
     } else {
       setEditingGame({
         ...editingGame,
         [name]: value,
       });
+    }
+  };
+
+  // Toggle between image upload and YouTube URL
+  const togglePreviewType = () => {
+    setIsYoutubeUrl(!isYoutubeUrl);
+    setImageChanged(true);
+    
+    // Reset preview values when switching
+    if (!isYoutubeUrl) {
+      setImageFile(null);
+      setImagePreview(null);
+      if (youtubeUrl) {
+        setEditingGame((prev) => ({
+          ...prev,
+          preview: youtubeUrl,
+        }));
+      }
+    } else {
+      setYoutubeUrl("");
+      setEditingGame((prev) => ({
+        ...prev,
+        preview: "",
+      }));
     }
   };
 
@@ -90,7 +152,7 @@ export default function EditGameModal({
       // Update the game state to indicate we have an image
       setEditingGame((prev) => ({
         ...prev,
-        image: "file_upload", // Marker that will be replaced by the server
+        preview: "file_upload", // Marker that will be replaced by the server
       }));
     } catch (error) {
       console.error("Error handling image:", error);
@@ -106,32 +168,45 @@ export default function EditGameModal({
 
     setEditingGame((prev) => ({
       ...prev,
-      image: "",
+      preview: "",
     }));
   };
 
   // Handle location selection
   const handleLocationSelect = (locationId: string) => {
-    setEditingGame(prev => ({
+    setEditingGame((prev) => ({
       ...prev,
       location: locationId,
     }));
   };
 
   // Handle factions update
-  const handleFactionsChange = (updatedFactions: Faction[]) => {
-    setEditingGame((prev: any) => ({
+  const handleFactionsChange = (updatedFactions: GameFaction[]) => {
+    setEditingGame((prev) => ({
       ...prev,
-      factions: updatedFactions
+      factions: updatedFactions,
     }));
   };
 
   // Handle markdown changes
-  const handleDetailedDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleDetailedDescriptionChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     setEditingGame({
       ...editingGame,
-      detailedDescription: e.target.value
+      detailedDescription: e.target.value,
     });
+  };
+
+  // Extract YouTube video ID if it's a YouTube URL
+  const getYoutubeVideoId = (url: string): string | null => {
+    try {
+      const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+      const match = url.match(regex);
+      return match ? match[1] : null;
+    } catch (error) {
+      return null;
+    }
   };
 
   // Update game with FormData
@@ -143,19 +218,16 @@ export default function EditGameModal({
       // Create FormData for multipart/form-data submission
       const formData = new FormData();
 
-      // Convert Date object to ISO string for API
-      const dateString =
-        editingGame.date instanceof Date
-          ? editingGame.date.toISOString()
-          : editingGame.date;
-
       // Append individual form fields directly
       formData.append("name", editingGame.name);
-      formData.append("date", dateString);
+      formData.append("date", editingGame.date);
       formData.append("duration", editingGame.duration.toString());
-      formData.append("location", typeof editingGame.location === 'string' 
-        ? editingGame.location 
-        : (editingGame.location as any)._id);
+      formData.append(
+        "location",
+        typeof editingGame.location === "string"
+          ? editingGame.location
+          : (editingGame.location as any)._id
+      );
       formData.append("description", editingGame.description);
       formData.append("price", editingGame.price.toString());
       formData.append("isPast", isPastGame(editingGame.date).toString());
@@ -163,32 +235,38 @@ export default function EditGameModal({
       if (editingGame.detailedDescription) {
         formData.append("detailedDescription", editingGame.detailedDescription);
       }
-      
-      // Всегда добавляем поле registrationLink, даже если оно пустое
-      // Это позволит очистить ссылку если пользователь удалил значение
-      formData.append("registrationLink", editingGame.registrationLink || '');
+
+      // Add registration info as JSON string
+      if (editingGame.regInfo) {
+        // Ensure proper processing of regInfo - create a clean object for JSON serialization
+        const cleanRegInfo = {
+          link: editingGame.regInfo.link || null,
+          opens: editingGame.regInfo.opens || null,
+          closes: editingGame.regInfo.closes || null, 
+          details: editingGame.regInfo.details || "",
+          status: editingGame.regInfo.status || 'not-open',
+        };
+        formData.append("regInfoJson", JSON.stringify(cleanRegInfo));
+      }
 
       // Add factions as JSON string
       if (editingGame.factions && editingGame.factions.length > 0) {
         formData.append("factions", JSON.stringify(editingGame.factions));
       }
 
-      // IMPORTANT FIX: Image handling
-      // Only include the image file if it exists
-      if (imageFile) {
-        // Append as 'file', not as 'image'
-        formData.append("file", imageFile);
-      } else if (editingGame.image && !imageChanged) {
-        // Only send image if we're using an external URL and not uploading a file
-        formData.append("image", editingGame.image);
-      } else if (imageChanged && !imageFile) {
-        // If image was deleted (changed but no new file), explicitly set empty image
-        formData.append("image", "");
-      }
-
-      // Flag if the image was changed (including removal)
+      // Handle preview content (either file, YouTube URL or existing)
       if (imageChanged) {
-        formData.append("imageChanged", "true");
+        if (isYoutubeUrl && youtubeUrl) {
+          formData.append("preview", youtubeUrl);
+          formData.append("isYoutubeUrl", "true");
+        } else if (imageFile) {
+          formData.append("file", imageFile);
+        } else {
+          formData.append("preview", "");
+        }
+        formData.append("previewChanged", "true");
+      } else if (editingGame.preview) {
+        formData.append("preview", editingGame.preview);
       }
 
       // Add the game ID for identification
@@ -296,7 +374,7 @@ export default function EditGameModal({
     <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-2 z-50">
       <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
         {/* Header */}
-        <ModalHeader 
+        <ModalHeader
           title={`Edit Game: ${game.name}`}
           icon={editIcon}
           onClose={onClose}
@@ -373,7 +451,7 @@ export default function EditGameModal({
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2zM12 6v4m0 4h.01M12 10h.01"
                       />
                     </svg>
                     <span>Upcoming</span>
@@ -446,7 +524,7 @@ export default function EditGameModal({
               />
             </div>
 
-            {/* Image upload section */}
+            {/* Preview section (Image or YouTube) */}
             <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
               <h3 className="text-lg font-medium text-blue-500 mb-3 flex items-center">
                 <svg
@@ -462,15 +540,72 @@ export default function EditGameModal({
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                Event Image
+                Event Preview
               </h3>
-
-              <ImageUploadSection
-                imagePreview={imagePreview}
-                onImageChange={handleImageSelected}
-                onImageRemove={handleRemoveImage}
-                fileInputDisabled={isLoading}
-              />
+              
+              {/* Toggle switch between image and YouTube URL */}
+              <div className="flex items-center mb-4">
+                <button
+                  type="button"
+                  onClick={togglePreviewType}
+                  className={`px-4 py-2 rounded-l-md ${
+                    !isYoutubeUrl 
+                      ? "bg-blue-600 text-white" 
+                      : "bg-gray-700 text-gray-300"
+                  }`}
+                  disabled={isLoading}
+                >
+                  Upload Image
+                </button>
+                <button
+                  type="button"
+                  onClick={togglePreviewType}
+                  className={`px-4 py-2 rounded-r-md ${
+                    isYoutubeUrl 
+                      ? "bg-blue-600 text-white" 
+                      : "bg-gray-700 text-gray-300"
+                  }`}
+                  disabled={isLoading}
+                >
+                  YouTube URL
+                </button>
+              </div>
+              
+              {isYoutubeUrl ? (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    YouTube Video URL
+                  </label>
+                  <input
+                    type="url"
+                    name="youtubeUrl"
+                    value={youtubeUrl}
+                    onChange={handleInputChange}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={isLoading}
+                  />
+                  {youtubeUrl && (
+                    <div className="mt-4 aspect-video w-full">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${getYoutubeVideoId(youtubeUrl) || ''}`}
+                        title="YouTube video"
+                        className="w-full h-full rounded"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <ImageUploadSection
+                  imagePreview={imagePreview}
+                  onImageChange={handleImageSelected}
+                  onImageRemove={handleRemoveImage}
+                  fileInputDisabled={isLoading}
+                />
+              )}
             </div>
           </div>
 

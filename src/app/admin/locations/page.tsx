@@ -154,10 +154,10 @@ export default function LocationsManager() {
                 key={location._id} 
                 className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-lg transition-all hover:shadow-green-900/30 hover:border-gray-600"
               >
-                {location.image ? (
+                {location.images && location.images.length > 0 ? (
                   <div className="h-48 overflow-hidden relative">
                     <img 
-                      src={`${process.env.NEXT_PUBLIC_API_URL}/games/location-image/${location.image}`} 
+                      src={`${process.env.NEXT_PUBLIC_API_URL}/locations/image/${location.images[0]}`} 
                       alt={location._id} 
                       className="w-full h-full object-cover"
                     />
