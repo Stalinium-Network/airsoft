@@ -243,7 +243,7 @@ export default function FactionsManager({
 
                 {/* Faction details field */}
                 <div className="mb-1 mt-4">
-                  <label className="block text-sm font-medium text-gray-400 mb-1 flex items-center">
+                  <label className="text-sm font-medium text-gray-400 mb-1 flex items-center">
                     <span>Faction Details</span>
                   </label>
 

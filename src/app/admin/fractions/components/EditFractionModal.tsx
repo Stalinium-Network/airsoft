@@ -24,7 +24,8 @@ export default function EditFactionModal({
 }: EditFactionModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [editingFaction, setEditingFaction] = useState<Faction>({ 
-    ...faction
+    ...faction,
+    _id: faction._id // Инициализируем name из _id для корректной работы формы
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -49,7 +50,9 @@ export default function EditFactionModal({
     const { name, value } = e.target;
     setEditingFaction(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      // Если изменяется имя, обновляем также _id, так как сервер использует _id как идентификатор
+      ...(name === 'name' ? { _id: value } : {})
     }));
   };
 

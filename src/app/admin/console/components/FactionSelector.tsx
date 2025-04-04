@@ -75,7 +75,7 @@ export default function FactionSelector({
                   <div className="w-10 h-10 sm:w-12 sm:h-12 relative flex-shrink-0 rounded-md overflow-hidden bg-gray-800">
                     <Image 
                       src={`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${faction.image}`}
-                      alt={faction.name || faction._id}
+                      alt={faction._id}
                       fill
                       className="object-cover"
                     />
@@ -83,7 +83,7 @@ export default function FactionSelector({
                 )}
                 
                 <div className="flex-grow min-w-0">
-                  <h4 className="font-medium text-white truncate">{faction.name || faction._id}</h4>
+                  <h4 className="font-medium text-white truncate">{faction._id}</h4>
                   {faction.shortDescription && (
                     <p className="text-xs text-gray-400 truncate">{faction.shortDescription}</p>
                   )}
@@ -118,7 +118,7 @@ export default function FactionSelector({
             <option value="">Select a faction to add</option>
             {availableFactions.map((faction) => (
               <option key={faction._id} value={faction._id}>
-                {faction.name || faction._id}
+                {faction._id}
               </option>
             ))}
           </select>

@@ -1,4 +1,4 @@
-import { Commander, Game } from '@/services/gameService';
+import { Commander, Faction, Game } from '@/services/gameService';
 import axios from 'axios';
 
 // Base API URL
@@ -44,9 +44,9 @@ export const publicApi = {
     const response = await axiosInstance.get(`/games/${id}`);
     return response.data;
   },
-  getFactions: async () => {
+  getFactions: async (): Promise<Faction[]> => {
     const response = await axiosInstance.get('/factions');
-    return response.data;
+    return response.data || [];
   },
   getLocations: async () => {
     const response = await axiosInstance.get('/locations');

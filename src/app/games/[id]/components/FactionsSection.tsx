@@ -102,7 +102,7 @@ export default function FactionsSection({ factions }: FactionsSectionProps) {
             <div className="p-4 relative z-20">
               <div className="flex items-start justify-between">
                 <h4 className="text-lg font-bold mb-1 group-hover:text-green-400 transition-colors">
-                  {faction.name || faction._id}
+                  {faction._id}
                 </h4>
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -260,13 +260,13 @@ export default function FactionsSection({ factions }: FactionsSectionProps) {
                     <div className="w-8 h-8 rounded-full overflow-hidden mr-3 bg-gray-600 relative">
                       <Image
                         src={`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${selectedFaction.image}`}
-                        alt={selectedFaction.name || selectedFaction._id}
+                        alt={selectedFaction._id}
                         fill
                         className="object-cover"
                       />
                     </div>
                   )}
-                  {selectedFaction.name || selectedFaction._id}
+                  {selectedFaction._id}
                 </h3>
                 <button
                   onClick={closeDetails}

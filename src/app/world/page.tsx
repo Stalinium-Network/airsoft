@@ -20,8 +20,20 @@ export const metadata: Metadata = {
 };
 
 export default async function WorldPage() {
-  const factions = await publicApi.getFactions();
-  const games = await publicApi.getGames();
+  let factions: Faction[] = [];
+  let games: any = { upcoming: [] };
+
+  try {
+    factions = await publicApi.getFactions();
+  } catch (err) {
+    console.error("Ошибка загрузки фракций:", err);
+  }
+
+  try {
+    games = await publicApi.getGames();
+  } catch (err) {
+    console.error("Ошибка загрузки игр:", err);
+  }
 
   return (
     <div className="min-h-screen text-white">

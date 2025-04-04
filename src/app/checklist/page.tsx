@@ -17,8 +17,12 @@ export const metadata: Metadata = {
 };
 
 export default async function WorldPage() {
-  const factions: Faction[] = await publicApi.getFactions();
-  console.log(factions);
+  let factions: Faction[] = [];
+  try {
+    factions = await publicApi.getFactions();
+  } catch (err) {
+    console.error("Ошибка загрузки фракций:", err);
+  }
 
   return (
     <div className="min-h-screen text-white">
