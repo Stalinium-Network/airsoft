@@ -36,11 +36,8 @@ export default function AdminConsole() {
     
     try {
       setIsLoading(true)
-      const response = await adminApi.getGames()
-      
-      // Get data from axios response
-      const data = response.data
-      
+      const data = await adminApi.getGames()
+            
       // Flatten past and upcoming games into a single array
       const allGames = [...data.past, ...data.upcoming]
       setGames(allGames)

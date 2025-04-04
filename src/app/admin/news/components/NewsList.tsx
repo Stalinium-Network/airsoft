@@ -32,7 +32,8 @@ export default function NewsList({
       try {
         setIsCategoriesLoading(true);
         const response = await publicApi.getNewsCategories();
-        setCategories(response.data);
+        // API теперь возвращает данные напрямую, а не объект с полем data
+        setCategories(response);
       } catch (error) {
         console.error("Error fetching news categories:", error);
       } finally {

@@ -12,7 +12,7 @@ export const revalidate = 3600;
 export async function generateMetadata({ params }: any): Promise<Metadata> {
   try {
     const newsResponse = await publicApi.getNewsItem(params.id);
-    const news = mapNewsData(newsResponse.data);
+    const news = mapNewsData(newsResponse);
     
     return {
       title: `${news.title} | Airsoft Events`,
@@ -43,20 +43,20 @@ export default async function NewsPage({ params }: any) {
   // Получаем данные о новости
   try {
     const newsResponse = await publicApi.getNewsItem(params.id);
-    const news = mapNewsData(newsResponse.data);
+    const news = mapNewsData(newsResponse);
 
     // Получаем категории для отображения названия категории
     const categoriesResponse = await publicApi.getNewsCategories();
-    const categories = categoriesResponse.data;
+    const categories = categoriesResponse;
     
     // Получаем связанные новости (другие новости в той же категории)
     const relatedNewsResponse = await publicApi.getNews(news.category);
-    const relatedNews = relatedNewsResponse.data
+    const relatedNews = relatedNewsResponse
       .map(mapNewsData)
       .filter((item: NewsItem) => item._id !== news._id) // Исключаем текущую новость
       .slice(0, 3); // Ограничиваем до 3-х связанных новостей
 
-      console.log(relatedNewsResponse.data)
+      console.log(relatedNewsResponse)
     
     return (
       <div className="min-h-screen bg-zone-dark text-white pb-16">

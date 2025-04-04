@@ -1,119 +1,108 @@
-# News System API Documentation
+# Game Cards Feature Documentation
 
-## Overview
-The news system allows publishing and accessing news articles in the airsoft platform. News articles are categorized and can be pinned for emphasis.
+This document describes the implementation of the new `cards` feature in the game schema and the related API endpoints.
 
-## Data Structure
+## Schema Changes
 
-News articles have the following structure:
-
-```json
-{
-  "_id": "newsId",
-  "title": "News Title",
-  "category": "events",
-  "date": "2024-04-15T10:00:00.000Z",
-  "image": "news-image.webp",
-  "description": "Short news summary",
-  "content": "Full markdown content of the news",
-  "pinned": false
-}
-```
-
-## Categories
-Available news categories:
-- `events` - Game events and tournaments
-- `updates` - Platform and policy updates
-- `announcements` - Important announcements
-- `community` - Community-related news
+The game schema has been updated to include a `cards` property, which is a map (dictionary) where:
+- Keys are card types from the predefined list: 'timeline', 'starter-pack'
+- Values are Card objects with the following structure:
+  ```typescript
+  {
+    title: string;      // Card title
+    svgContent: string; // SVG content for the card graphic
+    content: string;    // Text content of the card
+  }
+  ```
 
 ## API Endpoints
 
 ### Public Endpoints
 
-#### Get News Categories
-- **GET** `/api/news/categories`
-- **Returns**: `{ id: string, name: string }[]`
-- List of available news categories
+#### GET /games
+- **Changes:** Game objects now include the `cards` property
+- **Response Example:**
+```json
+{
+  "past": [
+    {
+      "_id": "64f3654c0e7100223c7545d0",
+      "name": "Operation Recon",
+      "preview": "bd4abb01-b428-4f0f-a866-33460d5b0c1a.webp",
+      "cards": {
+        "timeline": {
+          "title": "Timeline",
+          "svgContent": "<svg>...</svg>",
+          "content": "Game timeline markdown content"
+        },
+        "starter-pack": {
+          "title": "Starter Pack",
+          "svgContent": "<svg>...</svg>",
+          "content": "Items to bring markdown content"
+        }
+      },
+      // ...other game fields
+    }
+  ],
+  "upcoming": [
+    // ...similarly structured game objects
+  ]
+}
+```
 
-#### Get News List
-- **GET** `/api/news?category={categoryId}`
-- **Parameters**: 
-  - `category` (optional): <категория>
-- **Returns**: `News[]`
-- Filter by category or get all news
+#### GET /games/:id
+- **Changes:** Game detail object now includes the `cards` property
+- **Response Example:** Same card structure as above within a single game object
 
-#### Get Pinned News
-- **GET** `/api/news/pinned`
-- **Returns**: `News[]`
-- Only news marked as pinned
-
-#### Get Recent News
-- **GET** `/api/news/recent?limit={number}`
-- **Parameters**:
-  - `limit` (optional): `number` (default: 5, max: 20)
-- **Returns**: `News[]`
-- Limited number of most recent news
-
-#### Get News Details
-- **GET** `/api/news/{id}`
-- **Parameters**:
-  - `id`: MongoDB ObjectId
-- **Returns**: `News` (including full content)
-- Complete details for a specific news article
-
-#### Get News Image
-- **GET** `/api/news/image/{filename}`
-- **Parameters**:
-  - `filename`: string
-- **Returns**: Image file
-- Static route to serve news images
+#### GET /games/location/:locationId
+- **Changes:** Game objects now include the `cards` property
+- **Response Example:** Similar to /games endpoint
 
 ### Admin Endpoints
 
-#### Get All News (Admin)
-- **GET** `/api/admin/news`
-- **Returns**: `News[]`
-- Authentication required: Admin token
+#### GET /admin/card-types
+- **New Endpoint:** Returns the available card types
+- **Response Example:**
+```json
+{
+  "types": ["timeline", "starter-pack"]
+}
+```
 
-#### Get News Details (Admin)
-- **GET** `/api/admin/news/{id}`
-- **Parameters**:
-  - `id`: MongoDB ObjectId
-- **Returns**: `News`
-- Authentication required: Admin token
+#### POST /admin/create-game
+- **Request Change:** Accepts a new `cardsJson` field with stringified JSON
+- **Example cardsJson value:**
+```json
+{
+  "timeline": {
+    "title": "Game Timeline",
+    "svgContent": "<svg>...</svg>",
+    "content": "## Timeline\n\n- 9:00 AM: Registration\n- 10:00 AM: Game start"
+  },
+  "starter-pack": {
+    "title": "What to Bring",
+    "svgContent": "<svg>...</svg>",
+    "content": "## Required Items\n\n- Airsoft gun\n- Protection gear\n- Water"
+  }
+}
+```
 
-#### Create News
-- **POST** `/api/admin/create-news`
-- **Body**: `multipart/form-data`
-  - `title`: string (required)
-  - `category`: <категория> (required)
-  - `description`: string (required)
-  - `content`: string (required, markdown)
-  - `pinned`: boolean
-  - `file`: Image file (required)
-- **Returns**: Created `News` object
-- Authentication required: Admin token
+#### PUT /admin/update-game/:id
+- **Request Change:** Accepts a new `cardsJson` field with stringified JSON
+- **Example:** Same as for create-game endpoint
 
-#### Update News
-- **PUT** `/api/admin/update-news/{id}`
-- **Parameters**:
-  - `id`: MongoDB ObjectId
-- **Body**: `multipart/form-data` (all fields optional)
-  - `title`: string
-  - `category`: <категория>
-  - `description`: string
-  - `content`: string (markdown)
-  - `pinned`: boolean
-  - `date`: Date
-  - `file`: Image file
-- **Returns**: Updated `News` object
-- Authentication required: Admin token
+## Client-Side Implementation Notes
 
-#### Delete News
-- **DELETE** `/api/admin/delete-news/{id}`
-- **Parameters**:
-  - `id`: MongoDB ObjectId
-- **Returns**: `{ success: boolean, message: string }`
-- Authentication required: Admin token
-- Also deletes associated image file
+1. **Displaying Cards:**
+   - Each card type represents a different section of information about the game
+   - The `svgContent` can be rendered directly in the UI
+   - The `content` field contains markdown text that should be rendered appropriately
+
+2. **Admin Form Implementation:**
+   - Add UI for creating/updating cards for each available card type
+   - Ensure the form sends the stringified card data in the `cardsJson` field
+   - Fetch available card types from the `/admin/card-types` endpoint
+
+3. **Card Type Meaning:**
+   - `timeline`: Information about the game schedule and timeline
+   - `starter-pack`: Information about required equipment or preparations for players

@@ -9,12 +9,10 @@ import ImageUploadSection from "../../console/components/game-form/ImageUploadSe
 import ProgressBar from "../../console/components/game-form/ProgressBar";
 import FactionFormFields from "./FractionFormFields";
 
-// Default faction data - удаляем registrationLink
-const defaultFactionData: Omit<Faction, "_id"> = {
-  name: "",
+// Default faction data
+const defaultFactionData: Omit<Faction, "_id" | "image" | "camoSample"> = {
   shortDescription: "",
   description: "",
-  image: "",
 };
 
 interface CreateFactionModalProps {
@@ -29,9 +27,14 @@ export default function CreateFactionModal({
   onError,
 }: CreateFactionModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [newFaction, setNewFaction] = useState<Omit<Faction, "_id">>(defaultFactionData);
+  const [newFaction, setNewFaction] = useState<Omit<Faction, "image" | "camoSample">>({
+    _id: "",
+    ...defaultFactionData
+  });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [camoFile, setCamoFile] = useState<File | null>(null);
+  const [camoPreview, setCamoPreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Handle input changes
@@ -39,7 +42,7 @@ export default function CreateFactionModal({
     const { name, value } = e.target;
     setNewFaction(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -49,13 +52,21 @@ export default function CreateFactionModal({
       const preview = await createImagePreview(file);
       setImagePreview(preview);
       setImageFile(file);
-      setNewFaction(prev => ({
-        ...prev,
-        image: "file_upload" // Placeholder
-      }));
     } catch (error) {
       console.error("Error handling image:", error);
       onError("Failed to process image. Please try another file.");
+    }
+  };
+
+  // Handle camo image selection
+  const handleCamoSelected = async (file: File) => {
+    try {
+      const preview = await createImagePreview(file);
+      setCamoPreview(preview);
+      setCamoFile(file);
+    } catch (error) {
+      console.error("Error handling camo image:", error);
+      onError("Failed to process camo image. Please try another file.");
     }
   };
 
@@ -63,10 +74,12 @@ export default function CreateFactionModal({
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(null);
-    setNewFaction(prev => ({
-      ...prev,
-      image: ""
-    }));
+  };
+
+  // Remove selected camo image
+  const handleRemoveCamo = () => {
+    setCamoFile(null);
+    setCamoPreview(null);
   };
 
   // Create new faction
@@ -75,7 +88,7 @@ export default function CreateFactionModal({
     setUploadProgress(0);
 
     // Validate form
-    if (!newFaction.name) {
+    if (!newFaction._id) {
       onError("Please provide a name for the faction");
       setIsLoading(false);
       return;
@@ -84,24 +97,37 @@ export default function CreateFactionModal({
     try {
       // Create FormData for multipart/form-data submission
       const formData = new FormData();
-      
-      // Append form fields
-      formData.append("name", newFaction.name);
-      
+
+      // Append form fields - we use _id for the name field as per API docs
+      formData.append("_id", newFaction._id);
       if (newFaction.shortDescription) {
         formData.append("shortDescription", newFaction.shortDescription);
       }
-      
       if (newFaction.description) {
         formData.append("description", newFaction.description);
       }
-      
-      // Удаляем передачу registrationLink - его больше нет в модели фракции
 
-      // Image handling
+      // Image handling - обеспечиваем правильный порядок файлов в запросе
+      // Сервер ожидает: первый файл - основное изображение, второй - камуфляж
+      
+      // Для обеспечения правильного порядка, создаем массив файлов
+      const filesToUpload: Array<File | null> = [null, null];
+      
+      // Заполняем массив файлов в нужном порядке
       if (imageFile) {
-        formData.append("file", imageFile);
+        filesToUpload[0] = imageFile; // Основное изображение - первый файл
       }
+      
+      if (camoFile) {
+        filesToUpload[1] = camoFile; // Камуфляж - второй файл
+      }
+      
+      // Добавляем непустые файлы в formData в правильном порядке
+      filesToUpload.forEach((file) => {
+        if (file) {
+          formData.append("files", file);
+        }
+      });
 
       // Simulate upload progress
       const progressInterval = setInterval(() => {
@@ -121,7 +147,7 @@ export default function CreateFactionModal({
       // Complete progress
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
       onFactionCreated();
     } catch (error: any) {
       console.error("Error creating faction:", error);
@@ -224,6 +250,33 @@ export default function CreateFactionModal({
                 imagePreview={imagePreview}
                 onImageChange={handleImageSelected}
                 onImageRemove={handleRemoveImage}
+                fileInputDisabled={isLoading}
+              />
+            </div>
+
+            {/* Camo sample upload section */}
+            <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+              <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Camo Sample Image
+              </h3>
+
+              <ImageUploadSection
+                imagePreview={camoPreview}
+                onImageChange={handleCamoSelected}
+                onImageRemove={handleRemoveCamo}
                 fileInputDisabled={isLoading}
               />
             </div>

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
+import { publicApi } from '@/utils/api';
 
 // Message type for chat history
 interface ChatMessage {
@@ -51,69 +52,28 @@ export default function AIAssistant() {
     ]);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/assistant/ask`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userQuestion,
-          chatId: chatId
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get answer');
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let responseText = '';
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.substring(6);
-
-              if (data === '[DONE]') {
-                // Response is complete
-                // Check if response contains !ask_human
-                if (responseText.includes('!ask_human')) {
-                  console.log('TODO: Ask Human');
-                }
-
-                // Add complete AI response to chat history
-                setMessages(prevMessages => [
-                  ...prevMessages,
-                  { role: 'assistant', content: responseText }
-                ]);
-
-                // Clear streaming response since it's now in the chat history
-                setStreamingResponse('');
-              } else if (data.startsWith('[new_chat]')) {
-                // New chat session
-                const newChatId = data.substring(10).trim();
-                setChatId(newChatId);
-              } else {
-                // Update current response text
-                responseText += data;
-                // Show streaming response in real-time
-                setStreamingResponse(responseText);
-              }
-            }
-          }
+      // Use publicApi.askAssistant instead of direct fetch
+      const response = await publicApi.askAssistant(userQuestion);
+      
+      // Handle response
+      if (response) {
+        // Check if response contains !ask_human
+        if (response.includes('!ask_human')) {
+          console.log('TODO: Ask Human');
         }
+
+        // Add complete AI response to chat history
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { role: 'assistant', content: response }
+        ]);
       }
     } catch (err) {
       console.error('Error fetching answer:', err);
       setError('Sorry, there was an error processing your request. Please try again.');
     } finally {
       setIsLoading(false);
+      setStreamingResponse('');
     }
   };
 

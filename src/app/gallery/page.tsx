@@ -2,6 +2,7 @@ import Footer from '@/components/Footer';
 import ClientWrapper from '@/components/ClientWrapper';
 import GalleryHero from '@/app/admin/gallery/components/GalleryHero';
 import GalleryGrid from '@/app/admin/gallery/components/GalleryGrid';
+import { publicApi } from '@/utils/api';
 
 // Add revalidation time in seconds (1 hour = 3600 seconds)
 export const revalidate = 3600;
@@ -13,29 +14,15 @@ interface GalleryImage {
   game?: string | null;
 }
 
-// Fetch gallery data from the API
-async function getGalleryImages(): Promise<GalleryImage[]> {
+export default async function GalleryPage() {
+  let galleryImages: GalleryImage[] = [];
+  
   try {
-    // Updated fetch with next cache options
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/list`, {
-      next: { 
-        revalidate: 3600 // Cache for 1 hour (3600 seconds)
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error fetching gallery: ${response.status}`);
-    }
-    
-    return await response.json();
+    // Используем publicApi.getGalleryList вместо прямого fetch
+    galleryImages = await publicApi.getGalleryList();
   } catch (error) {
     console.error('Error fetching gallery images:', error);
-    return [];
   }
-}
-
-export default async function GalleryPage() {
-  const galleryImages = await getGalleryImages();
   
   return (
     <div className="bg-gray-900 text-gray-100 min-h-screen">

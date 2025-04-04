@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { adminApi } from '@/utils/api'
 
 // Улучшенные стили для анимации с поддержкой адаптивности
 const floatingPanelStyles = `
@@ -91,23 +92,15 @@ export default function AdminLogin() {
       // Check if user is already logged in
       const existingToken = localStorage.getItem('adminToken')
       if (existingToken) {
-        // Verify existing token
+        // Verify existing token using adminApi instead of direct fetch
         const verifyToken = async () => {
           try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/verify-token`, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${existingToken}`
-              }
-            })
-            
-            if (response.ok) {
-              router.push('/admin/gallery') // Redirect to gallery management
-            } else {
-              localStorage.removeItem('adminToken')
-            }
+            // Используем adminApi.verifyToken() вместо прямого fetch
+            await adminApi.verifyToken()
+            router.push('/admin/gallery') // Redirect to gallery management
           } catch (error) {
             console.error('Error verifying token:', error)
+            localStorage.removeItem('adminToken')
           }
         }
         

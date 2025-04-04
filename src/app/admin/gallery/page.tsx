@@ -10,6 +10,7 @@ import AdminLayout from "@/app/admin/components/AdminLayout";
 import ImageUploadForm from "@/app/admin/gallery/components/ImageUploadForm";
 import { Game } from "@/services/gameService";
 import AuthRequired from "../components/AuthRequired";
+import { adminApi, publicApi } from "@/utils/api";
 
 interface GalleryImage {
   filename: string;
@@ -39,20 +40,8 @@ export default function AdminGallery() {
 
     setIsLoadingGames(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/game-list`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error fetching games: ${response.status}`);
-      }
-
-      const data = await response.json();
+      // Using adminApi.getGames instead of direct fetch
+      const data = await adminApi.getGames();
       setGames([...data.upcoming, ...data.past]);
     } catch (err) {
       console.error("Failed to load games for selection", err);
@@ -68,16 +57,8 @@ export default function AdminGallery() {
 
     setIsLoading(true);
     try {
-      // Changed from /gallery/preview to /gallery/list to get all images for admin
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/gallery/list`
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error fetching gallery: ${response.status}`);
-      }
-
-      const data = await response.json();
+      // Using publicApi.getGalleryList instead of direct fetch
+      const data = await publicApi.getGalleryList();
       setImages(data);
     } catch (err) {
       setIsError(true);
@@ -104,19 +85,8 @@ export default function AdminGallery() {
         throw new Error("Authentication required");
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/gallery/${filename}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error deleting image: ${response.status}`);
-      }
+      // Using adminApi.deleteGalleryImage instead of direct fetch
+      await adminApi.deleteGalleryImage(filename);
 
       setSuccessMessage("Image deleted successfully");
       // Remove the image from the state

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Location, fetchLocations, deleteLocation } from '@/services/locationService'
 import CreateLocationModal from '../location/CreateLocationModal'
 import ConfirmationDialog from '../ui/ConfirmationDialog'
+import { publicApi } from '@/utils/api'
 
 interface LocationSelectorProps {
   selectedLocation: string | Location | null;
@@ -31,7 +32,8 @@ export default function LocationSelector({
   const loadLocations = async () => {
     setLoadingLocations(true)
     try {
-      const data = await fetchLocations()
+      const data = await publicApi.getLocations()
+      console.log(data)
       setLocationOptions(data)
     } catch (error) {
       console.error('Error fetching locations:', error)
@@ -50,19 +52,7 @@ export default function LocationSelector({
     onChange(location)
     setIsDropdownOpen(false)
   }
-  
-  // Handle location creation success
-  const handleLocationCreated = (newLocation: Location) => {
-    // Add the new location to the options list
-    setLocationOptions(prev => [...prev, newLocation])
-    
-    // Automatically select the newly created location
-    onChange(newLocation)
-    
-    // Close the modal without page reload
-    setIsCreateModalOpen(false)
-  }
-  
+
   // Open delete confirmation for a location
   const handleDeleteClick = (e: React.MouseEvent, locationId: string) => {
     e.stopPropagation() // Prevent selecting the location when clicking delete

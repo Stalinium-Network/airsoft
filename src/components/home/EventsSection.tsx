@@ -10,7 +10,7 @@ export default function EventsSection({ games = [] }: EventsSectionProps) {
   const [nextGame, ...otherGames] = games || [];
 
   return (
-    <div id="upcoming-events" className="bg-zone-dark px-2">
+    <div id="upcoming-events" className="px-2">
       <div className="container mx-auto px-4 max-w-7xl">
         <h2 className="mb-9 mt-18 text-zone-gold-lite">
           UPCOMING EVENT{games.length > 1 ? "S" : ""}

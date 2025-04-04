@@ -4,6 +4,7 @@ import { useState, useRef, ChangeEvent, FormEvent } from "react";
 import { FaUpload, FaImage, FaSpinner } from "react-icons/fa";
 import { compressImageToWebP } from "@/utils/imageUtils";
 import { Game } from "@/services/gameService";
+import { adminApi } from "@/utils/api";
 
 interface ImageUploadFormProps {
   onImageUploaded: () => void;
@@ -80,20 +81,8 @@ export default function ImageUploadForm({
         formData.append("game", selectedGameId);
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/gallery/upload`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Upload failed with status: ${response.status}`);
-      }
+      // Using adminApi.uploadGalleryImage instead of direct fetch
+      await adminApi.uploadGalleryImage(formData);
 
       // Reset form
       setFile(null);

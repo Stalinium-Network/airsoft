@@ -10,7 +10,7 @@ export interface Location {
 export async function fetchLocations(): Promise<Location[]> {
   try {
     const response = await publicApi.getLocations();
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Error fetching locations:', error);
     return [];

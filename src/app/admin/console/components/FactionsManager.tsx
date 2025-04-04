@@ -27,8 +27,9 @@ export default function FactionsManager({
   const fetchFactions = async () => {
     try {
       setIsLoadingFactions(true);
+      // Используем данные напрямую, без обращения к .data
       const response = await adminApi.getFactions();
-      setAvailableFactions(response.data);
+      setAvailableFactions(response);
     } catch (error) {
       console.error("Error fetching factions:", error);
     } finally {
@@ -99,38 +100,13 @@ export default function FactionsManager({
     onChange(updatedFactions);
   };
 
-  // Handle updating a faction's registration info
-  const handleRegInfoChange = (
-    factionId: string,
-    regInfoField: "link" | "opens" | "closes",
-    value: string
-  ) => {
-    if (isLoading) return;
-
-    const updatedFactions = factions.map((faction) => {
-      return faction;
-    });
-
-    onChange(updatedFactions);
-  };
-
-  // Calculate totals for summary
-  const totalCapacity = factions.reduce(
-    (sum, faction) => sum + faction.capacity,
-    0
-  );
-  const totalFilled = factions.reduce(
-    (sum, faction) => sum + faction.filled,
-    0
-  );
-
   return (
     <div className="space-y-6">
       {/* Faction selection dropdown */}
       <div className="flex items-center mb-4">
         <div className="flex-grow mr-2">
           <select
-            className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"
+            className="w-full input-class"
             value={selectedFactionId}
             onChange={(e) => setSelectedFactionId(e.target.value)}
             disabled={isLoading || isLoadingFactions}
@@ -140,7 +116,7 @@ export default function FactionsManager({
               .filter((f) => !factions.some((added) => added._id === f._id))
               .map((faction) => (
                 <option key={faction._id} value={faction._id}>
-                  {faction.name || faction._id}
+                  {faction._id}
                 </option>
               ))}
           </select>
@@ -173,7 +149,7 @@ export default function FactionsManager({
               >
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium text-lg">
-                    {faction.name || faction._id}
+                    {faction._id}
                   </h4>
                   <button
                     onClick={() => handleRemoveFaction(faction._id)}
@@ -218,7 +194,7 @@ export default function FactionsManager({
                           e.target.value
                         )
                       }
-                      className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
+                      className="w-full input-class"
                       disabled={isLoading}
                     />
                   </div>
@@ -238,7 +214,7 @@ export default function FactionsManager({
                           e.target.value
                         )
                       }
-                      className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
+                      className="w-full input-class"
                       disabled={isLoading}
                     />
                   </div>
@@ -282,7 +258,7 @@ export default function FactionsManager({
                     }
                     placeholder="Enter details specific to this faction in this game..."
                     rows={6}
-                    className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white"
+                    className="w-full input-class"
                     disabled={isLoading}
                   />
 

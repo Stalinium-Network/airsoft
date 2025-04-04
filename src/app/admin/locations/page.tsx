@@ -35,7 +35,8 @@ export default function LocationsManager() {
     try {
       setIsLoading(true)
       const response = await adminApi.getLocations()
-      setLocations(response.data)
+      // API теперь возвращает данные напрямую, а не объект с полем data
+      setLocations(response)
     } catch (error) {
       console.error('Error fetching locations:', error)
       setIsError(true)

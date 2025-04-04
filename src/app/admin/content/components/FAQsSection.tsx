@@ -137,7 +137,8 @@ export default function FAQsSection({ setMessage, setIsError }: FAQsSectionProps
     try {
       setIsLoading(true)
       const response = await adminApi.getFaqs()
-      setFaqs(response.data)
+      // API теперь возвращает данные напрямую, а не объект с полем data
+      setFaqs(response)
     } catch (error) {
       console.error('Error fetching FAQs:', error)
       setIsError(true)
@@ -205,11 +206,11 @@ export default function FAQsSection({ setMessage, setIsError }: FAQsSectionProps
         setEditingFaq(null)
       } else {
         // Create new FAQ
-        const response = await adminApi.createFaq(formData)
+        const newFaq = await adminApi.createFaq(formData)
         setMessage('FAQ created successfully')
         
-        // Update local state with the new FAQ
-        setFaqs(prevFaqs => [...prevFaqs, response.data])
+        // API теперь возвращает данные напрямую, а не объект с полем data
+        setFaqs(prevFaqs => [...prevFaqs, newFaq])
         
         setIsCreateModalOpen(false)
       }

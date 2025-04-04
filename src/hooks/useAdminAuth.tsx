@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
+import { adminApi } from '@/utils/api'
 
 // Create a client component specifically for reading search params
 function SearchParamsReader() {
@@ -82,20 +83,26 @@ export default function useAdminAuth() {
     checkAndSaveToken()
   }, [])
 
-  // Helper function to verify token with server
+  // Helper function to verify token with server using adminApi
   const verifyTokenWithServer = async (tokenToVerify: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/verify-token`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${tokenToVerify}`
+      // Временно сохраняем текущий токен
+      const currentToken = localStorage.getItem('adminToken');
+      
+      // Устанавливаем проверяемый токен для запроса
+      localStorage.setItem('adminToken', tokenToVerify);
+      
+      // Используем adminApi.verifyToken вместо прямого fetch
+      const result = await adminApi.verifyToken();
+      
+      // Восстанавливаем исходный токен если он отличался
+      if (currentToken !== tokenToVerify) {
+        if (currentToken) {
+          localStorage.setItem('adminToken', currentToken);
         }
-      })
-
-      if (response.ok) {
-        return await response.json()
       }
-      return null
+      
+      return result;
     } catch (error) {
       console.error('Error verifying token with server:', error)
       return null

@@ -13,3 +13,5 @@
 NEXT_PUBLIC_LINK_FACEBOOK, NEXT_PUBLIC_LINK_INSTAGRAM, NEXT_PUBLIC_LINK_TIKTOK, NEXT_PUBLIC_LINK_YOUTUBE, NEXT_PUBLIC_LINK_DISCORD
 
 Сайт должен быть оформлен с использованием фирменных цветов, их близких аналогов или их градиентов. Физменные увета указаны в global.css в @theme {}
+
+Все запросы на сервер (кроме разве что запросов изображений) должны осуществляться через обьекты publicApi или adminApi (src\utils\api.ts)

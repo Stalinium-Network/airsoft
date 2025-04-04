@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { FaTimes, FaSpinner, FaCalendarAlt, FaImage, FaFileAlt } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { publicApi } from '@/utils/api';
 
 interface ImageDetailsModalProps {
   filename: string;
@@ -25,13 +26,9 @@ export default function ImageDetailsModal({ filename, onClose }: ImageDetailsMod
     const fetchDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/details/${filename}`);
+        // Используем publicApi.getImageDetails вместо прямого fetch
+        const data = await publicApi.getImageDetails(filename);
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch image details (${response.status})`);
-        }
-        
-        const data = await response.json();
         console.log('Image details received:', data); // Logging the entire response
         console.log('Game data:', data.game); // Specifically logging the game data
         

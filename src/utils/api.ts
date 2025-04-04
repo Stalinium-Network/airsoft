@@ -1,3 +1,4 @@
+import { Commander, Game } from '@/services/gameService';
 import axios from 'axios';
 
 // Base API URL
@@ -33,137 +34,271 @@ axiosAuthInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Public API methods
+// Public API methods - модифицированы для непосредственного возврата .data
 export const publicApi = {
-  getGames: () => axiosInstance.get('/games'),
-  getLocations: () => axiosInstance.get('/locations'),
-  getLocation: (id: string) => axiosInstance.get(`/locations/${id}`),
-  getNews: (category?: string) => {
-    const url = category && category !== 'all' 
+  getGames: async () => {
+    const response = await axiosInstance.get('/games');
+    return response.data;
+  },
+  getGame: async (id: string): Promise<Game> => {
+    const response = await axiosInstance.get(`/games/${id}`);
+    return response.data;
+  },
+  getFactions: async () => {
+    const response = await axiosInstance.get('/factions');
+    return response.data;
+  },
+  getLocations: async () => {
+    const response = await axiosInstance.get('/locations');
+    return response.data;
+  },
+  getLocation: async (id: string) => {
+    const response = await axiosInstance.get(`/locations/${id}`);
+    return response.data;
+  },
+  getNews: async (category?: string) => {
+    const url = category && category !== 'all'
       ? `/news?category=${category}`
       : '/news';
-    return axiosInstance.get(url);
+    const response = await axiosInstance.get(url);
+    return response.data;
   },
-  getPinnedNews: () => {
-    return axiosInstance.get('/news/pinned');
+  getPinnedNews: async () => {
+    const response = await axiosInstance.get('/news/pinned');
+    return response.data;
   },
-  getRecentNews: (limit = 5) => {
-    return axiosInstance.get(`/news/recent?limit=${limit}`);
+  getRecentNews: async (limit = 5) => {
+    const response = await axiosInstance.get(`/news/recent?limit=${limit}`);
+    return response.data;
   },
-  getNewsItem: (id: string) => {
-    return axiosInstance.get(`/news/${id}`);
+  getNewsItem: async (id: string) => {
+    const response = await axiosInstance.get(`/news/${id}`);
+    return response.data;
   },
-  getNewsCategories: () => {
-    return axiosInstance.get('/news/categories');
+  getNewsCategories: async () => {
+    const response = await axiosInstance.get('/news/categories');
+    return response.data;
   },
   // FAQ endpoints
-  getFaqs: () => axiosInstance.get('/faqs'),
+  getFaqs: async () => {
+    const response = await axiosInstance.get('/faqs');
+    return response.data;
+  },
+  // Gallery endpoints
+  getGalleryList: async () => {
+    const response = await axiosInstance.get('/gallery/list');
+    return response.data;
+  },
+  getImageDetails: async (filename: string) => {
+    const response = await axiosInstance.get(`/gallery/details/${filename}`);
+    return response.data;
+  },
+  getTeam: async (): Promise<Commander[]> => {
+    const response = await axiosInstance.get('/team');
+    return response.data;
+  },
+  // AI Assistant
+  askAssistant: async (question: string) => {
+    const response = await axiosInstance.post('/assistant/ask', { question });
+    return response.data;
+  },
 };
 
-// Admin-specific API methods
+// Admin-specific API methods - модифицированы для непосредственного возврата .data
 export const adminApi = {
   // Game management
-  getGames: () => axiosAuthInstance.get('/admin/game-list'),
-  getGame: (id: string) => axiosAuthInstance.get(`/admin/game/${id}`),
-  createGame: (gameData: any) => axiosAuthInstance.post('/admin/create-game', gameData),
-  createGameWithImage: (formData: FormData) => {
-    return axiosAuthInstance.post('/admin/create-game', formData, {
+  getGames: async () => {
+    const response = await axiosAuthInstance.get('/admin/game-list');
+    return response.data;
+  },
+  getGame: async (id: string) => {
+    const response = await axiosAuthInstance.get(`/admin/game/${id}`);
+    return response.data;
+  },
+  createGame: async (gameData: any) => {
+    const response = await axiosAuthInstance.post('/admin/create-game', gameData);
+    return response.data;
+  },
+  createGameWithImage: async (formData: FormData) => {
+    const response = await axiosAuthInstance.post('/admin/create-game', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
-  updateGame: (gameId: string | number, gameData: any) => 
-    axiosAuthInstance.put(`/admin/update-game/${gameId}`, gameData),
-  updateGameWithImage: (id: string | number, formData: FormData) => {
-    return axiosAuthInstance.put(`/admin/update-game/${id}`, formData, {
+  updateGame: async (gameId: string | number, gameData: any) => {
+    const response = await axiosAuthInstance.put(`/admin/update-game/${gameId}`, gameData);
+    return response.data;
+  },
+  updateGameWithImage: async (id: string | number, formData: FormData) => {
+    const response = await axiosAuthInstance.put(`/admin/update-game/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
-  deleteGame: (id: string | number) => axiosAuthInstance.delete(`/admin/delete-game/${id}`),
+  deleteGame: async (id: string | number) => {
+    const response = await axiosAuthInstance.delete(`/admin/delete-game/${id}`);
+    return response.data;
+  },
   
+  // Card management
+  getCardTypes: async (): Promise<{ types: string[] }> => {
+    const response = await axiosAuthInstance.get('/admin/card-types');
+    return response.data; // Ожидаемый формат: { types: ['timeline', 'starter-pack'] }
+  },
+
   // Location endpoints
-  getLocations: () => axiosAuthInstance.get('/admin/locations'),
-  getLocation: (id: string) => axiosAuthInstance.get(`/admin/location/${id}`),
-  createLocation: (formData: FormData) => {
-    return axiosAuthInstance.post('/admin/create-location', formData, {
+  getLocations: async () => {
+    const response = await axiosAuthInstance.get('/admin/locations');
+    return response.data;
+  },
+  getLocation: async (id: string) => {
+    const response = await axiosAuthInstance.get(`/admin/location/${id}`);
+    return response.data;
+  },
+  createLocation: async (formData: FormData) => {
+    const response = await axiosAuthInstance.post('/admin/create-location', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
-  updateLocation: (id: string, formData: FormData) => {
-    return axiosAuthInstance.put(`/admin/update-location/${id}`, formData, {
+  updateLocation: async (id: string, formData: FormData) => {
+    const response = await axiosAuthInstance.put(`/admin/update-location/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
-  deleteLocation: (id: string) => {
+  deleteLocation: async (id: string) => {
     console.log(`API: Sending DELETE request to /admin/delete-location/${id}`);
-    return axiosAuthInstance.delete(`/admin/delete-location/${id}`);
+    const response = await axiosAuthInstance.delete(`/admin/delete-location/${id}`);
+    return response.data;
   },
-  
+
   // Faction endpoints
-  getFactions: () => axiosAuthInstance.get('/admin/factions'),
-  getFaction: (id: string) => axiosAuthInstance.get(`/admin/faction/${id}`),
-  createFaction: (formData: FormData) => {
-    return axiosAuthInstance.post('/admin/create-faction', formData, {
+  getFactions: async () => {
+    const response = await axiosAuthInstance.get('/admin/factions');
+    return response.data;
+  },
+  getFaction: async (id: string) => {
+    const response = await axiosAuthInstance.get(`/admin/faction/${id}`);
+    return response.data;
+  },
+  createFaction: async (formData: FormData) => {
+    const response = await axiosAuthInstance.post('/admin/create-faction', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
-  updateFaction: (id: string, formData: FormData) => {
-    return axiosAuthInstance.put(`/admin/update-faction/${id}`, formData, {
+  updateFaction: async (id: string, formData: FormData) => {
+    const response = await axiosAuthInstance.put(`/admin/update-faction/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
-  deleteFaction: (id: string) => axiosAuthInstance.delete(`/admin/delete-faction/${id}`),
-  
+  deleteFaction: async (id: string) => {
+    const response = await axiosAuthInstance.delete(`/admin/delete-faction/${id}`);
+    return response.data;
+  },
+
   // Authentication
-  verifyToken: () => axiosAuthInstance.get('/admin/verify-token'),
+  verifyToken: async () => {
+    const response = await axiosAuthInstance.get('/admin/verify-token');
+    return response.data;
+  },
 
   // Методы для работы с новостями в админке
-  getNewsList: () => {
-    return axiosAuthInstance.get('/admin/news');
+  getNewsList: async () => {
+    const response = await axiosAuthInstance.get('/admin/news');
+    return response.data;
   },
-  getNewsItem: (id: string) => {
-    return axiosAuthInstance.get(`/admin/news/${id}`);
+  getNewsItem: async (id: string) => {
+    const response = await axiosAuthInstance.get(`/admin/news/${id}`);
+    return response.data;
   },
-  createNews: (formData: FormData) => {
+  createNews: async (formData: FormData) => {
     // Убедимся, что Content-Type не устанавливается явно, чтобы браузер автоматически добавил boundary
-    return axiosAuthInstance.post('/admin/create-news', formData, {
+    const response = await axiosAuthInstance.post('/admin/create-news', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
+    return response.data;
   },
-  updateNews: (id: string, formData: FormData) => {
-    return axiosAuthInstance.put(`/admin/update-news/${id}`, formData, {
+  updateNews: async (id: string, formData: FormData) => {
+    const response = await axiosAuthInstance.put(`/admin/update-news/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
+    return response.data;
   },
-  deleteNews: (id: string) => {
-    return axiosAuthInstance.delete(`/admin/delete-news/${id}`);
+  deleteNews: async (id: string) => {
+    const response = await axiosAuthInstance.delete(`/admin/delete-news/${id}`);
+    return response.data;
   },
-  
+
   // Team management endpoints
-  getAdminTeamList: () => axiosAuthInstance.get('/admin/team'),
-  getTeamMember: (id: string) => axiosAuthInstance.get(`/admin/team/${id}`),
-  createTeamMember: (formData: FormData) => {
-    return axiosAuthInstance.post('/admin/create-team-member', formData, {
+  getAdminTeamList: async () => {
+    const response = await axiosAuthInstance.get('/admin/team');
+    return response.data;
+  },
+  getTeamMember: async (id: string) => {
+    const response = await axiosAuthInstance.get(`/admin/team/${id}`);
+    return response.data;
+  },
+  createTeamMember: async (formData: FormData) => {
+    const response = await axiosAuthInstance.post('/admin/create-team-member', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
-  updateTeamMember: (id: string, formData: FormData) => {
-    return axiosAuthInstance.put(`/admin/update-team-member/${id}`, formData, {
+  updateTeamMember: async (id: string, formData: FormData) => {
+    const response = await axiosAuthInstance.put(`/admin/update-team-member/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
   },
-  deleteTeamMember: (id: string) => axiosAuthInstance.delete(`/admin/delete-team-member/${id}`),
+  deleteTeamMember: async (id: string) => {
+    const response = await axiosAuthInstance.delete(`/admin/delete-team-member/${id}`);
+    return response.data;
+  },
 
   // FAQ management endpoints
-  getFaqs: () => axiosAuthInstance.get('/admin/faqs'),
-  createFaq: (faqData: { question: string, answer: string }) => {
-    return axiosAuthInstance.post('/admin/create-faq', faqData);
+  getFaqs: async () => {
+    const response = await axiosAuthInstance.get('/admin/faqs');
+    return response.data;
   },
-  updateFaq: (id: string, faqData: { question: string, answer: string }) => {
-    return axiosAuthInstance.put(`/admin/update-faq/${id}`, faqData);
+  createFaq: async (faqData: { question: string, answer: string }) => {
+    const response = await axiosAuthInstance.post('/admin/create-faq', faqData);
+    return response.data;
   },
-  deleteFaq: (id: string) => axiosAuthInstance.delete(`/admin/delete-faq/${id}`),
+  updateFaq: async (id: string, faqData: { question: string, answer: string }) => {
+    const response = await axiosAuthInstance.put(`/admin/update-faq/${id}`, faqData);
+    return response.data;
+  },
+  deleteFaq: async (id: string) => {
+    const response = await axiosAuthInstance.delete(`/admin/delete-faq/${id}`);
+    return response.data;
+  },
+
+  // Gallery management
+  getGalleryImages: async () => {
+    const response = await axiosAuthInstance.get('/admin/gallery/list');
+    return response.data;
+  },
+  uploadGalleryImage: async (formData: FormData) => {
+    const response = await axiosAuthInstance.post('/admin/gallery/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  },
+  updateGalleryImage: async (filename: string, data: any) => {
+    const response = await axiosAuthInstance.put(`/admin/gallery/update/${filename}`, data);
+    return response.data;
+  },
+  deleteGalleryImage: async (filename: string) => {
+    const response = await axiosAuthInstance.delete(`/admin/gallery/delete/${filename}`);
+    return response.data;
+  }
 };

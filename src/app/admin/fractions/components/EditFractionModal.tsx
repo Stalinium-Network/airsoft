@@ -28,15 +28,21 @@ export default function EditFactionModal({
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [camoFile, setCamoFile] = useState<File | null>(null);
+  const [camoPreview, setCamoPreview] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imageChanged, setImageChanged] = useState(false);
+  const [camoChanged, setCamoChanged] = useState(false);
 
-  // Initialize image preview from existing URL if available
+  // Initialize image previews from existing URLs if available
   useEffect(() => {
     if (faction.image) {
       setImagePreview(`${process.env.NEXT_PUBLIC_API_URL}/factions/image/${faction.image}`);
     }
-  }, [faction.image]);
+    if (faction.camoSample) {
+      setCamoPreview(`${process.env.NEXT_PUBLIC_API_URL}/factions/camo-image/${faction.camoSample}`);
+    }
+  }, [faction.image, faction.camoSample]);
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -54,13 +60,22 @@ export default function EditFactionModal({
       setImagePreview(preview);
       setImageFile(file);
       setImageChanged(true);
-      setEditingFaction(prev => ({
-        ...prev,
-        image: "file_upload" // Placeholder
-      }));
     } catch (error) {
       console.error("Error handling image:", error);
       onError("Failed to process image. Please try another file.");
+    }
+  };
+
+  // Handle camo image selection
+  const handleCamoSelected = async (file: File) => {
+    try {
+      const preview = await createImagePreview(file);
+      setCamoPreview(preview);
+      setCamoFile(file);
+      setCamoChanged(true);
+    } catch (error) {
+      console.error("Error handling camo image:", error);
+      onError("Failed to process camo image. Please try another file.");
     }
   };
 
@@ -69,10 +84,13 @@ export default function EditFactionModal({
     setImageFile(null);
     setImagePreview(null);
     setImageChanged(true);
-    setEditingFaction(prev => ({
-      ...prev,
-      image: ""
-    }));
+  };
+
+  // Remove selected camo image
+  const handleRemoveCamo = () => {
+    setCamoFile(null);
+    setCamoPreview(null);
+    setCamoChanged(true);
   };
 
   // Update faction
@@ -90,32 +108,46 @@ export default function EditFactionModal({
     try {
       // Create FormData for multipart/form-data submission
       const formData = new FormData();
-      
+
       // Append form fields
       formData.append("name", editingFaction._id);
-      
       if (editingFaction.shortDescription) {
         formData.append("shortDescription", editingFaction.shortDescription);
       }
-      
       if (editingFaction.description) {
         formData.append("description", editingFaction.description);
       }
-      
-      // Удаляем передачу registrationLink - его больше нет в модели фракции
 
-      // Image handling
+      // Image handling - важно сохранять правильный порядок файлов
+      // Сервер ожидает: первый файл - основное изображение, второй - камуфляж
+      
+      // Для обеспечения правильного порядка, создаем массив файлов
+      const filesToUpload: Array<File | null> = [null, null];
+      
+      // Заполняем массив файлов в нужном порядке
       if (imageFile) {
-        formData.append("file", imageFile);
-      } else if (editingFaction.image && !imageChanged) {
-        formData.append("image", editingFaction.image);
-      } else if (imageChanged && !imageFile) {
+        filesToUpload[0] = imageFile; // Основное изображение - первый файл
+      }
+      
+      if (camoFile) {
+        filesToUpload[1] = camoFile; // Камуфляж - второй файл
+      }
+      
+      // Добавляем непустые файлы в formData в правильном порядке
+      filesToUpload.forEach((file) => {
+        if (file) {
+          formData.append("files", file);
+        }
+      });
+      
+      // Если изображение удалено (но не заменено новым)
+      if (imageChanged && !imageFile) {
         formData.append("image", "");
       }
 
-      // Flag if the image was changed
-      if (imageChanged) {
-        formData.append("imageChanged", "true");
+      // Если камуфляж удален (но не заменен новым)
+      if (camoChanged && !camoFile) {
+        formData.append("camoSample", "");
       }
 
       // Simulate upload progress
@@ -136,7 +168,7 @@ export default function EditFactionModal({
       // Complete progress
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
       onFactionUpdated(editingFaction);
     } catch (error: any) {
       console.error("Error updating faction:", error);
@@ -256,6 +288,33 @@ export default function EditFactionModal({
                 imagePreview={imagePreview}
                 onImageChange={handleImageSelected}
                 onImageRemove={handleRemoveImage}
+                fileInputDisabled={isLoading}
+              />
+            </div>
+
+            {/* Camo sample upload section */}
+            <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+              <h3 className="text-lg font-medium text-blue-500 mb-3 flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Camo Sample Image
+              </h3>
+
+              <ImageUploadSection
+                imagePreview={camoPreview}
+                onImageChange={handleCamoSelected}
+                onImageRemove={handleRemoveCamo}
                 fileInputDisabled={isLoading}
               />
             </div>

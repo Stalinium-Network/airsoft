@@ -3,11 +3,10 @@ import { Location } from './locationService';
 // Базовая модель фракции - с camoSample
 export interface Faction {
   _id: string;
-  name?: string;
-  image?: string;
-  camoSample?: string; // Filename of the camo sample image
-  shortDescription?: string;
-  description?: string; // Full markdown description
+  image: string;
+  camoSample: string; // Filename of the camo sample image
+  shortDescription: string;
+  description: string; // Full markdown description
 }
 
 // Расширенная модель для фракции внутри игры - с capacity, filled
@@ -16,6 +15,18 @@ export interface GameFaction extends Faction {
   filled: number;
   details: string; // Дополнительные детали фракции, например детали того что будет делать фракция в игре
 }
+
+// Card interface for games
+export interface Card {
+  title: string;
+  svgContent: string;
+  content: string;
+}
+
+// Cards dictionary interface
+export type Cards = {
+  [key: string]: Card;
+};
 
 // Новая структура информации о регистрации
 export interface RegistrationInfo {
@@ -40,6 +51,14 @@ export interface Game {
   price: number;
   isPast: boolean;
   regInfo: RegistrationInfo; // New registration info structure replacing registrationLink
+  cards?: Cards; // Cards for the game
+}
+
+export type Commander = {
+  _id: string;
+  name: string;
+  image: string;
+  description: string;
 }
 
 // Вспомогательная функция для определения, является ли превью URL-адресом

@@ -119,7 +119,7 @@ export default function GameFormFields({
               value={game.name || ""}
               onChange={handleChange}
               placeholder="Enter game title"
-              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              className="w-full input-class"
               disabled={isLoading}
               required
             />
@@ -135,7 +135,7 @@ export default function GameFormFields({
               name="date"
               value={startDate}
               onChange={handleDateChange}
-              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              className="w-full input-class"
               disabled={isLoading}
               required
             />
@@ -153,7 +153,7 @@ export default function GameFormFields({
               max="48"
               value={game.duration || ""}
               onChange={handleChange}
-              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              className="w-full input-class"
               disabled={isLoading}
               required
             />
@@ -170,118 +170,27 @@ export default function GameFormFields({
               min="0"
               value={game.price || ""}
               onChange={handleChange}
-              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              className="w-full input-class"
               disabled={isLoading}
               required
             />
           </div>
 
-          {/* Registration Information fields */}
-          <div className="md:col-span-2 border border-gray-700 p-3 rounded-lg">
-            <h4 className="text-md font-medium text-blue-400 mb-3">
-              Registration Information
-            </h4>
-
-            {/* Registration Link field */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Registration Link
-                <span className="text-xs text-gray-500 ml-2">
-                  (URL for player registration)
-                </span>
-              </label>
-              <input
-                type="text"
-                value={game.regInfo?.link || ""}
-                onChange={(e) => handleRegInfoChange("link", e.target.value)}
-                placeholder="https://example.com/register?gameId=123"
-                className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Registration Details */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Registration Details
-                <span className="text-xs text-gray-500 ml-2">
-                  (Additional information about registration)
-                </span>
-              </label>
-              <textarea
-                value={game.regInfo?.details || ""}
-                onChange={(e) => handleRegInfoChange("details", e.target.value)}
-                placeholder="Enter additional details about registration (e.g. required equipment, age restrictions)"
-                rows={3}
-                className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Registration Opens */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Registration Opens
-              </label>
-              <input
-                type="datetime-local"
-                value={game.regInfo?.opens || ""}
-                onChange={(e) => handleRegInfoChange("opens", e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Registration Closes */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Registration Closes
-              </label>
-              <input
-                type="datetime-local"
-                value={game.regInfo?.closes || ""}
-                onChange={(e) => handleRegInfoChange("closes", e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                disabled={isLoading}
-              />
-            </div>
+          {/* Location Information - Перенесено сюда для лучшей группировки */}
+          <div className="md:col-span-2">
+             <label className="block text-sm font-medium text-gray-300 mb-1">
+                Location <span className="text-red-500">*</span>
+             </label>
+            <LocationSelector
+              selectedLocation={game.location || ""}
+              onChange={handleLocationChange}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       </div>
 
-      {/* 2. Location Information */}
-      <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
-        <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
-          <svg
-            className="w-5 h-5 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
-          Location
-        </h3>
-
-        <LocationSelector
-          selectedLocation={game.location || ""}
-          onChange={handleLocationChange}
-          isLoading={isLoading}
-        />
-      </div>
-
-      {/* 4. Description Information */}
+      {/* 2. Description Information */}
       <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
         <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
           <svg
@@ -313,7 +222,7 @@ export default function GameFormFields({
             value={game.description || ""}
             onChange={handleChange}
             rows={2}
-            className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            className="w-full input-class"
             placeholder="Brief description of the event (visible in game listings)"
             disabled={isLoading}
             required
@@ -333,7 +242,7 @@ export default function GameFormFields({
             value={game.detailedDescription || ""}
             onChange={handleChange}
             rows={20}
-            className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all font-mono"
+            className="w-full input-class font-mono"
             placeholder="# Full description of the event&#10;- Detailed info&#10;- Rules&#10;- Schedule"
             disabled={isLoading}
           ></textarea>

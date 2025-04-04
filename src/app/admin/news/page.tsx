@@ -30,8 +30,8 @@ export default function NewsAdminPage() {
       setIsLoading(true);
       const response = await adminApi.getNewsList();
       
-      // Преобразование данных
-      const newsData = response.data.map(mapNewsData);
+      // API теперь возвращает данные напрямую, а не объект с полем data
+      const newsData = response.map(mapNewsData);
       setNews(newsData);
     } catch (error: any) {
       console.error('Error fetching news:', error);

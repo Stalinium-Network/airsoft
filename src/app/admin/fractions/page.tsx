@@ -33,7 +33,7 @@ export default function FactionsManagement() {
     try {
       setIsLoading(true);
       const response = await adminApi.getFactions();
-      setFactions(response.data);
+      setFactions(response);
     } catch (error) {
       console.error("Error fetching factions:", error);
       setIsError(true);

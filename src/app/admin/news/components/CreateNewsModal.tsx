@@ -38,13 +38,14 @@ export default function CreateNewsModal({
       try {
         setIsCategoriesLoading(true);
         const response = await publicApi.getNewsCategories();
-        setCategories(response.data);
+        // API теперь возвращает данные напрямую, а не объект с полем data
+        setCategories(response);
         
         // Установка первой категории по умолчанию
-        if (response.data.length > 0 && !formData.category) {
+        if (response.length > 0 && !formData.category) {
           setFormData(prev => ({
             ...prev,
-            category: response.data[0].id
+            category: response[0].id
           }));
         }
       } catch (error) {

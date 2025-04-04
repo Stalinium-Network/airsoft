@@ -41,7 +41,8 @@ export default function TeamMembersSection({ setMessage, setIsError }: TeamMembe
     try {
       setIsLoading(true)
       const response = await adminApi.getAdminTeamList()
-      setTeamMembers(response.data)
+      // API теперь возвращает данные напрямую, а не объект с полем data
+      setTeamMembers(response)
     } catch (error) {
       console.error('Error fetching team members:', error)
       setIsError(true)

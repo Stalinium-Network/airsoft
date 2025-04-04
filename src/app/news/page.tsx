@@ -32,9 +32,9 @@ export default async function NewsPage() {
       return { data: [] };
     });
 
-  const allNews = allNewsResponse.data.map(mapNewsData);
-  const pinnedNews = pinnedNewsResponse.data.map(mapNewsData);
-  const categories = categoriesResponse.data;
+  const allNews = allNewsResponse.map(mapNewsData) ?? [];
+  const pinnedNews = pinnedNewsResponse.map(mapNewsData) ?? [];
+  const categories = categoriesResponse ?? [];
 
   return (
     <div className="min-h-screen bg-zone-dark text-white pb-12">
