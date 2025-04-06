@@ -28,7 +28,7 @@ export default function NewsFilters({
         // Добавляем категорию "All" в начало списка
         setCategories([
           { id: "all", name: "All News" },
-          ...response.data
+          ...response
         ]);
       } catch (error) {
         console.error("Error fetching news categories:", error);

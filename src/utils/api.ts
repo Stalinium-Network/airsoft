@@ -1,5 +1,5 @@
 import { Commander, Faction, Game } from '@/services/gameService';
-import { NewsItem } from '@/services/newsService';
+import { NewsCategory, NewsItem } from '@/services/newsService';
 import axios from 'axios';
 import { FAQ } from './api-server';
 import { Location } from '@/services/locationService';
@@ -78,7 +78,7 @@ export const publicApi = {
     const response = await axiosInstance.get(`/news/${id}`);
     return response.data;
   },
-  getNewsCategories: async (): Promise<string[]> => {
+  getNewsCategories: async (): Promise<NewsCategory[]> => {
     const response = await axiosInstance.get('/news/categories');
     return response.data;
   },

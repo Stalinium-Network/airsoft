@@ -20,7 +20,7 @@ export default function NewsHero({ pinnedNews }: NewsHeroProps) {
     async function fetchCategories() {
       try {
         const response = await publicApi.getNewsCategories();
-        setCategories(response.data);
+        setCategories(response);
       } catch (error) {
         console.error("Error fetching news categories:", error);
       } finally {

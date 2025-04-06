@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { RegistrationInfo } from '@/services/gameService';
+import { RegistrationInfo, PricePeriod } from '@/services/gameService';
 
 // New ShareButton component
 interface ShareButtonProps {
@@ -67,6 +67,7 @@ interface RegisterButtonProps {
   isFull: boolean;
   hasFactions?: boolean;
   regInfo?: RegistrationInfo;
+  prices?: PricePeriod[]; // Добавляем массив цен
   className?: string;
 }
 
@@ -77,6 +78,7 @@ export default function RegisterButton({
   isFull,
   hasFactions = false,
   regInfo,
+  prices = [], // Добавляем дефолтное значение пустого массива
   className = '' 
 }: RegisterButtonProps) {
   const router = useRouter();
@@ -88,25 +90,44 @@ export default function RegisterButton({
     }
   };
   
-  // Check if registration is open
+  // Check if registration is open - обновленная функция с использованием поля status
   const isRegistrationOpen = () => {
     if (!regInfo) return false;
     
-    // If no dates are specified, check if link exists
-    if (!regInfo.opens && !regInfo.closes) {
-      return !!regInfo.link;
+    // Используем прямую проверку статуса из нового типа RegistrationInfo
+    return regInfo.status === 'open' && !!regInfo.link;
+  };
+  
+  // Функция определения текущего ценового периода и дат закрытия регистрации
+  const getRegistrationTiming = () => {
+    const now = new Date();
+    
+    // Если нет массива цен или он пуст, регистрация просто открыта или закрыта
+    if (!prices || prices.length === 0) {
+      return { isOpenNow: isRegistrationOpen(), closingSoon: false };
     }
     
-    const now = new Date();
-    const opensDate = regInfo.opens ? new Date(regInfo.opens) : null;
-    const closesDate = regInfo.closes ? new Date(regInfo.closes) : null;
+    // Сортируем цены по дате начала
+    const sortedPrices = [...prices].sort((a, b) => 
+      new Date(a.starts).getTime() - new Date(b.starts).getTime()
+    );
     
-    // Check if registration is open based on dates
-    if (opensDate && now < opensDate) return false;
-    if (closesDate && now > closesDate) return false;
+    // Последний ценовой период - закрытие регистрации
+    const lastPeriod = sortedPrices[sortedPrices.length - 1];
+    const closingDate = lastPeriod.ends ? new Date(lastPeriod.ends) : null;
     
-    return !!regInfo.link;
+    // Проверка, закроется ли регистрация скоро (в течение недели)
+    const closingSoon = closingDate ? 
+      (closingDate.getTime() - now.getTime() < 7 * 24 * 60 * 60 * 1000) : 
+      false;
+    
+    return {
+      isOpenNow: isRegistrationOpen(),
+      closingSoon
+    };
   };
+  
+  const { isOpenNow, closingSoon } = getRegistrationTiming();
   
   // Base button classes
   const baseClasses = "py-3 rounded-md transition-colors font-bold flex items-center justify-center gap-2";
@@ -140,7 +161,7 @@ export default function RegisterButton({
           You can still register
         </button>
       );
-    } else if (!isRegistrationOpen()) {
+    } else if (!isOpenNow) {
       // Case: registration is not available or not open yet
       registerButton = (
         <div className={`${baseClasses} bg-zone-dark-brown/50 text-gray-400 cursor-not-allowed w-full`}>
@@ -152,17 +173,22 @@ export default function RegisterButton({
         </div>
       );
     } else {
+      // Если регистрация скоро закроется, добавляем предупреждение
+      const buttonText = closingSoon ? "Register Now (Closing Soon!)" : "Register Now";
+      
       registerButton = (
         <button 
           onClick={handleRegister}
-          className={`${baseClasses} bg-zone-gold hover:bg-zone-gold/80 text-zone-dark-brown font-bold group w-full`}
+          className={`${baseClasses} ${
+            closingSoon ? 'bg-amber-600 hover:bg-amber-700' : 'bg-zone-gold hover:bg-zone-gold/80'
+          } text-zone-dark-brown font-bold group w-full`}
         >
           <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" 
                   d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" 
                   clipRule="evenodd" />
           </svg>
-          Register Now
+          {buttonText}
         </button>
       );
     }

@@ -17,19 +17,19 @@ export const revalidate = 3600;
 export default async function NewsPage() {
   const allNewsResponse = await publicApi.getNews().catch((error) => {
     console.error("Error fetching news:", error);
-    return { data: [] };
+    return [];
   });
 
   const pinnedNewsResponse = await publicApi.getPinnedNews().catch((error) => {
     console.error("Error fetching pinned news:", error);
-    return { data: [] };
+    return [];
   });
 
   const categoriesResponse = await publicApi
     .getNewsCategories()
     .catch((error) => {
       console.error("Error fetching news categories:", error);
-      return { data: [] };
+      return [];
     });
 
   const allNews = allNewsResponse.map(mapNewsData) ?? [];

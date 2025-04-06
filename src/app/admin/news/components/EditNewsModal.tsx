@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { NewsItem, NewsCategory } from "@/services/newsService";
 import { adminApi, publicApi } from "@/utils/api";
 import Image from "next/image";
-import { createImagePreview, prepareImageForUpload } from '@/utils/imageUtils';
+import { createImagePreview, prepareImageForUpload } from "@/utils/imageUtils";
 
 interface EditNewsModalProps {
   news: NewsItem;
@@ -41,7 +41,8 @@ export default function EditNewsModal({
       try {
         setIsCategoriesLoading(true);
         const response = await publicApi.getNewsCategories();
-        setCategories(response.data);
+        console.log("Fetched categories:", response);
+        setCategories(response);
       } catch (error) {
         console.error("Error fetching news categories:", error);
         onError("Failed to load news categories. Please try again.");
@@ -56,7 +57,9 @@ export default function EditNewsModal({
   // Установка начального превью изображения
   useEffect(() => {
     if (news.image) {
-      setImagePreview(`${process.env.NEXT_PUBLIC_API_URL}/news/image/${news.image}`);
+      setImagePreview(
+        `${process.env.NEXT_PUBLIC_API_URL}/news/image/${news.image}`
+      );
     }
   }, [news.image]);
 
@@ -93,12 +96,15 @@ export default function EditNewsModal({
 
   // Обработка изменения полей формы
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value, type } = e.target as HTMLInputElement;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     });
   };
 
@@ -135,13 +141,13 @@ export default function EditNewsModal({
       submitData.append("description", formData.description);
       submitData.append("content", formData.content);
       submitData.append("pinned", formData.pinned.toString());
-      
+
       // Обработка изображения
       if (imageFile && imageChanged) {
         // Используем правильный ключ 'file' вместо 'image'
         await prepareImageForUpload(submitData, imageFile);
       }
-      
+
       if (imageChanged) {
         submitData.append("imageChanged", "true");
       }
@@ -189,8 +195,18 @@ export default function EditNewsModal({
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-700 flex items-center justify-between sticky top-0 bg-gray-800 z-10">
           <h2 className="text-xl font-semibold flex items-center">
-            <svg className="w-6 h-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            <svg
+              className="w-6 h-6 mr-2 text-blue-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
             </svg>
             Edit News Article
           </h2>
@@ -199,8 +215,18 @@ export default function EditNewsModal({
             className="text-gray-400 hover:text-white transition-colors"
             disabled={isLoading}
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -228,8 +254,7 @@ export default function EditNewsModal({
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                </label>
+                <label className="block text-sm font-medium text-gray-300 mb-1"></label>
                 {isCategoriesLoading ? (
                   <div className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md animate-pulse">
                     Loading categories...
@@ -290,8 +315,18 @@ export default function EditNewsModal({
               {/* Image upload */}
               <div className="bg-gray-750 rounded-lg p-4 border border-gray-700">
                 <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center">
-                  <svg className="w-5 h-5 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    className="w-5 h-5 mr-1 text-blue-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                   News Image <span className="text-red-500">*</span>
                 </h3>
@@ -309,8 +344,18 @@ export default function EditNewsModal({
                       className="absolute top-2 right-2 bg-red-500 rounded-full p-1 text-white hover:bg-red-600 transition-colors"
                       disabled={isLoading}
                     >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -328,11 +373,25 @@ export default function EditNewsModal({
                       htmlFor="image-upload"
                       className="cursor-pointer flex flex-col items-center"
                     >
-                      <svg className="w-12 h-12 text-gray-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="w-12 h-12 text-gray-500 mb-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
-                      <span className="text-sm text-gray-300">Click to upload image</span>
-                      <span className="text-xs text-gray-500 mt-1">PNG, JPG, WebP up to 5MB</span>
+                      <span className="text-sm text-gray-300">
+                        Click to upload image
+                      </span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        PNG, JPG, WebP up to 5MB
+                      </span>
                     </label>
                   </div>
                 )}
@@ -344,7 +403,7 @@ export default function EditNewsModal({
               <label className="block text-sm font-medium text-gray-300 mb-1">
                 Content <span className="text-red-500">*</span>
               </label>
-              
+
               <textarea
                 name="content"
                 value={formData.content}
@@ -354,7 +413,7 @@ export default function EditNewsModal({
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={isLoading}
               />
-              
+
               <p className="text-xs text-gray-500 mt-1">
                 Describe your news in detail.
               </p>
@@ -387,16 +446,42 @@ export default function EditNewsModal({
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Saving...
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-4 h-4 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   Save Changes
                 </>
