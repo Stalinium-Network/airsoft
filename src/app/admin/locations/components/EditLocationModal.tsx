@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { Location } from '@/services/locationService'
 import { adminApi } from '@/utils/api'
 import { createImagePreview } from '@/utils/imageUtils'
-import ProgressBar from '../game-form/ProgressBar'
+import ProgressBar from '../../content/components/shared/ProgressBar'
 
 interface EditLocationModalProps {
   location: Location;

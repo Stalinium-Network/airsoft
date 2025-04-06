@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Location, createLocation } from '@/services/locationService'
 import { createImagePreview } from '@/utils/imageUtils'
-import ProgressBar from '../game-form/ProgressBar'
+import ProgressBar from '../../content/components/shared/ProgressBar';
 
 interface CreateLocationModalProps {
   onClose: () => void;

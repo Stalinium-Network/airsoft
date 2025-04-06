@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { adminApi } from '@/utils/api'
-import ProgressBar from '../../../console/components/game-form/ProgressBar'
 import { createImagePreview } from '@/utils/imageUtils'
+import ProgressBar from '../shared/ProgressBar';
 
 interface CreateTeamMemberModalProps {
   onClose: () => void;

@@ -20,8 +20,8 @@ import {
 import FactionEditor from "./FactionEditor";
 import RegistrationInfoEditor from "./RegistrationInfoEditor";
 import CardEditor from "./CardEditor";
-import PricingManager from "@/app/admin/console/components/game-form/PricingManager";
-import TemplateSelector from "@/app/admin/console/components/game-form/TemplateSelector";
+import TemplateSelector from "./TemplateSelector";
+import PricingManager from "./PricingManager";
 
 interface GameFormProps {
   game: Game | null;

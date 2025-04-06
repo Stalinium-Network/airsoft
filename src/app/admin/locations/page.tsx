@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import useAdminAuth from '@/hooks/useAdminAuth'
 import { adminApi } from '@/utils/api'
 import { Location, deleteLocation } from '@/services/locationService'
-import CreateLocationModal from '../console/components/location/CreateLocationModal'
-import EditLocationModal from '../console/components/location/EditLocationModal'
 import AuthRequired from '../components/AuthRequired'
 import AdminLayout from '../components/AdminLayout'
+import EditLocationModal from './components/EditLocationModal'
+import CreateLocationModal from './components/CreateLocationModal'
 
 export default function LocationsManager() {
   const { token, setMessage, setIsError } = useAdminAuth()

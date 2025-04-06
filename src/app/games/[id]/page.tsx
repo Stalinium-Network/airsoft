@@ -8,7 +8,6 @@ import OldHeroSection from "./components/OldHeroSection";
 import { publicApi } from "@/utils/api";
 import TextGradient from "@/components/TextGradient";
 import DiscordButton from "@/components/DiscordButton";
-import LionDenCollab from "../../../template/components/LionDenCollab";
 
 // Enable revalidation every 1 hour (3600 seconds)
 export const revalidate = 3600;

@@ -3,11 +3,11 @@ import { useState } from "react";
 import { Faction } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
-import ModalHeader from "../../console/components/modal/ModalHeader";
-import ModalFooter from "../../console/components/modal/ModalFooter";
-import ImageUploadSection from "../../console/components/game-form/ImageUploadSection";
-import ProgressBar from "../../console/components/game-form/ProgressBar";
 import FactionFormFields from "./FractionFormFields";
+import ProgressBar from "../../content/components/shared/ProgressBar";
+import ModalHeader from "@/components/admin/ModalHeader";
+import ImageUploadSection from "@/components/admin/ImageUploadSection";
+import ModalFooter from "@/components/admin/ModalFooter";
 
 // Default faction data
 const defaultFactionData: Omit<Faction, "_id" | "image" | "camoSample"> = {
@@ -202,7 +202,7 @@ export default function CreateFactionModal({
     <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-gray-800 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-700">
         {/* Header */}
-        <ModalHeader 
+        <ModalHeader
           title="Create New Faction"
           icon={createIcon}
           onClose={onClose}

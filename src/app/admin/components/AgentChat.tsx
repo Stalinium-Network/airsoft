@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, useRef, RefObject } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ChatMessage from "./ChatMessage";
-import ChatInput from "./ChatInput";
+import ChatMessage from "./parts/ChatMessage";
+import ChatInput from "./parts/ChatInput";
 
 export default function AgentChat() {
   const [isOpen, setIsOpen] = useState(false);

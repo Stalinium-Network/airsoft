@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { adminApi } from '@/utils/api'
-import ProgressBar from '../../../console/components/game-form/ProgressBar'
 import { createImagePreview } from '@/utils/imageUtils'
+import ProgressBar from '../shared/ProgressBar';
 
 // Интерфейс для члена команды, соответствующий API
 interface TeamMember {
