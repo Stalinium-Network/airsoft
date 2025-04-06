@@ -1,6 +1,6 @@
 import { SVGProps } from "react";
 
-export function SvgTrash(props: SVGProps<SVGSVGElement>) {
+export default function SvgTrash(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

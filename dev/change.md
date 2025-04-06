@@ -1,108 +1,147 @@
-# Game Cards Feature Documentation
+# API Changes: Dynamic Pricing Model and Templates
 
-This document describes the implementation of the new `cards` feature in the game schema and the related API endpoints.
+This document describes changes to the game schema and related API endpoints to support a dynamic pricing model with time-based price tiers and template references.
 
 ## Schema Changes
 
-The game schema has been updated to include a `cards` property, which is a map (dictionary) where:
-- Keys are card types from the predefined list: 'timeline', 'starter-pack'
-- Values are Card objects with the following structure:
-  ```typescript
-  {
-    title: string;      // Card title
-    svgContent: string; // SVG content for the card graphic
-    content: string;    // Text content of the card
-  }
-  ```
+### 1. Removed Fields
+- **`price`**: Single price field has been removed
+- **`regInfo.opens`**: Registration opening date has been removed
+- **`regInfo.closes`**: Registration closing date has been removed
 
-## API Endpoints
+### 2. New Fields
+- **`prices`**: Array of price periods, each with:
+  - `starts`: Date when this price tier begins
+  - `ends`: Date when this price tier ends (optional for the last tier)
+  - `price`: Numeric price value for this tier
 
-### Public Endpoints
+- **`templates`**: Array of template IDs that the game uses
+  - This allows associating games with specific templates for content generation
 
-#### GET /games
-- **Changes:** Game objects now include the `cards` property
-- **Response Example:**
+## API Endpoint Changes
+
+### GET /games
+
+**Response Change**: Each game object now includes:
+- `prices` array instead of a single `price` field
+- `currentPrice` field added with the currently applicable price
+- `regInfo` no longer contains `opens` and `closes` properties
+- `templates` array for linking games to predefined templates
+- Registration status is now calculated using the first price period's `starts` date and last period's `ends` date
+
+**Example Response:**
 ```json
 {
   "past": [
     {
-      "_id": "64f3654c0e7100223c7545d0",
-      "name": "Operation Recon",
+      "name": "Operation Desert Storm",
       "preview": "bd4abb01-b428-4f0f-a866-33460d5b0c1a.webp",
-      "cards": {
-        "timeline": {
-          "title": "Timeline",
-          "svgContent": "<svg>...</svg>",
-          "content": "Game timeline markdown content"
+      "prices": [
+        {
+          "starts": "2023-05-01T00:00:00.000Z",
+          "ends": "2023-05-15T00:00:00.000Z",
+          "price": 1500
         },
-        "starter-pack": {
-          "title": "Starter Pack",
-          "svgContent": "<svg>...</svg>",
-          "content": "Items to bring markdown content"
+        {
+          "starts": "2023-05-15T00:00:00.000Z", 
+          "ends": "2023-05-31T00:00:00.000Z",
+          "price": 1800
+        },
+        {
+          "starts": "2023-05-31T00:00:00.000Z",
+          "ends": "2023-06-15T00:00:00.000Z",
+          "price": 2000
         }
+      ],
+      "currentPrice": null, // Past game, no current price
+      "regInfo": {
+        "link": "https://example.com/register",
+        "details": "Registration details...",
+        "status": "closed" // Calculated status
       },
+      "templates": ["basic-zone", "medical"], // Template IDs
       // ...other game fields
     }
   ],
   "upcoming": [
-    // ...similarly structured game objects
+    // ...similarly structured game objects with activePrice calculated
   ]
 }
 ```
 
-#### GET /games/:id
-- **Changes:** Game detail object now includes the `cards` property
-- **Response Example:** Same card structure as above within a single game object
+### GET /games/:id
 
-#### GET /games/location/:locationId
-- **Changes:** Game objects now include the `cards` property
-- **Response Example:** Similar to /games endpoint
+**Response Change**: Same changes as the `/games` endpoint for a single game object.
 
-### Admin Endpoints
+### GET /games/location/:locationId
 
-#### GET /admin/card-types
-- **New Endpoint:** Returns the available card types
-- **Response Example:**
-```json
-{
-  "types": ["timeline", "starter-pack"]
-}
-```
+**Response Change**: Same changes as the `/games` endpoint for the returned array of games.
 
-#### POST /admin/create-game
-- **Request Change:** Accepts a new `cardsJson` field with stringified JSON
-- **Example cardsJson value:**
-```json
-{
-  "timeline": {
-    "title": "Game Timeline",
-    "svgContent": "<svg>...</svg>",
-    "content": "## Timeline\n\n- 9:00 AM: Registration\n- 10:00 AM: Game start"
+## Admin Endpoints
+
+### POST /admin/create-game
+
+**Body Changes**:
+- `price` field is replaced with `pricesJson`, containing a JSON string array of price periods
+- `regInfo` no longer accepts or needs `opens` and `closes` properties
+- Added support for `templatesJson` to set game templates
+
+**Example Request:**
+```javascript
+const formData = new FormData();
+
+// Add other game fields...
+
+// Now add prices as a JSON string array
+formData.append('pricesJson', JSON.stringify([
+  {
+    "starts": "2023-11-01T00:00:00.000Z",
+    "ends": "2023-11-15T00:00:00.000Z", 
+    "price": 1500
   },
-  "starter-pack": {
-    "title": "What to Bring",
-    "svgContent": "<svg>...</svg>",
-    "content": "## Required Items\n\n- Airsoft gun\n- Protection gear\n- Water"
+  {
+    "starts": "2023-11-15T00:00:00.000Z",
+    "ends": "2023-11-30T00:00:00.000Z",
+    "price": 1800 
+  },
+  {
+    "starts": "2023-11-30T00:00:00.000Z",
+    // No 'ends' for the last period if it ends on game day
+    "price": 2000
   }
-}
+]));
+
+// Add templates as a JSON string array
+formData.append('templatesJson', JSON.stringify(["basic-zone", "medical"]));
+
+// Registration info no longer includes opens/closes
+formData.append('regInfoJson', JSON.stringify({
+  "link": "https://example.com/register",
+  "details": "Registration details with **markdown** support"
+}));
 ```
 
-#### PUT /admin/update-game/:id
-- **Request Change:** Accepts a new `cardsJson` field with stringified JSON
-- **Example:** Same as for create-game endpoint
+### PUT /admin/update-game/:id
+
+**Body Changes**: Same changes as for the create-game endpoint.
 
 ## Client-Side Implementation Notes
 
-1. **Displaying Cards:**
-   - Each card type represents a different section of information about the game
-   - The `svgContent` can be rendered directly in the UI
-   - The `content` field contains markdown text that should be rendered appropriately
+1. **Registration Status Calculation**:
+   - Registration is "not-open" before first price period starts
+   - Registration is "open" between first period start and last period end
+   - Registration is "closed" after last period end date
 
-2. **Admin Form Implementation:**
-   - Add UI for creating/updating cards for each available card type
-   - Ensure the form sends the stringified card data in the `cardsJson` field
-   - Fetch available card types from the `/admin/card-types` endpoint
+2. **Current Price Display**:
+   - Use the returned `currentPrice` field to display the active price to users
+   - For past games, `currentPrice` may be null
 
-3. **Card Type Meaning:**
-   - `timeline`: Information about the game schedule and timeline
-   - `starter-pack`: Information about required equipment or preparations for players
+3. **Admin Forms**:
+   - Update forms to support multiple price tiers with start and end dates
+   - Registration opening is now controlled by the start date of the first price tier
+   - Registration closing is now controlled by the end date of the last price tier
+   - Add support for selecting multiple templates from a list of available templates
+
+4. **Templates**:
+   - Templates are used to associate games with specific content generation templates
+   - The client should fetch the available templates and allow selection through a multi-select control

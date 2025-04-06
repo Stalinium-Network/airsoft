@@ -32,6 +32,29 @@ export default function GameList({
     
     return { total, filled };
   };
+
+  // Helper to get price display info
+  const getPriceInfo = (game: Game) => {
+    // Если игра прошедшая или нет текущей цены
+    if (game.currentPrice === null) {
+      // Показываем последнюю цену из доступных
+      const lastPrice = game.prices && game.prices.length > 0
+        ? game.prices[game.prices.length - 1].price
+        : null;
+      
+      return {
+        price: lastPrice,
+        isDynamic: game.prices && game.prices.length > 1,
+        isPast: true
+      };
+    }
+    
+    return {
+      price: game.currentPrice,
+      isDynamic: game.prices && game.prices.length > 1,
+      isPast: false
+    };
+  };
   
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-8">
@@ -92,6 +115,7 @@ export default function GameList({
         >
           {games.map((game) => {
             const { total, filled } = getCapacityInfo(game);
+            const { price, isDynamic, isPast } = getPriceInfo(game);
             
             // Check if any faction has details
             const hasFactionDetails = game.factions?.some(f => !!f.details);
@@ -142,16 +166,33 @@ export default function GameList({
 
                 {/* Game info */}
                 <div className="p-4">
-                  <div className="mb-3">
+                  <div className="mb-3 flex flex-wrap gap-1.5">
                     <span className="text-xs font-medium bg-gray-600 text-gray-300 px-2 py-1 rounded">
                       {game.isPast ? "Past Event" : "Upcoming"}
                     </span>
-                    <span className="text-xs font-medium bg-green-600 text-white px-2 py-1 rounded ml-2">
-                      ${game.price}
-                    </span>
+                    
+                    {/* Price display with different styling based on status */}
+                    {price !== null && (
+                      <span className={`text-xs font-medium ${isPast ? 'bg-gray-500' : 'bg-green-600'} text-white px-2 py-1 rounded flex items-center`}>
+                        ${price}
+                        {isDynamic && (
+                          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                        )}
+                      </span>
+                    )}
+                    
                     {isPreviewVideo && (
-                      <span className="text-xs font-medium bg-red-600 text-white px-2 py-1 rounded ml-2">
+                      <span className="text-xs font-medium bg-red-600 text-white px-2 py-1 rounded">
                         YouTube
+                      </span>
+                    )}
+                    
+                    {/* Показ наличия шаблонов */}
+                    {game.templates && game.templates.length > 0 && (
+                      <span className="text-xs font-medium bg-purple-600 text-white px-2 py-1 rounded">
+                        {game.templates.length} template{game.templates.length > 1 ? 's' : ''}
                       </span>
                     )}
                   </div>
@@ -167,6 +208,18 @@ export default function GameList({
                         ? game.location
                         : (game.location as Location)._id}
                     </div>
+
+                    {/* Регистрация и статус */}
+                    {game.regInfo?.status && (
+                      <div className="my-1">
+                        Registration: <span className={`${
+                          game.regInfo.status === 'open' ? 'text-green-400' :
+                          game.regInfo.status === 'not-open' ? 'text-yellow-400' : 'text-red-400'
+                        }`}>
+                          {game.regInfo.status}
+                        </span>
+                      </div>
+                    )}
 
                     {/* Factions information */}
                     <div>

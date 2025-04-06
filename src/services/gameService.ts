@@ -28,13 +28,18 @@ export type Cards = {
   [key: string]: Card;
 };
 
-// Новая структура информации о регистрации
+// Структура для периода цен
+export interface PricePeriod {
+  starts: string; // ISO date string
+  ends?: string; // ISO date string, optional for last tier
+  price: number;
+}
+
+// Обновленная структура информации о регистрации (без opens и closes)
 export interface RegistrationInfo {
   link: string | null;
-  opens: string | null; // Changed from Date to string
-  closes: string | null; // Changed from Date to string
-  status: 'not-open' | 'open' | 'closed'; // Registration status
   details: string;
+  status: 'not-open' | 'open' | 'closed';
 }
 
 export interface Game {
@@ -48,9 +53,11 @@ export interface Game {
   preview: string;  // Changed from 'image' - can be a filename or YouTube URL
   // Используем GameFaction вместо Faction для игр
   factions: GameFaction[];
-  price: number;
+  prices: PricePeriod[]; // Dynamic pricing model
+  currentPrice: number | null; // Current applicable price
   isPast: boolean;
-  regInfo: RegistrationInfo; // New registration info structure replacing registrationLink
+  regInfo: RegistrationInfo; // Updated registration info structure
+  templates?: string[]; // Array of template IDs
   cards?: Cards; // Cards for the game
 }
 
@@ -63,17 +70,17 @@ export type Commander = {
 
 // Вспомогательная функция для определения, является ли превью URL-адресом
 export function isPreviewUrl(preview: string): boolean {
+  if (!preview) return false;
   try {
-    new URL(preview);
-    return true;
-  } catch {
+    // Check if it's a YouTube link
+    return preview.includes('youtube.com') || preview.includes('youtu.be');
+  } catch (error) {
     return false;
   }
 }
 
-
-// Extract YouTube video ID if it's a YouTube URL
-export const getYoutubeVideoId = (url: string): string | null => {
+// Extract YouTube video ID from URL
+export function getYoutubeVideoId(url: string): string | null {
   try {
     const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const match = url.match(regex);
@@ -81,12 +88,12 @@ export const getYoutubeVideoId = (url: string): string | null => {
   } catch (error) {
     return null;
   }
-};
+}
 
 // Get YouTube thumbnail URL
-export const getYoutubeThumbnail = (videoId: string): string => {
+export function getYoutubeThumbnail(videoId: string): string {
   return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-};
+}
 
 export interface GamesResponse {
   past: Game[];

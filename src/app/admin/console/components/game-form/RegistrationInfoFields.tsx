@@ -46,7 +46,6 @@ export default function RegistrationInfoFields({
           </label>
           <input
             type="url"
-            name="regInfo.link"
             value={regInfo.link || ""}
             onChange={(e) =>
               handleRegInfoChange("link", e.target.value)
@@ -58,62 +57,14 @@ export default function RegistrationInfoFields({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Registration Status
-          </label>
-          <select
-            name="regInfo.status"
-            value={regInfo.status}
-            onChange={(e) =>
-              handleRegInfoChange("status", e.target.value)
-            }
-            className="w-full input-class"
-            disabled={isLoading}
-          >
-            <option value="not-open">Not Open</option>
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
-          </select>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Opens At
-          </label>
-          <input
-            type="datetime-local"
-            name="regInfo.opens"
-            value={regInfo.opens || ""}
-            onChange={(e) =>
-              handleRegInfoChange("opens", e.target.value)
-            }
-            className="w-full input-class"
-            disabled={isLoading}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Closes At
-          </label>
-          <input
-            type="datetime-local"
-            name="regInfo.closes"
-            value={regInfo.closes || ""}
-            onChange={(e) =>
-              handleRegInfoChange("closes", e.target.value)
-            }
-            className="w-full input-class"
-            disabled={isLoading}
-          />
-        </div>
-      </div>
+      
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-1">
           Registration Details (Markdown)
         </label>
         <textarea
-          name="regInfo.details"
           value={regInfo.details || ""}
           onChange={(e) =>
             handleRegInfoChange("details", e.target.value)

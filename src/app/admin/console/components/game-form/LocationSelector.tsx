@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Location, fetchLocations, deleteLocation } from '@/services/locationService'
+import {  fetchLocations, deleteLocation, Location } from '@/services/locationService'
 import CreateLocationModal from '../location/CreateLocationModal'
 import ConfirmationDialog from '../ui/ConfirmationDialog'
 import { publicApi } from '@/utils/api'

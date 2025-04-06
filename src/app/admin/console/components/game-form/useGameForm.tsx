@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Game, GameFaction, Card } from "@/services/gameService";
+import { Game, GameFaction, Card, PricePeriod } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 import { createImagePreview } from "@/utils/imageUtils";
 import { isPastGame } from "@/services/adminService";
@@ -27,6 +27,8 @@ export interface GameFormState {
   cardTypes: string[];
   cards: Array<Card & { type: string }>;
   isLoading: boolean;
+  pricePeriods: PricePeriod[];
+  templates: string[];
 }
 
 export default function useGameForm({
@@ -49,6 +51,10 @@ export default function useGameForm({
   // Cards related state
   const [cardTypes, setCardTypes] = useState<string[]>([]);
   const [cards, setCards] = useState<Array<Card & { type: string }>>([]);
+
+  // Price periods и templates
+  const [pricePeriods, setPricePeriods] = useState<PricePeriod[]>([]);
+  const [templates, setTemplates] = useState<string[]>([]);
 
   // Loading state
   const [isLoading, setIsLoading] = useState(false);
@@ -87,6 +93,21 @@ export default function useGameForm({
       setCards(cardsArray);
     }
 
+    // Initialize price periods
+    if (initialGame.prices && initialGame.prices.length > 0) {
+      setPricePeriods(initialGame.prices);
+    } else {
+      // Создаем пустой массив периодов
+      setPricePeriods([]);
+    }
+
+    // Initialize templates
+    if (initialGame.templates && initialGame.templates.length > 0) {
+      setTemplates(initialGame.templates);
+    } else {
+      setTemplates([]);
+    }
+
     // Fetch card types
     const fetchCardTypes = async () => {
       try {
@@ -106,12 +127,7 @@ export default function useGameForm({
   const handleInputChange = (e: MixedChangeEvent) => {
     const { name, value } = e.target;
 
-    if (name === "price") {
-      setGame((prev) => ({
-        ...prev,
-        price: parseInt(value, 10) || 0,
-      }));
-    } else if (name === "date") {
+    if (name === "date") {
       setGame((prev) => ({
         ...prev,
         date: value, // Keep as string
@@ -147,6 +163,25 @@ export default function useGameForm({
         [name]: value,
       }));
     }
+  };
+
+  // Управление периодами цен
+  const handlePricePeriodsChange = (updatedPeriods: PricePeriod[]) => {
+    setPricePeriods(updatedPeriods);
+    // Обновляем game.prices для последующей отправки на сервер
+    setGame((prev) => ({
+      ...prev,
+      prices: updatedPeriods
+    }));
+  };
+
+  // Управление шаблонами
+  const handleTemplatesChange = (updatedTemplates: string[]) => {
+    setTemplates(updatedTemplates);
+    setGame((prev) => ({
+      ...prev,
+      templates: updatedTemplates
+    }));
   };
 
   // Toggle between image upload and YouTube URL
@@ -248,13 +283,9 @@ export default function useGameForm({
 
   // Change card data by index
   const handleCardChange = (
-    index: number,
-    field: keyof (Card & { type: string }),
-    value: string
+    updatedCards: Array<Card & { type: string }>
   ) => {
-    setCards((prev) =>
-      prev.map((card, i) => (i === index ? { ...card, [field]: value } : card))
-    );
+    setCards(updatedCards);
   };
 
   // Prepare FormData for submission
@@ -272,20 +303,27 @@ export default function useGameForm({
         : (game.location as any)?._id || ""
     );
     formData.append("description", game.description || "");
-    formData.append("price", game.price?.toString() || "0");
     formData.append("isPast", (game.isPast || false).toString());
 
     if (game.detailedDescription) {
       formData.append("detailedDescription", game.detailedDescription);
     }
 
-    // Add registration info as JSON string
+    // Add dynamic pricing data as JSON
+    if (pricePeriods && pricePeriods.length > 0) {
+      formData.append("pricesJson", JSON.stringify(pricePeriods));
+    }
+
+    // Add templates if present
+    if (templates && templates.length > 0) {
+      formData.append("templatesJson", JSON.stringify(templates));
+    }
+
+    // Add registration info as JSON string - без opens и closes
     if (game.regInfo) {
       // Ensure proper processing of regInfo - create a clean object for JSON serialization
       const cleanRegInfo = {
         link: game.regInfo.link || null,
-        opens: game.regInfo.opens || null,
-        closes: game.regInfo.closes || null,
         details: game.regInfo.details || "",
         status: game.regInfo.status || "not-open",
       };
@@ -364,6 +402,8 @@ export default function useGameForm({
       cardTypes,
       cards,
       isLoading,
+      pricePeriods,
+      templates,
     },
     setGame,
     setIsLoading,
@@ -374,6 +414,8 @@ export default function useGameForm({
     handleRemoveImage,
     handleLocationSelect,
     handleFactionsChange,
+    handlePricePeriodsChange,
+    handleTemplatesChange,
     getYoutubeVideoId,
     handleAddCard,
     handleRemoveCard,

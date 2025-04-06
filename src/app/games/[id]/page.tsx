@@ -8,6 +8,7 @@ import OldHeroSection from "./components/OldHeroSection";
 import { publicApi } from "@/utils/api";
 import TextGradient from "@/components/TextGradient";
 import DiscordButton from "@/components/DiscordButton";
+import LionDenCollab from "../../../template/components/LionDenCollab";
 
 // Enable revalidation every 1 hour (3600 seconds)
 export const revalidate = 3600;
@@ -51,12 +52,15 @@ const RenderSvgIcon: React.FC<{ svgString: string; className?: string }> = ({
 export default async function GameDetailPage({ params }: any) {
   const game = await publicApi.getGame(params.id);
   const timelineData = game?.cards?.timeline;
-  const starterPackData = game?.cards?.["starter-pack"];
+  const starterPackData = game?.cards?.["starter_pack"];
+
+  console.log(game);
 
   return (
     <div className="min-h-screen text-white">
       <div className="max-w-7xl text-base mx-auto p-6 md:p-8 mt-24">
         <OldHeroSection game={game} />
+        {/* {collabData && <LionDenCollab />} */}
         <LocationSection location={game.location as Location} />
         <MarkdownRenderer content={game.detailedDescription} />
 
@@ -73,7 +77,7 @@ export default async function GameDetailPage({ params }: any) {
                     />
                     <TextGradient
                       text={timelineData.title}
-                      className="text-2xl"
+                      className="text-2xl mt-3"
                     />
                   </div>
                   <div className="prose prose-base prose-invert max-w-none text-gray-300 prose-li:my-1 prose-strong:text-white prose-headings:text-gray-400 prose-headings:uppercase prose-headings:text-sm prose-headings:font-semibold prose-headings:mb-2 prose-headings:mt-4">
@@ -96,7 +100,7 @@ export default async function GameDetailPage({ params }: any) {
                       />
                       <TextGradient
                         text={starterPackData.title}
-                        className="text-2xl"
+                        className="text-2xl mt-3"
                       />
                     </div>
                     <div className="prose prose-base prose-invert max-w-none text-gray-300 prose-li:my-1 prose-strong:text-white">
@@ -120,7 +124,7 @@ export default async function GameDetailPage({ params }: any) {
           </div>
         )}
 
-        <RegistrationSection regInfo={game.regInfo} factions={game.factions} />
+        <RegistrationSection regInfo={game.regInfo} factions={game.factions} prices={game.prices} currentPrice={game.currentPrice} />
       </div>
     </div>
   );

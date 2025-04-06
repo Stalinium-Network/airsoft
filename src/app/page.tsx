@@ -1,7 +1,7 @@
 import { Metadata } from "next";
-import { serverApi } from "@/utils/api-server";
 import HeroSection from "@/components/home/HeroSection";
 import EventsSection from "@/components/home/EventsSection";
+import { publicApi } from "@/utils/api";
 
 export const metadata: Metadata = {
   title: "Zone 37 | Immersive Airsoft Experience",
@@ -13,7 +13,7 @@ export const revalidate = 3600; // Revalidate every hour
 
 export default async function HomePage() {
   // Fetch games from the server
-  const games = await serverApi.getGames();
+  const games = await publicApi.getGames();
 
   return (
     <div className="min-h-screen text-white">

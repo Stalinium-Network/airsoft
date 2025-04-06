@@ -58,7 +58,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   const navItems = [
-    { label: "Games", href: "/admin/console" },
+    { label: "Games", href: "/admin/games" },
     { label: "Gallery", href: "/admin/gallery" },
     { label: "Locations", href: "/admin/locations" },
     { label: "Factions", href: "/admin/fractions" }, // TODO Rename to admin/factions, also rename the directory of page

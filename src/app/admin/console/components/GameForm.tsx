@@ -37,7 +37,7 @@ export default function GameList({
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-8">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Game Management</h2>
+        <h2 className="text-xl font-semibold">Game Management (Outdated)</h2>
 
         {/* Filter toggle with animation */}
         <div className="bg-gray-700 p-1 rounded-lg inline-flex relative">

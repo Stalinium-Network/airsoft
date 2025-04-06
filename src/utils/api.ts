@@ -1,5 +1,8 @@
 import { Commander, Faction, Game } from '@/services/gameService';
+import { NewsItem } from '@/services/newsService';
 import axios from 'axios';
+import { FAQ } from './api-server';
+import { Location } from '@/services/locationService';
 
 // Base API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -36,7 +39,7 @@ axiosAuthInstance.interceptors.request.use(
 
 // Public API methods - модифицированы для непосредственного возврата .data
 export const publicApi = {
-  getGames: async () => {
+  getGames: async (): Promise<{ past: Game[], upcoming: Game[] }> => {
     const response = await axiosInstance.get('/games');
     return response.data;
   },
@@ -48,39 +51,39 @@ export const publicApi = {
     const response = await axiosInstance.get('/factions');
     return response.data || [];
   },
-  getLocations: async () => {
+  getLocations: async (): Promise<Location[]> => {
     const response = await axiosInstance.get('/locations');
     return response.data;
   },
-  getLocation: async (id: string) => {
+  getLocation: async (id: string): Promise<Location> => {
     const response = await axiosInstance.get(`/locations/${id}`);
     return response.data;
   },
-  getNews: async (category?: string) => {
+  getNews: async (category?: string): Promise<NewsItem[]> => {
     const url = category && category !== 'all'
       ? `/news?category=${category}`
       : '/news';
     const response = await axiosInstance.get(url);
     return response.data;
   },
-  getPinnedNews: async () => {
+  getPinnedNews: async (): Promise<NewsItem[]> => {
     const response = await axiosInstance.get('/news/pinned');
     return response.data;
   },
-  getRecentNews: async (limit = 5) => {
+  getRecentNews: async (limit = 5): Promise<NewsItem[]> => {
     const response = await axiosInstance.get(`/news/recent?limit=${limit}`);
     return response.data;
   },
-  getNewsItem: async (id: string) => {
+  getNewsItem: async (id: string): Promise<NewsItem> => {
     const response = await axiosInstance.get(`/news/${id}`);
     return response.data;
   },
-  getNewsCategories: async () => {
+  getNewsCategories: async (): Promise<string[]> => {
     const response = await axiosInstance.get('/news/categories');
     return response.data;
   },
   // FAQ endpoints
-  getFaqs: async () => {
+  getFaqs: async (): Promise<FAQ[]> => {
     const response = await axiosInstance.get('/faqs');
     return response.data;
   },
@@ -139,11 +142,11 @@ export const adminApi = {
     const response = await axiosAuthInstance.delete(`/admin/delete-game/${id}`);
     return response.data;
   },
-  
+
   // Card management
   getCardTypes: async (): Promise<{ types: string[] }> => {
     const response = await axiosAuthInstance.get('/admin/card-types');
-    return response.data; // Ожидаемый формат: { types: ['timeline', 'starter-pack'] }
+    return response.data; // Ожидаемый формат: { types: ['timeline', 'starter_pack'] }
   },
 
   // Location endpoints

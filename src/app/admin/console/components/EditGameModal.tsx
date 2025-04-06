@@ -204,7 +204,7 @@ export default function EditGameModal({
               <CardsManager 
                 cards={state.cards}
                 cardTypes={state.cardTypes}
-                onChange={setCards => state.cards = setCards}
+                onChange={handleCardChange}
                 onAddCard={handleAddCard}
                 isLoading={state.isLoading}
               />

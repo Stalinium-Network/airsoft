@@ -5,10 +5,11 @@ import { FaChevronDown, FaTrash } from "react-icons/fa";
 
 interface CardEditorProps {
   cardType: string;
-  card?: Card;
-  onChange: (type: string, card: Card) => void;
+  card?: Card & { type?: string };
+  onChange: (type: string, card: Card & { type?: string }) => void;
   onRemove: (type: string) => void;
   isLoading?: boolean;
+  cardTypes?: string[]; // Add cardTypes prop to select from available types
 }
 
 const defaultCard: Card = {
@@ -23,14 +24,27 @@ export default function CardEditor({
   onChange,
   onRemove,
   isLoading = false,
+  cardTypes = [], // Default to empty array
 }: CardEditorProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const handleChange = (field: keyof Card, value: string) => {
-    onChange(cardType, {
-      ...card,
-      [field]: value,
-    });
+  // Handle input changes including type changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    if (name === "type") {
+      // When changing card type, need to handle differently
+      onChange(cardType, { 
+        ...card,
+        type: value // Include the new type
+      });
+    } else {
+      // For regular field changes
+      onChange(cardType, {
+        ...card,
+        [name]: value,
+      });
+    }
   };
 
   // Функция для форматирования названия типа карточки (first letter uppercase)
@@ -83,6 +97,29 @@ export default function CardEditor({
       {/* Развернутая панель редактирования */}
       {expanded && (
         <div className="p-4 border-t border-gray-700/50">
+          {/* Card Type Selection */}
+          <div className="mb-4">
+            <label className="block text-xs uppercase tracking-wide font-medium text-gray-400 mb-1">
+              Card Type <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="type"
+              value={cardType}
+              onChange={handleChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              disabled={isLoading}
+            >
+              {cardTypes.map((type) => (
+                <option key={type} value={type}>
+                  {formatCardType(type)}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-400 mt-1">
+              The card type determines where this content appears on the game page
+            </p>
+          </div>
+          
           {/* Заголовок */}
           <div className="mb-4">
             <label className="block text-xs uppercase tracking-wide font-medium text-gray-400 mb-1">
@@ -90,9 +127,10 @@ export default function CardEditor({
             </label>
             <input
               type="text"
-              value={card.title}
-              onChange={(e) => handleChange("title", e.target.value)}
-              className="w-full input-field"
+              name="title"
+              value={card.title || ""}
+              onChange={handleChange}
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               disabled={isLoading}
               placeholder="Enter card title"
             />
@@ -104,24 +142,16 @@ export default function CardEditor({
               SVG Icon Content <span className="text-gray-500">(Optional)</span>
             </label>
             <textarea
-              value={card.svgContent}
-              onChange={(e) => handleChange("svgContent", e.target.value)}
+              name="svgContent"
+              value={card.svgContent || ""}
+              onChange={handleChange}
               rows={3}
-              className="w-full input-field font-mono text-xs"
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono text-xs"
               disabled={isLoading}
               placeholder="<svg>...</svg>"
             />
             
             <p className="text-xs text-gray-500 mt-1">Paste the full SVG code here</p>
-            
-            {/* {card.svgContent && (
-              <div className="mt-3 p-3 bg-gray-900/50 rounded-md border border-gray-800">
-                <div 
-                  className="h-16 flex items-center justify-center text-blue-400" 
-                  dangerouslySetInnerHTML={{ __html: card.svgContent }}
-                />
-              </div>
-            )} */}
           </div>
 
           {/* Markdown контент */}
@@ -130,10 +160,11 @@ export default function CardEditor({
               Card Content (Markdown) <span className="text-red-500">*</span>
             </label>
             <textarea
-              value={card.content}
-              onChange={(e) => handleChange("content", e.target.value)}
+              name="content"
+              value={card.content || ""}
+              onChange={handleChange}
               rows={5}
-              className="w-full input-field"
+              className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               disabled={isLoading}
               placeholder="Use Markdown for formatting..."
             />

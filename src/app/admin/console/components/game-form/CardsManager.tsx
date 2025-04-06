@@ -19,15 +19,38 @@ export default function CardsManager({
   onAddCard,
   isLoading = false,
 }: CardsManagerProps) {
-  // Функция для обновления карточки по индексу
-  const handleCardChange = (cardType: string, updatedCard: Card) => {
+  // Handle card changes, including type changes
+  const handleCardChange = (cardType: string, updatedCard: Card & { type?: string }) => {
+    // Make a copy of the cards array
+    const newCards = [...cards];
+    
+    // Find the index of the card we need to update
     const cardIndex = cards.findIndex(card => card.type === cardType);
+    
     if (cardIndex !== -1) {
-      const newCards = [...cards];
+      // Get the new type value if provided, otherwise use the existing type
+      const newType = updatedCard.type || cardType;
+      
+      // If the card exists, update it
       newCards[cardIndex] = {
-        ...newCards[cardIndex],
-        ...updatedCard
+        ...updatedCard,
+        type: newType // Ensure type is always set
       };
+      
+      // If we're changing to a new type that already exists, we need to handle conflicts
+      if (newType !== cardType) {
+        // Check if there's already a card with the new type
+        const existingTypeIndex = cards.findIndex(
+          (card, idx) => card.type === newType && idx !== cardIndex
+        );
+        
+        if (existingTypeIndex !== -1) {
+          // If there's already a card with the new type, create a unique type name
+          const uniqueType = `${newType}_${Date.now()}`;
+          newCards[cardIndex].type = uniqueType;
+        }
+      }
+      
       onChange(newCards);
     }
   };
@@ -46,14 +69,15 @@ export default function CardsManager({
         </div>
       ) : (
         <div className="space-y-1">
-          {cards.map((card, index) => (
+          {cards.map((card) => (
             <CardEditor
-              key={`${card.type}-${index}`}
+              key={card.type}
               cardType={card.type}
               card={card}
               onChange={handleCardChange}
               onRemove={handleRemoveCard}
               isLoading={isLoading}
+              cardTypes={cardTypes} // Pass cardTypes to CardEditor
             />
           ))}
         </div>

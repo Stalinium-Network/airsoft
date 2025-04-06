@@ -5,10 +5,10 @@ import Link from "next/link";
 import LocationLink from "./LocationLink";
 import { calculateAvailableSlots } from "./calculateAvailableSlots";
 import { Location } from "@/services/locationService";
-import { isPreviewUrl } from "@/services/gameService";
+import { isPreviewUrl, Game } from "@/services/gameService";
 
 interface GameCardProps {
-  game: any;
+  game: Game;
 }
 
 export default function GameCard({ game }: GameCardProps) {
@@ -103,6 +103,7 @@ export default function GameCard({ game }: GameCardProps) {
 
         <div className="mt-4 mb-6">
           <div className="flex justify-between text-sm mb-1">
+            <span className="text-gray-400">Registration Status</span>
             <span className="text-white">{occupiedSlots}/{fillingInfo.total} slots</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2.5 mb-1.5 overflow-hidden">
@@ -136,6 +137,13 @@ export default function GameCard({ game }: GameCardProps) {
               />
             </svg>
           </Link>
+
+          {/* Отображение текущей актуальной цены */}
+          {game.currentPrice !== null && (
+            <span className="ml-3 text-zone-gold-lite font-medium">
+              ${game.currentPrice}
+            </span>
+          )}
         </div>
       </div>
     </div>

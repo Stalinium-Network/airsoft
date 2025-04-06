@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, ChangeEvent, FormEvent } from "react";
-import { FaUpload, FaImage, FaSpinner } from "react-icons/fa";
-import { compressImageToWebP } from "@/utils/imageUtils";
+import { FaUpload, FaImage, FaSpinner, FaRedoAlt } from "react-icons/fa";
+import { compressImageToWebP, iterativeImageProcessing, continueIterating } from "@/utils/imageUtils";
 import { Game } from "@/services/gameService";
 import { adminApi } from "@/utils/api";
 
@@ -20,15 +20,23 @@ export default function ImageUploadForm({
   isLoadingGames,
 }: ImageUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [processedBlob, setProcessedBlob] = useState<Blob | null>(null);
   const [description, setDescription] = useState("");
   const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [compressionStats, setCompressionStats] = useState<{
+    originalSize: number;
+    newSize: number;
+    compressionRatio: number;
+  } | null>(null);
+  const [iterationCount, setIterationCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle file selection
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
@@ -40,20 +48,72 @@ export default function ImageUploadForm({
 
     setFile(selectedFile);
     setError("");
+    setIsProcessing(true);
+    setIterationCount(0);
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(selectedFile);
+    try {
+      // Process the image initially
+      const result = await iterativeImageProcessing(selectedFile);
+      setProcessedBlob(result.processedBlob);
+      setCompressionStats(result.stats);
+      setIterationCount(1);
+      
+      // Create preview from the processed image
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(result.processedBlob);
+    } catch (err) {
+      console.error("Error processing image:", err);
+      setError("Failed to process image. Please try again.");
+      
+      // Fallback to original preview if processing fails
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle continue iteration
+  const handleContinueIteration = async () => {
+    if (!processedBlob) return;
+    
+    setIsProcessing(true);
+    try {
+      // Apply another compression cycle
+      const result = await continueIterating(processedBlob, {
+        maxWidth: 1200,
+        quality: Math.max(0.6, 0.8 - (iterationCount * 0.05)), // Reduce quality with each iteration, but not below 0.6
+      });
+      
+      setProcessedBlob(result.processedBlob);
+      setCompressionStats(result.stats);
+      setIterationCount(prev => prev + 1);
+      
+      // Update preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(result.processedBlob);
+    } catch (err) {
+      console.error("Error in continue iteration:", err);
+      setError("Failed to process image further. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Handle form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!file) {
+    if (!processedBlob && !file) {
       setError("Please select an image to upload");
       return;
     }
@@ -69,9 +129,13 @@ export default function ImageUploadForm({
     try {
       const formData = new FormData();
 
-      // Compress the image before uploading
-      const compressedImage = await compressImageToWebP(file);
-      formData.append("file", compressedImage);
+      // Use the processed blob if available, otherwise compress the original file
+      if (processedBlob) {
+        formData.append("file", processedBlob, file?.name || "image.webp");
+      } else if (file) {
+        const compressedImage = await compressImageToWebP(file);
+        formData.append("file", compressedImage);
+      }
 
       if (!description.trim()) return;
       formData.append("description", description.trim());
@@ -86,9 +150,12 @@ export default function ImageUploadForm({
 
       // Reset form
       setFile(null);
+      setProcessedBlob(null);
       setPreviewUrl(null);
       setDescription("");
       setSelectedGameId("");
+      setCompressionStats(null);
+      setIterationCount(0);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -108,6 +175,13 @@ export default function ImageUploadForm({
     if (typeof dateString === "string")
       return new Date(dateString).toLocaleDateString();
     return dateString.toLocaleDateString();
+  };
+
+  // Format file size for display
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    else return (bytes / 1048576).toFixed(1) + " MB";
   };
 
   return (
@@ -139,10 +213,15 @@ export default function ImageUploadForm({
                 accept="image/*"
                 onChange={handleFileChange}
                 className="hidden"
-                disabled={isUploading}
+                disabled={isUploading || isProcessing}
               />
 
-              {previewUrl ? (
+              {isProcessing ? (
+                <div className="py-12 flex flex-col items-center justify-center">
+                  <FaSpinner className="animate-spin text-4xl text-green-500 mb-2" />
+                  <p className="text-gray-300">Processing image...</p>
+                </div>
+              ) : previewUrl ? (
                 <div className="relative h-48 w-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -161,6 +240,49 @@ export default function ImageUploadForm({
                 </div>
               )}
             </div>
+            
+            {/* Compression stats */}
+            {compressionStats && (
+              <div className="mt-2 bg-gray-800 p-3 rounded-md text-sm">
+                <p className="text-gray-300">
+                  Original: <span className="text-green-400">{formatFileSize(compressionStats.originalSize)}</span>
+                </p>
+                <p className="text-gray-300">
+                  Compressed: <span className="text-green-400">{formatFileSize(compressionStats.newSize)}</span>
+                </p>
+                <p className="text-gray-300">
+                  Reduction: <span className="text-green-400">{compressionStats.compressionRatio.toFixed(1)}%</span>
+                </p>
+                <p className="text-gray-300">
+                  Iterations: <span className="text-green-400">{iterationCount}</span>
+                </p>
+                
+                {/* Continue iteration button */}
+                <button
+                  type="button"
+                  onClick={handleContinueIteration}
+                  disabled={isProcessing || isUploading}
+                  className={`mt-2 flex items-center justify-center py-2 px-4 rounded-md text-sm font-medium transition
+                    ${
+                      !isProcessing && !isUploading
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                    }`}
+                >
+                  {isProcessing ? (
+                    <>
+                      <FaSpinner className="animate-spin mr-2" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <FaRedoAlt className="mr-2" />
+                      Continue to iterate?
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -210,10 +332,10 @@ export default function ImageUploadForm({
           {/* Submit button */}
           <button
             type="submit"
-            disabled={isUploading || !file || !token}
+            disabled={isUploading || (!file && !processedBlob) || !token}
             className={`w-full mt-4 flex items-center justify-center py-3 px-6 rounded-md text-lg font-medium transition
               ${
-                file && !isUploading && token
+                (file || processedBlob) && !isUploading && token
                   ? "bg-green-500 hover:bg-green-600 text-gray-900"
                   : "bg-gray-700 text-gray-400 cursor-not-allowed"
               }`}

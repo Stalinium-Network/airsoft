@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Game } from "@/services/gameService";
+import { Game, PricePeriod } from "@/services/gameService";
 import { formatDateForInput } from "@/services/adminService";
 import LocationSelector from "./LocationSelector";
+import PricingManager from "./PricingManager";
+import TemplateSelector from "./TemplateSelector";
 
 // Define the mixed event type
 export type MixedChangeEvent =
@@ -15,14 +17,22 @@ interface GameFormFieldsProps {
   game: Partial<Game>;
   onChange: (e: MixedChangeEvent) => void;
   isLoading?: boolean;
-  onLocationSelect?: (locationId: string) => void; // Add this property to fix type errors
+  onLocationSelect?: (locationId: string) => void;
+  pricePeriods: PricePeriod[];
+  onPricePeriodsChange: (periods: PricePeriod[]) => void;
+  templates: string[];
+  onTemplatesChange: (templates: string[]) => void;
 }
 
 export default function GameFormFields({
   game,
   onChange,
   isLoading = false,
-  onLocationSelect, // Add this to the component props
+  onLocationSelect,
+  pricePeriods,
+  onPricePeriodsChange,
+  templates,
+  onTemplatesChange
 }: GameFormFieldsProps) {
   // Converting date format for datetime-local input - automatically call when input renders
   const [startDate, setStartDate] = useState<string>(
@@ -159,21 +169,21 @@ export default function GameFormFields({
             />
           </div>
 
-          {/* Price field */}
+          {/* Status field */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
-              Price per Player ($) <span className="text-red-500">*</span>
+              Event Status <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              name="price"
-              min="0"
-              value={game.price || ""}
+            <select
+              name="isPast"
+              value={game.isPast?.toString() || "false"}
               onChange={handleChange}
               className="w-full input-class"
               disabled={isLoading}
-              required
-            />
+            >
+              <option value="false">Upcoming Event</option>
+              <option value="true">Past Event</option>
+            </select>
           </div>
 
           {/* Location Information - Перенесено сюда для лучшей группировки */}
@@ -190,7 +200,63 @@ export default function GameFormFields({
         </div>
       </div>
 
-      {/* 2. Description Information */}
+      {/* 2. Dynamic Pricing */}
+      <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+        <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+          <svg
+            className="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          Pricing Information
+        </h3>
+        
+        <div className="mb-4">
+          <PricingManager
+            pricePeriods={pricePeriods}
+            onChange={onPricePeriodsChange}
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+
+      {/* 3. Game Templates */}
+      <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
+        <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
+          <svg
+            className="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
+            />
+          </svg>
+          Game Templates
+        </h3>
+        
+        <div className="mb-4">
+          <TemplateSelector
+            selectedTemplates={templates}
+            onChange={onTemplatesChange}
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+
+      {/* 4. Description Information */}
       <div className="bg-gray-750 p-4 rounded-lg border border-gray-700">
         <h3 className="text-lg font-medium text-green-500 mb-3 flex items-center">
           <svg

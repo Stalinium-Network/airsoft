@@ -79,6 +79,83 @@ export async function compressImageToWebP(
 }
 
 /**
+ * Iterative image processing
+ * Allows for multiple cycles of processing with user confirmation between steps
+ */
+export async function iterativeImageProcessing(
+  file: File | Blob,
+  options = { 
+    maxWidth: 1200,
+    quality: 0.8,
+    iterationQualityReduction: 0.05
+  }
+): Promise<{
+  processedBlob: Blob,
+  stats: { originalSize: number, newSize: number, compressionRatio: number }
+}> {
+  const originalSize = file.size;
+  
+  // First compression cycle
+  const blob = await compressImageToWebP(
+    file instanceof File ? file : new File([file], "image.webp", { type: 'image/webp' }),
+    options.maxWidth,
+    options.quality
+  );
+  
+  // Calculate statistics
+  const newSize = blob.size;
+  const compressionRatio = originalSize > 0 ? (1 - (newSize / originalSize)) * 100 : 0;
+  
+  return {
+    processedBlob: blob,
+    stats: {
+      originalSize,
+      newSize,
+      compressionRatio
+    }
+  };
+}
+
+/**
+ * Continue iterating on an already processed image with reduced quality
+ */
+export async function continueIterating(
+  previousBlob: Blob,
+  options = {
+    maxWidth: 1200,
+    quality: 0.75,  // Lower quality for subsequent iterations
+  }
+): Promise<{
+  processedBlob: Blob,
+  stats: { originalSize: number, newSize: number, compressionRatio: number }
+}> {
+  const originalSize = previousBlob.size;
+  
+  // Create a File from the Blob for further processing
+  const tempFile = new File([previousBlob], "iterating.webp", { type: 'image/webp' });
+  
+  // Apply another compression cycle
+  const newBlob = await compressImageToWebP(
+    tempFile,
+    options.maxWidth,
+    options.quality
+  );
+  
+  // Calculate statistics
+  const newSize = newBlob.size;
+  const compressionRatio = originalSize > 0 ? (1 - (newSize / originalSize)) * 100 : 0;
+  
+  return {
+    processedBlob: newBlob,
+    stats: {
+      originalSize,
+      newSize,
+      compressionRatio
+    }
+  };
+}
+
+/**
  * Подготавливает файл изображения для отправки на сервер
  * Сжимает файл и добавляет его в FormData
  */

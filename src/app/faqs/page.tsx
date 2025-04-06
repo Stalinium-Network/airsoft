@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import FAQAccordion from '@/components/faq/FAQAccordion';
 import AIAssistant from '@/components/faq/AIAssistant';
-import { serverApi, FAQ } from '@/utils/api-server';
+import { FAQ } from '@/utils/api-server';
+import { publicApi } from '@/utils/api';
 
 export const metadata: Metadata = {
   title: 'Frequently Asked Questions | Zone 37',
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 export default async function FAQPage() {
   // Fetch FAQs from the server
-  const faqs: FAQ[] = await serverApi.getFaqs();
+  const faqs: FAQ[] = await publicApi.getFaqs();
 
   const faqItems = faqs.length > 0 ? faqs : [];
 
