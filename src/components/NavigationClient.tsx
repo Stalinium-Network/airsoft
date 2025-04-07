@@ -63,6 +63,7 @@ export default function NavigationClient({
                 src="/logo-header.svg"
                 alt="Zone 37 Logo"
                 fill
+                priority
                 className="object-cover p-1"
               />
             </div>

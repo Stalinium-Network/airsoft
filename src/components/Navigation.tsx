@@ -71,7 +71,7 @@ export const MobileNavItem = ({
 
 export function UpcomingEventButton({ link }: { link: string }) {
   return (
-    <button className="bg-zone-gold-lite text-black px-4 lg:px-6 py-1.5 lg:py-2 text-xs lg:text-sm rounded-md hover:bg-zone-gold/80 transition duration-200 font-semibold whitespace-nowrap">
+    <button className="bg-zone-gold-lite text-black px-6 md:px-4 lg:px-6 py-2 md:py-1.5 lg:py-2 text-sm md:text-xs lg:text-sm rounded-md hover:bg-zone-gold/80 transition duration-200 font-semibold whitespace-nowrap">
       <Link href={link}>UPCOMING EVENT</Link>
     </button>
   );
@@ -80,7 +80,7 @@ export function UpcomingEventButton({ link }: { link: string }) {
 export default async function Navigation() {
   const upcomingEvent: Game | null =
     (await publicApi.getGames()).upcoming[0] || null;
-  const id = upcomingEvent?._id
+  const id = upcomingEvent?._id;
 
   return <NavigationClient upcomingEventLink={`/games/${id}`} />;
 }
