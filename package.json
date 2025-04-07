@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check": "tsc --noEmit",
+    "type": "tsc --noEmit",
     "analyze": "bun dev/unused.ts",
     "count": "bun dev/_c.ts"
   },

@@ -8,6 +8,7 @@ import OldHeroSection from "./components/OldHeroSection";
 import { publicApi } from "@/utils/api";
 import TextGradient from "@/components/TextGradient";
 import DiscordButton from "@/components/DiscordButton";
+import LionDenCollab from "@/template/components/LionDenCollab";
 
 // Enable revalidation every 1 hour (3600 seconds)
 export const revalidate = 3600;
@@ -57,9 +58,9 @@ export default async function GameDetailPage({ params }: any) {
 
   return (
     <div className="min-h-screen text-white">
-      <div className="max-w-7xl text-base mx-auto p-6 md:p-8 mt-24">
+      <div className="container text-base mx-auto p-6 md:p-8 mt-24">
         <OldHeroSection game={game} />
-        {/* {collabData && <LionDenCollab />} */}
+        {game.templates.includes("collab_lion_1") && <LionDenCollab />}
         <LocationSection location={game.location as Location} />
         <MarkdownRenderer content={game.detailedDescription} />
 

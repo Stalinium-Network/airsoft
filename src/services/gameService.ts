@@ -1,3 +1,4 @@
+import { AvailableTemplatesType } from '@/template';
 import { Location } from './locationService';
 
 // Базовая модель фракции - с camoSample
@@ -57,7 +58,7 @@ export interface Game {
   currentPrice: number | null; // Current applicable price
   isPast: boolean;
   regInfo: RegistrationInfo; // Updated registration info structure
-  templates?: string[]; // Array of template IDs
+  templates: AvailableTemplatesType[]; // Array of template IDs
   cards?: Cards; // Cards for the game
 }
 

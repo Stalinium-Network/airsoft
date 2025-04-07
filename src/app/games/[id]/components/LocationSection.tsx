@@ -1,4 +1,4 @@
-import LocationLink from "@/components/home/LocationLink";
+import ClientLocationLink from "./ClientLocationLink";
 import Image from "next/image";
 
 interface LocationSectionProps {
@@ -23,7 +23,7 @@ export default function LocationSection({ location }: LocationSectionProps) {
   return (
     <div className="mx-auto py-8">
       <h2 className="text-zone-gold-lite uppercase mb-4 text-sm">Location</h2>
-      <LocationLink
+      <ClientLocationLink
         coordinates={location.coordinates}
         locationName={location._id}
       />
@@ -31,32 +31,36 @@ export default function LocationSection({ location }: LocationSectionProps) {
       <p className="text-gray-400 my-8">{location.description}</p>
 
       {/* Main location image */}
-      <div className="relative w-full h-64 md:h-96 mb-4">
-        <Image
-          src={
-            process.env.NEXT_PUBLIC_API_URL +
-            "/locations/image/" +
-            locationImage
-          }
-          alt={location._id}
-          fill
-          className="object-cover rounded-lg"
-        />
-      </div>
+      {locationImage && (
+        <div className="relative w-full aspect-[20/9] mb-4">
+          <Image
+            src={
+              process.env.NEXT_PUBLIC_API_URL +
+              "/locations/image/" +
+              locationImage
+            }
+            alt={location._id}
+            fill
+            className="object-cover rounded-lg"
+            sizes="(max-width: 768px) 100vw, 80vw"
+          />
+        </div>
+      )}
 
       {/* Remaining images grid */}
       {remainingImages.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 mt-3">
+        <div className="grid grid-cols-2 gap-8 mt-3 mb-8">
           {remainingImages.map((image, index) => (
             <div
               key={`${location._id}-image-${index}`}
-              className="relative h-32 md:h-40 w-full"
+              className="relative aspect-video w-full"
             >
               <Image
                 src={`${process.env.NEXT_PUBLIC_API_URL}/locations/image/${image}`}
                 alt={`${location._id} - image ${index + 2}`}
                 fill
                 className="object-cover rounded-md hover:opacity-90 transition-opacity"
+                sizes="(max-width: 768px) 50vw, 33vw"
               />
             </div>
           ))}

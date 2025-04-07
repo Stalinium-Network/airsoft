@@ -1,6 +1,13 @@
 import { calculateAvailableSlots } from "@/components/home/calculateAvailableSlots";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
-import { GameFaction, PricePeriod, RegistrationInfo } from "@/services/gameService";
+import {
+  GameFaction,
+  PricePeriod,
+  RegistrationInfo,
+} from "@/services/gameService";
+import { useMemo } from "react";
+import { IoWarningOutline } from "react-icons/io5";
+import { LuCalendarDays, LuClock8, LuInfo } from "react-icons/lu";
 
 interface RegistrationSectionProps {
   regInfo: RegistrationInfo;
@@ -9,333 +16,402 @@ interface RegistrationSectionProps {
   currentPrice: number | null;
 }
 
-// Server function to calculate and format remaining time
-function calculateTimeRemaining(targetDateStr: string | null): { days: number; hours: number; text: string } | null {
-  if (!targetDateStr) return null;
-  
-  const targetDate = new Date(targetDateStr);
-  const now = new Date();
-  
-  if (isNaN(targetDate.getTime())) return null;
-  
-  const diff = targetDate.getTime() - now.getTime();
-  if (diff <= 0) return null;
-  
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
-  return {
-    days,
-    hours,
-    text: `${days} ${days === 1 ? 'day' : 'days'} and ${hours} ${hours === 1 ? 'hour' : 'hours'}`
-  };
+interface TimeRemaining {
+  days: number;
+  hours: number;
+  text: string;
 }
 
-// Check if less than one week remains
+function calculateTimeRemaining(targetDateStr: string | null): TimeRemaining | null {
+  if (!targetDateStr) return null;
+  try {
+    const targetDate = new Date(targetDateStr);
+    if (isNaN(targetDate.getTime())) throw new Error("Invalid date");
+    const diff = targetDate.getTime() - new Date().getTime();
+    if (diff <= 0) return null;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    let text = "";
+    if (days > 0) text += `${days} ${days === 1 ? "day" : "days"}`;
+    if (days > 0 && hours > 0) text += " and ";
+    if (hours > 0) text += `${hours} ${hours === 1 ? "hour" : "hours"}`;
+    if (text === "") text = "less than an hour";
+    return { days, hours, text };
+  } catch (error) {
+    console.error("Error calculating time remaining:", targetDateStr, error);
+    return null;
+  }
+}
+
 function isLessThanOneWeek(dateStr: string | null): boolean {
   if (!dateStr) return false;
-  
-  const targetDate = new Date(dateStr);
-  const now = new Date();
-  const oneWeek = 7 * 24 * 60 * 60 * 1000; // One week in milliseconds
-  
-  return targetDate.getTime() - now.getTime() < oneWeek;
+  try {
+    const targetDate = new Date(dateStr);
+    if (isNaN(targetDate.getTime())) return false;
+    const oneWeek = 604800000; // 7 * 24 * 60 * 60 * 1000
+    return targetDate.getTime() - new Date().getTime() < oneWeek;
+  } catch {
+    return false;
+  }
 }
 
-// Find current price period
-function getCurrentPricePeriod(prices: PricePeriod[]): { 
-  current: PricePeriod | null; 
+function findPricePeriods(prices: PricePeriod[]): {
+  current: PricePeriod | null;
   next: PricePeriod | null;
-  index: number 
+  currentIndex: number;
 } {
   if (!prices || prices.length === 0) {
-    return { current: null, next: null, index: -1 };
+    return { current: null, next: null, currentIndex: -1 };
   }
+  const now = new Date().getTime();
+  let current: PricePeriod | null = null;
+  let next: PricePeriod | null = null;
+  let currentIndex = -1;
 
-  const now = new Date();
-  
-  for (let i = 0; i < prices.length; i++) {
-    const period = prices[i];
-    const startDate = new Date(period.starts);
-    const endDate = period.ends ? new Date(period.ends) : null;
-    
-    if (now >= startDate && (!endDate || now < endDate)) {
-      return { 
-        current: period, 
-        next: i < prices.length - 1 ? prices[i + 1] : null,
-        index: i 
-      };
+  // Ensure prices are sorted by start date
+  const sortedPrices = prices.slice().sort((a, b) => new Date(a.starts).getTime() - new Date(b.starts).getTime());
+
+  for (let i = 0; i < sortedPrices.length; i++) {
+    const period = sortedPrices[i];
+    const start = new Date(period.starts).getTime();
+    const end = period.ends ? new Date(period.ends).getTime() : Infinity;
+
+    if (isNaN(start)) continue; // Skip invalid periods
+
+    // Check if 'now' is within the current period
+    if (now >= start && now < end) {
+      current = period;
+      currentIndex = i;
+      // Find the next period if it exists
+      if (i + 1 < sortedPrices.length) {
+        next = sortedPrices[i + 1];
+      }
+      break; // Found the current period, no need to check further
+    }
+
+    // If we haven't found the current period yet and 'now' is before this period's start,
+    // this period is the 'next' one (assuming no earlier period becomes 'current')
+    if (current === null && now < start) {
+      if (next === null) { // Only set the first future period as 'next'
+        next = period;
+      }
     }
   }
-  
-  // If we're before the first period
-  if (now < new Date(prices[0].starts)) {
-    return { current: null, next: prices[0], index: -1 };
+
+  // Edge case: If no period was found as 'current' or 'next' (e.g., time is before the very first period starts)
+  if (current === null && next === null && sortedPrices.length > 0 && now < new Date(sortedPrices[0].starts).getTime()) {
+    next = sortedPrices[0];
   }
-  
-  // If we're after the last period
-  const lastPeriod = prices[prices.length - 1];
-  if (lastPeriod.ends && now >= new Date(lastPeriod.ends)) {
-    return { current: null, next: null, index: -1 };
-  }
-  
-  return { current: prices[prices.length - 1], next: null, index: prices.length - 1 };
+
+  // Edge case: Handle situation where 'now' might be exactly on or after the last period's start but before its end (if defined)
+  // This is technically covered by the main loop, but good to be mindful of.
+  // The original code had a check here, but it seems redundant with the sorted array logic.
+
+  return { current, next, currentIndex };
 }
 
-// Format date nicely
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { 
-    month: 'short',
-    day: 'numeric'
-  });
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "N/A";
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) throw new Error("Invalid date");
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  } catch (error) {
+    console.error("Error formatting date:", dateStr, error);
+    return "Invalid Date";
+  }
 }
 
 export default function RegistrationSection({
   regInfo,
   factions,
   prices,
-  currentPrice
+  currentPrice,
 }: RegistrationSectionProps) {
-  const { total, available, filled } = calculateAvailableSlots(factions);
-  const progressPercentage = (filled / total) * 100;
-  
-  // Find current price period and next price period
-  const { current: currentPeriod, next: nextPeriod, index: currentPeriodIndex } = getCurrentPricePeriod(prices);
-  
-  // Calculate time until next price change
-  const timeUntilNextPrice = nextPeriod ? calculateTimeRemaining(nextPeriod.starts) : null;
-  
-  // Get the last price period for registration closing info
-  const lastPeriod = prices && prices.length > 0 ? prices[prices.length - 1] : null;
-  const registrationEndDate = lastPeriod?.ends || null;
-  
-  // Calculate time until registration closes
-  const timeUntilClose = registrationEndDate ? calculateTimeRemaining(registrationEndDate) : null;
-  
-  // Check if registration closes soon (less than one week)
-  const closingSoon = isLessThanOneWeek(registrationEndDate);
+  const {
+    totalSlots,
+    filledSlots,
+    progressPercentage,
+    sortedPrices,
+    nextPeriod,
+    currentPeriodIndex,
+    registrationEndDate,
+    timeUntilNextPrice,
+    timeUntilClose,
+    closingSoon,
+    showPriceProgression,
+    timelineProgressPercent,
+  } = useMemo(() => {
+    const { total, filled } = calculateAvailableSlots(factions);
+    const slotProgress = total > 0 ? (filled / total) * 100 : 0;
+    // Sorting is now handled inside findPricePeriods, but we still need the sorted list here
+    const sorted = prices.slice().sort((a, b) => new Date(a.starts).getTime() - new Date(b.starts).getTime());
+    const { current, next, currentIndex } = findPricePeriods(sorted); // Use the sorted list
 
-  // Determine if we should show the price progression
-  const showPriceProgression = prices && prices.length > 1;
-  
+    const firstPeriod = sorted.length > 0 ? sorted[0] : null;
+    const lastPeriod = sorted.length > 0 ? sorted[sorted.length - 1] : null;
+    const regStartDate = firstPeriod ? new Date(firstPeriod.starts).getTime() : null;
+    // Use the explicit end date of the *last* period if available
+    const regEndDate = lastPeriod?.ends ? new Date(lastPeriod.ends).getTime() : null;
+
+    // For timeline calculation, use the end date if defined, otherwise, approximate based on the start of the last period?
+    // Let's refine: If the last period has an end date, use that. If not, the timeline conceptually ends when the last period starts.
+    // However, for showing *progress*, we need a defined endpoint if the last period doesn't have one.
+    // Let's assume if the last period has no end date, registration effectively stays open indefinitely *at that price*
+    // until explicitly closed or the game happens. For timeline % calculation, maybe cap it based on the *next* period start if available?
+    // Or, if the current period is the last one and has no end date, maybe the timeline should just show 100% once that period starts?
+
+    let timelineProgress = 0;
+    const now = new Date().getTime();
+    const effectiveTimelineEndDate = regEndDate; // Use the actual end date if available
+
+    if (regStartDate && effectiveTimelineEndDate && regStartDate < effectiveTimelineEndDate) {
+      const totalDuration = effectiveTimelineEndDate - regStartDate;
+      const elapsed = Math.max(0, now - regStartDate);
+      timelineProgress = Math.min(100, (elapsed / totalDuration) * 100);
+    } else if (regStartDate && now >= regStartDate && current !== null && !effectiveTimelineEndDate && currentIndex === sorted.length - 1) {
+      // If we are in the last period and it has no end date, consider timeline complete for progression visualization
+      timelineProgress = 100;
+    } else if (regStartDate && now < regStartDate) {
+      // Before registration starts
+      timelineProgress = 0;
+    } else if (effectiveTimelineEndDate && now >= effectiveTimelineEndDate) {
+       // After registration ends
+       timelineProgress = 100;
+    }
+    // Case: Registration started, but we are between periods (shouldn't happen with `findPricePeriods` logic)
+    // Case: No periods defined (regStartDate is null) -> timelineProgress remains 0
+
+    const regEndDateStr = lastPeriod?.ends || null;
+
+    return {
+      totalSlots: total,
+      filledSlots: filled,
+      progressPercentage: slotProgress,
+      sortedPrices: sorted, // return the sorted list for rendering
+      nextPeriod: next,
+      currentPeriodIndex: currentIndex,
+      registrationEndDate: regEndDateStr,
+      timeUntilNextPrice: next ? calculateTimeRemaining(next.starts) : null,
+      timeUntilClose: regEndDateStr ? calculateTimeRemaining(regEndDateStr) : null,
+      closingSoon: isLessThanOneWeek(regEndDateStr),
+      showPriceProgression: sorted.length > 0,
+      timelineProgressPercent: timelineProgress,
+    };
+  }, [factions, prices]);
+
+  const StatusPill = ({ text, color = "gray" }: { text: string; color?: "amber" | "red" | "gray" }) => {
+    const colorClasses = {
+      amber: "bg-amber-500/10 text-amber-400 ring-amber-500/30",
+      red: "bg-red-500/10 text-red-400 ring-red-500/30",
+      gray: "bg-gray-500/10 text-gray-400 ring-gray-500/30",
+    };
+    return (
+      <span className={`inline-flex items-center rounded-md px-2 py-0.5 ml-2 text-xs font-medium ring-1 ring-inset ${colorClasses[color]}`}>
+        {text}
+      </span>
+    );
+  };
+
+  const InfoLine = ({ icon: Icon, children, className }: { icon: React.ElementType; children: React.ReactNode; className?: string }) => (
+    <div className={`flex items-center text-sm text-gray-400 ${className}`}>
+      <Icon className="h-4 w-4 mr-2 flex-shrink-0 text-gray-500" aria-hidden="true" />
+      <span>{children}</span>
+    </div>
+  );
+
+  // Calculate the correct left offset for the timeline lines
+  // Dot size: w-[10px] (w-2.5). Center is at 5px.
+  // Container padding: pl-5 (pl-[1.25rem] = 20px).
+  // Dot negative margin: -ml-5 (-ml-[1.25rem] = -20px).
+  // Effective dot left edge relative to container start (before padding): 20px - 20px = 0px.
+  // Effective dot center relative to container start (before padding): 0px + (10px / 2) = 5px.
+  // Line width: w-[2px]. Center is at 1px from its left edge.
+  // To align line center (1px offset) with dot center (5px offset), line's left edge needs to be at 5px - 1px = 4px.
+  // 4px in Tailwind units: left-1 (0.25rem).
+  const lineLeftOffset = "left-1"; // Equivalent to left: 0.25rem or 4px
+
   return (
-    <div className="mx-auto flex flex-col items-center w-full max-w-2xl mt-8 md:mt-16 px-4 sm:px-0">
-      {/* Warning Banner */}
-      <div className="text-center bg-red-800/80 p-4 pb-6 rounded-xl w-full shadow-lg">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4">Your gear must match your faction!</h1>
-        <p className="mt-4 sm:mt-8 text-sm sm:text-base">
-          If you show up in the wrong camo, you will not be allowed to play.
-          Your registration fee will not be refunded. Don't be that guy - read
-          the rules! Still have questions? Ask on Discord.
+    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8 font-sans">
+      {/* Warning Section - unchanged */}
+      <div className="text-center bg-red-800/80 p-4 pb-6 rounded-xl w-full shadow-lg mb-10">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 text-red-100 flex items-center justify-center gap-2">
+          <IoWarningOutline className="h-6 w-6" /> Your gear must match your faction!
+        </h1>
+        <p className="mt-4 sm:mt-8 text-sm sm:text-base text-red-200/90">
+          If you show up in the wrong camo, you will not be allowed to play. Your registration fee will not be refunded. Don't be that guy - read the rules! Still have questions? Ask on Discord.
         </p>
       </div>
-      
-      {/* Registration Info Card */}
-      <div className="bg-zone-dark-light w-full p-5 sm:p-6 my-6 sm:my-8 rounded-lg shadow-md text-center">
-        <h2 className="text-xl font-bold mb-4">
-          {regInfo.status === 'open' 
-            ? "Registration is now open!"
-            : regInfo.status === 'not-open'
-              ? "Registration is not yet open"
-              : "Registration is closed"}
-        </h2>
-        
-        {/* Price progression timeline - only show if multiple price periods exist */}
-        {showPriceProgression && regInfo.status === 'open' && (
-          <div className="my-6">
-            <div className="mb-4 flex flex-col sm:flex-row items-center sm:justify-between">
-              <h3 className="text-amber-400 font-medium mb-2 sm:mb-0">Pricing Timeline</h3>
-              {currentPrice !== null && (
-                <span className="text-white font-bold text-xl">${currentPrice} USD</span>
-              )}
-            </div>
-            
-            {/* Timeline component - improved design with dots on the line */}
-            <div className="relative pb-14 my-8">
-              {/* Timeline container with proper spacing */}
-              <div className="relative h-1 w-full">
-                {/* Base timeline line */}
-                <div className="absolute h-1 w-full bg-gray-700 rounded-full"></div>
-                
-                {/* Active progress line */}
-                {currentPeriodIndex >= 0 && (
-                  <div 
-                    className="absolute h-1 bg-amber-400 rounded-full"
-                    style={{ 
-                      width: `${
-                        Math.min(
-                          ((new Date().getTime() - new Date(prices[0].starts).getTime()) / 
-                          (new Date(registrationEndDate || prices[prices.length - 1].starts).getTime() - 
-                          new Date(prices[0].starts).getTime())) * 100,
-                          100
-                        )
-                      }%` 
-                    }}
-                  ></div>
-                )}
-                
-                {/* Price points directly on the line */}
-                {prices.map((period, idx) => {
-                  // Calculate position percentage based on time between first and last date
-                  const firstDate = new Date(prices[0].starts).getTime();
-                  const lastDate = registrationEndDate 
-                    ? new Date(registrationEndDate).getTime()
-                    : new Date(prices[prices.length - 1].starts).getTime() + (14 * 24 * 60 * 60 * 1000); // Add 2 weeks if no end date
-                  
-                  const periodDate = new Date(period.starts).getTime();
-                  const position = ((periodDate - firstDate) / (lastDate - firstDate)) * 100;
-                  
-                  const isActive = idx === currentPeriodIndex;
-                  
+
+      <div className="rounded-lg border border-gray-700/50 bg-gray-800/30 p-5 sm:p-6 lg:p-8 shadow-md">
+        {/* Header Section - unchanged */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h2 className="text-xl sm:text-2xl font-semibold text-white">Registration</h2>
+          {currentPrice !== null && regInfo.status === "open" && (
+            <p className="text-2xl font-bold text-white sm:text-right">
+              ${currentPrice} <span className="text-base font-medium text-gray-400">USD</span>
+            </p>
+          )}
+          {currentPrice === null && regInfo.status === "closed" && sortedPrices.length > 0 && (
+             // Show the price of the *last* defined period when closed
+            <p className="text-xl font-semibold text-gray-500 sm:text-right">
+              ${sortedPrices[sortedPrices.length - 1].price} <span className="text-sm font-medium">USD (Final Price)</span>
+            </p>
+          )}
+           {/* Add case for not-open? Maybe show first price? */}
+           {regInfo.status === "not-open" && sortedPrices.length > 0 && (
+            <p className="text-xl font-semibold text-gray-500 sm:text-right">
+              Starts at ${sortedPrices[0].price} <span className="text-sm font-medium">USD</span>
+            </p>
+          )}
+        </div>
+
+        {/* Pricing Timeline Section - Updated line positioning */}
+        {showPriceProgression && regInfo.status !== "not-open" && (
+          <div className="mb-6 border-t border-gray-700/50 py-6">
+            <h3 className="text-sm font-medium text-gray-400 mb-4">Pricing Timeline</h3>
+            {/* Container with relative positioning and left padding */}
+            <div className="relative pl-5"> {/* Keep pl-5 */}
+              {/* Background Line - Updated left offset */}
+              <div
+                className={`absolute ${lineLeftOffset} top-2 bottom-2 w-[2px] bg-gray-600/50 rounded-full z-0`}
+              ></div>
+              {/* Progress Line - Updated left offset */}
+              <div
+                className={`absolute ${lineLeftOffset} top-2 w-[2px] bg-gradient-to-b from-amber-500 to-zone-gold-lite rounded-full z-[1] transition-[height] duration-700 ease-out`}
+                style={{ height: `calc(${timelineProgressPercent}% - 1rem)` }} // Adjust height calc if needed based on top/bottom padding/margins
+              ></div>
+              {/* Price Periods List */}
+              <div className="space-y-4 relative z-10">
+                {sortedPrices.map((period, idx) => {
+                  const isActive = idx === currentPeriodIndex && regInfo.status === "open";
+                  const now = new Date().getTime();
+                  const starts = new Date(period.starts).getTime();
+                  const ends = period.ends ? new Date(period.ends).getTime() : Infinity;
+                  // A period is past if its start time is before now AND it's not the active period
+                  // OR if its end time is defined and is before now.
+                  const isPast = (starts < now && !isActive) || (ends !== Infinity && ends < now);
+
                   return (
-                    <div 
-                      key={`price-point-${idx}`}
-                      className="absolute"
-                      style={{ 
-                        left: `${Math.min(Math.max(position, 0), 100)}%`,
-                        transform: 'translateX(-50%)'
-                      }}
-                    >
-                      {/* Price point marker on the line */}
-                      <div className="relative">
-                        <div 
-                          className={`relative rounded-full border-2 ${
-                            isActive 
-                              ? 'w-5 h-5 bg-amber-400 border-amber-500 -top-2' 
-                              : 'w-3 h-3 bg-gray-600 border-gray-500 -top-1'
-                          } z-10`}
-                        ></div>
-                        
-                        {/* Price and date labels below the line */}
-                        <div className={`absolute top-3 left-1/2 -translate-x-1/2 flex flex-col items-center`}>
-                          <div 
-                            className={`mt-1 ${isActive 
-                              ? 'text-amber-400 font-bold' 
-                              : 'text-gray-400'} text-sm whitespace-nowrap`}
-                          >
-                            ${period.price}
-                          </div>
-                          <div className="text-xs text-gray-500 whitespace-nowrap">
-                            {formatDate(period.starts)}
-                          </div>
-                        </div>
+                    <div key={`price-${idx}`} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        {/* Dot Indicator - uses negative margin to position correctly relative to padding */}
+                        <span
+                          className={`flex-shrink-0 -ml-5 mr-3 h-[10px] w-[10px] rounded-full border-2 ${ // Keep -ml-5 and mr-3
+                            isActive ? "border-amber-400 bg-gray-800" : isPast ? "border-gray-600 bg-gray-600" : "border-gray-500 bg-gray-800"
+                          } ${isActive ? "ring-2 ring-amber-500/50 ring-offset-2 ring-offset-gray-800/30" : ""}`}
+                        ></span>
+                        <span className={`text-base font-medium ${isActive ? "text-amber-300" : isPast ? "text-gray-500 line-through" : "text-gray-300"}`}>
+                          ${period.price}
+                        </span>
+                        {isActive && <StatusPill text="Current" color="amber" />}
                       </div>
+                      <span className={`text-sm ${isActive ? "text-amber-400" : isPast ? "text-gray-500" : "text-gray-400"}`}>
+                        {/* Show end date if it's the last period and has one? Or just start date? Sticking with start date for consistency. */}
+                        Starts {formatDate(period.starts)}
+                      </span>
                     </div>
                   );
                 })}
-                
-                {/* Registration end indicator on the line */}
-                {registrationEndDate && (
-                  <div 
-                    className="absolute"
-                    style={{ 
-                      left: '100%',
-                      transform: 'translateX(-50%)'
-                    }}
-                  >
-                    <div className="relative">
-                      <div className="relative rounded-full w-3 h-3 bg-red-500 border-2 border-red-600 -top-1 z-10"></div>
-                      
-                      {/* End label below the line */}
-                      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                        <div className="mt-1 text-red-400 text-sm font-medium whitespace-nowrap">
-                          Closes
-                        </div>
-                        <div className="text-xs text-gray-500 whitespace-nowrap">
-                          {formatDate(registrationEndDate)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
-            
-            {/* Time until next price change */}
-            {timeUntilNextPrice && (
-              <div className="mt-2 bg-amber-900/30 border border-amber-500/30 rounded-md p-3 shadow-inner">
-                <div className="flex items-center justify-center">
-                  <svg className="w-5 h-5 text-amber-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div>
-                    <span className="text-gray-300">Price increases in </span>
-                    <span className="text-amber-400 font-bold">{timeUntilNextPrice.text}</span>
-                  </div>
-                </div>
-              </div>
+            {registrationEndDate && (
+              <InfoLine icon={LuCalendarDays} className="mt-4 justify-end text-xs">
+                Registration Closes: {formatDate(registrationEndDate)}
+              </InfoLine>
             )}
+             {!registrationEndDate && sortedPrices.length > 0 && (
+                 <InfoLine icon={LuCalendarDays} className="mt-4 justify-end text-xs">
+                    Final Price Starts: {formatDate(sortedPrices[sortedPrices.length - 1].starts)} (No explicit end date)
+                 </InfoLine>
+             )}
           </div>
         )}
-        
-        {regInfo.status === 'open' && (
-          <>
-            {regInfo.link && (
-              <a
+
+        {/* Status Info Section - unchanged */}
+        {regInfo.status === "open" && (
+          <div className="mb-6 space-y-2">
+            {timeUntilNextPrice && nextPeriod && (
+              <InfoLine icon={LuClock8} className="text-amber-400">
+                Price increases to <strong className="text-white mx-1">${nextPeriod.price}</strong> in
+                <strong className="text-white ml-1">{timeUntilNextPrice.text}</strong>
+              </InfoLine>
+            )}
+            {timeUntilClose && closingSoon && (
+              <InfoLine icon={IoWarningOutline} className="text-red-400">
+                Registration closes soon! Only <strong className="text-white mx-1">{timeUntilClose.text}</strong> remaining.
+              </InfoLine>
+            )}
+             {/* Show general closing time only if there's no price increase soon and it's not closing very soon */}
+            {timeUntilClose && !closingSoon && !timeUntilNextPrice && (
+              <InfoLine icon={LuClock8}>Registration closes in {timeUntilClose.text}.</InfoLine>
+            )}
+             {/* Added: Case where there's no next price AND no specific close date */}
+             {!timeUntilNextPrice && !timeUntilClose && currentPeriodIndex === sortedPrices.length - 1 && (
+                 <InfoLine icon={LuClock8}>Current price period active.</InfoLine>
+             )}
+          </div>
+        )}
+
+        {/* Register Button - unchanged */}
+        {regInfo.status === "open" && regInfo.link && (
+          <div className="my-6 text-center">
+            <a
+              href={regInfo.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-md bg-zone-gold-lite px-6 py-2.5 text-base font-semibold text-black shadow-sm transition-transform duration-200 hover:scale-[1.03] hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zone-gold-lite"
+            >
+              Register Now
+            </a>
+          </div>
+        )}
+        {regInfo.status === "not-open" && regInfo.link && (
+             <div className="my-6 text-center">
+               <p className="text-gray-400 text-sm mb-2">Registration opens {sortedPrices.length > 0 ? formatDate(sortedPrices[0].starts) : 'soon'}.</p>
+                <a
                 href={regInfo.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-zone-gold-lite text-black font-medium py-3 px-6 rounded-md hover:bg-yellow-500 transition-colors mb-4 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200"
-              >
-                Register Now
-              </a>
-            )}
-            
-            {/* Warning about registration closing soon (less than one week) */}
-            {timeUntilClose && closingSoon && (
-              <div className="bg-red-700/50 p-4 rounded-lg mb-4 mt-5 border border-red-600/50 shadow-inner">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  <div className="text-center sm:text-left">
-                    <p className="text-white font-medium text-base">
-                      Registration closes soon!
-                    </p>
-                    <p className="text-lg font-bold text-white">Only {timeUntilClose.text} remaining</p>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Normal display of time until registration closes */}
-            {timeUntilClose && !closingSoon && (
-              <p className="text-gray-400 text-sm mt-3 mb-4">
-                Registration closes in {timeUntilClose.text}
-              </p>
-            )}
-          </>
+                className="inline-block rounded-md bg-gray-600 px-6 py-2.5 text-base font-semibold text-gray-300 shadow-sm cursor-not-allowed"
+                onClick={(e) => e.preventDefault()} // Prevent click if needed, or link to info page
+                aria-disabled="true"
+                >
+                Registration Closed
+                </a>
+             </div>
+         )}
+
+
+        {/* Player Slots Progress - unchanged */}
+        {totalSlots > 0 && (
+          <div className="my-6 border-t border-gray-700/50 pt-5">
+            <div className="mb-2 flex justify-between text-sm">
+              <span className="font-medium text-gray-300">Player Slots</span>
+              <span className="text-gray-400">{filledSlots} / {totalSlots} Filled</span>
+            </div>
+            <div className="w-full overflow-hidden rounded-full bg-gray-700/60 h-2.5 border border-gray-600/50 shadow-inner">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-500 to-zone-gold-lite transition-[width] duration-700 ease-out"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
         )}
 
-        {/* Slot progress bar */}
-        <div className="mb-4 mt-6">
-          <p className="text-gray-300 font-medium mb-2">
-            Total player slots: {total}
-          </p>
-          <div className="relative w-full bg-gray-700 rounded-full h-4 overflow-hidden shadow-inner">
-            <div
-              className="bg-zone-gold-lite h-4 rounded-full transition-all duration-700 ease-in-out"
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-          <p className="text-sm text-gray-400 mt-2">
-            {filled} / {total} slots filled
-          </p>
-        </div>
-
-        {/* Details section */}
+        {/* Additional Info Section - unchanged */}
         {regInfo.details && (
-          <div className="mt-6 text-left px-1 sm:px-2">
-            <MarkdownRenderer content={regInfo.details} />
+          <div className="mt-8">
+            <div className="prose prose-sm prose-invert max-w-none text-gray-300 prose-p:text-gray-300/90 prose-headings:text-gray-200 prose-a:text-amber-400 hover:prose-a:text-amber-300 prose-strong:text-gray-100">
+              <MarkdownRenderer content={regInfo.details} />
+            </div>
           </div>
         )}
       </div>
-      
-      {/* Footer note */}
-      <p className="text-gray-400 mt-4 text-center text-sm sm:text-base px-2 sm:px-0">
-        Registration will close when factions become full or when the registration period ends,
-        whichever comes first. Only online registration. No walk-in registration whatsoever!
+      {/* Footer Text - unchanged */}
+      <p className="mt-6 text-center text-xs text-gray-500 sm:text-sm">
+        Registration closes when slots are full or the period ends. Online only, no walk-ins.
       </p>
     </div>
   );
