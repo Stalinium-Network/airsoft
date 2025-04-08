@@ -6,6 +6,7 @@ import LocationLink from "./LocationLink";
 import { calculateAvailableSlots } from "./calculateAvailableSlots";
 import { Location } from "@/services/locationService";
 import { Game, isPreviewUrl } from "@/services/gameService";
+import { HiCurrencyDollar } from "react-icons/hi2";
 
 interface FeaturedGameCardProps {
   game: Game;
@@ -16,22 +17,25 @@ export default function FeaturedGameCard({ game }: FeaturedGameCardProps) {
 
   // Вычисляем количество занятых мест
   const occupiedSlots = fillingInfo.total - fillingInfo.available;
-  
+
   // Check if preview is a URL (YouTube video)
   const isPreviewVideo = isPreviewUrl(game.preview);
-  
+
   // Extract YouTube video ID if it's a YouTube URL
   const getYoutubeVideoId = (url: string): string | null => {
     try {
-      const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+      const regex =
+        /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
       const match = url.match(regex);
       return match ? match[1] : null;
     } catch (error) {
       return null;
     }
   };
-  
-  const youtubeVideoId = isPreviewVideo ? getYoutubeVideoId(game.preview) : null;
+
+  const youtubeVideoId = isPreviewVideo
+    ? getYoutubeVideoId(game.preview)
+    : null;
 
   return (
     <div className="mx-auto mb-20">
@@ -61,22 +65,12 @@ export default function FeaturedGameCard({ game }: FeaturedGameCardProps) {
             minute: "2-digit",
           })}
         </div>
-        
+
         {/* Отображаем актуальную цену */}
         {game.currentPrice !== null && (
           <div className="flex items-center text-white">
-            <svg
-              className="w-5 h-5 mr-2 text-zone-gold-lite"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.736 6.979C9.208 6.193 9.696 6 10 6c.304 0 .792.193 1.264.979a1 1 0 001.715-1.029C12.279 4.784 11.232 4 10 4s-2.279.784-2.979 1.95a1 1 0 001.715 1.03zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-3a1 1 0 00-1 1v.01a1 1 0 102 0V12a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            ${game.currentPrice}
+            <HiCurrencyDollar className="w-5 h-5 mr-2 text-zone-gold-lite" />$
+            {game.currentPrice}
           </div>
         )}
 
@@ -100,7 +94,11 @@ export default function FeaturedGameCard({ game }: FeaturedGameCardProps) {
           ></iframe>
         ) : (
           <Image
-            src={isPreviewVideo ? game.preview : `${process.env.NEXT_PUBLIC_API_URL}/games/image/${game.preview}`}
+            src={
+              isPreviewVideo
+                ? game.preview
+                : `${process.env.NEXT_PUBLIC_API_URL}/games/image/${game.preview}`
+            }
             alt={game.name}
             fill
             className="object-cover"

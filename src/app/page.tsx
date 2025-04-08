@@ -9,11 +9,9 @@ export const metadata: Metadata = {
     "Join the ultimate 40-hour continuous immersion role-playing airsoft game.",
 };
 
-export const revalidate = 3600; // Revalidate every hour
-
 export default async function HomePage() {
   // Fetch games from the server
-  const games = await publicApi.getGames();
+  const games = await publicApi.getGames({ revalidate: 3600 });
 
   return (
     <div className="min-h-screen text-white">

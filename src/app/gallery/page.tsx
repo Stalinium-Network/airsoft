@@ -1,11 +1,8 @@
-import Footer from '@/components/Footer';
 import ClientWrapper from '@/components/ClientWrapper';
 import GalleryHero from '@/app/admin/gallery/components/GalleryHero';
 import GalleryGrid from '@/app/admin/gallery/components/GalleryGrid';
 import { publicApi } from '@/utils/api';
 
-// Add revalidation time in seconds (1 hour = 3600 seconds)
-export const revalidate = 3600;
 
 // Gallery interface (matching the API response)
 interface GalleryImage {
@@ -18,8 +15,7 @@ export default async function GalleryPage() {
   let galleryImages: GalleryImage[] = [];
   
   try {
-    // Используем publicApi.getGalleryList вместо прямого fetch
-    galleryImages = await publicApi.getGalleryList();
+    galleryImages = await publicApi.getGalleryList({revalidate: 3600});
   } catch (error) {
     console.error('Error fetching gallery images:', error);
   }

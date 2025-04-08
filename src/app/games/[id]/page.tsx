@@ -10,51 +10,35 @@ import TextGradient from "@/components/TextGradient";
 import DiscordButton from "@/components/DiscordButton";
 import LionDenCollab from "@/template/components/LionDenCollab";
 
-// Enable revalidation every 1 hour (3600 seconds)
-export const revalidate = 3600;
-
 // Metadata
 export async function generateMetadata({ params }: any): Promise<Metadata> {
-  try {
-    const game = await publicApi.getGame(params.id);
-    const imageUrl = isPreviewUrl(game.preview)
-      ? game.preview
-      : `${process.env.NEXT_PUBLIC_IMAGES_URL}${game.preview}`;
+  const game = await publicApi.getGame(params.id, { revalidate: 3600 });
 
-    return {
-      title: `${game.name} | Airsoft Event`,
-      description: game.description,
-      openGraph: {
-        images: [{ url: imageUrl }],
-      },
-    };
-  } catch (error) {
-    return {
-      title: "Game Details | Airsoft",
-      description: "Detailed information about an airsoft game event.",
-    };
-  }
+  const imageUrl = isPreviewUrl(game.preview)
+    ? game.preview
+    : `${process.env.NEXT_PUBLIC_IMAGES_URL}${game.preview}`;
+
+  return {
+    title: `${game.name} | Airsoft Event`,
+    description: game.description,
+    openGraph: {
+      images: [{ url: imageUrl }],
+    },
+  };
 }
 
 const RenderSvgIcon: React.FC<{ svgString: string; className?: string }> = ({
   svgString,
   className,
-}) => {
-  return (
-    <div
-      className={className}
-      dangerouslySetInnerHTML={{ __html: svgString }}
-    />
-  );
-};
+}) => (
+  <div className={className} dangerouslySetInnerHTML={{ __html: svgString }} />
+);
 
-// Main page
+// Главная страница (серверный компонент)
 export default async function GameDetailPage({ params }: any) {
-  const game = await publicApi.getGame(params.id);
+  const game = await publicApi.getGame(params.id, { revalidate: 3600 });
   const timelineData = game?.cards?.timeline;
   const starterPackData = game?.cards?.["starter_pack"];
-
-  console.log(game);
 
   return (
     <div className="min-h-screen text-white">
@@ -64,7 +48,6 @@ export default async function GameDetailPage({ params }: any) {
         <LocationSection location={game.location as Location} />
         <MarkdownRenderer content={game.detailedDescription} />
 
-        {/* Вставка деталей мероприятия */}
         {(timelineData || starterPackData) && (
           <div className="pb-16 px-4 sm:px-6 lg:px-8 text-white">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-10 max-w-7xl mx-auto">
@@ -80,9 +63,7 @@ export default async function GameDetailPage({ params }: any) {
                       className="text-2xl mt-3"
                     />
                   </div>
-                  <div className="prose prose-base prose-invert max-w-none text-gray-300 prose-li:my-1 prose-strong:text-white prose-headings:text-gray-400 prose-headings:uppercase prose-headings:text-sm prose-headings:font-semibold prose-headings:mb-2 prose-headings:mt-4">
-                    <MarkdownRenderer content={timelineData.content} />
-                  </div>
+                  <MarkdownRenderer content={timelineData.content} />
                 </div>
               )}
 
@@ -103,9 +84,7 @@ export default async function GameDetailPage({ params }: any) {
                         className="text-2xl mt-3"
                       />
                     </div>
-                    <div className="prose prose-base prose-invert max-w-none text-gray-300 prose-li:my-1 prose-strong:text-white">
-                      <MarkdownRenderer content={starterPackData.content} />
-                    </div>
+                    <MarkdownRenderer content={starterPackData.content} />
                   </div>
                   <div className="mt-auto pt-6 border-t border-gray-700">
                     <h4 className="text-xl font-semibold text-white mb-3">
@@ -113,8 +92,7 @@ export default async function GameDetailPage({ params }: any) {
                     </h4>
                     <p className="text-gray-400 mb-5 text-base leading-relaxed">
                       We suggest joining our Discord server so you won't miss
-                      important details about the upcoming event, and to find a
-                      squad or friends with whom you can enjoy this game!
+                      important details.
                     </p>
                     <DiscordButton />
                   </div>
@@ -124,7 +102,12 @@ export default async function GameDetailPage({ params }: any) {
           </div>
         )}
 
-        <RegistrationSection regInfo={game.regInfo} factions={game.factions} prices={game.prices} currentPrice={game.currentPrice} />
+        <RegistrationSection
+          regInfo={game.regInfo}
+          factions={game.factions}
+          prices={game.prices}
+          currentPrice={game.currentPrice}
+        />
       </div>
     </div>
   );

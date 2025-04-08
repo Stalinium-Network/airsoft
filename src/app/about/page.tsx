@@ -4,9 +4,6 @@ import IntroSection from "./components/IntroSection";
 import CommandersSection from "./components/CommandersSection";
 import { Commander } from "@/services/gameService";
 
-// Enable revalidation every 1 hour (3600 seconds)
-export const revalidate = 3600;
-
 // Metadata for the page
 export const metadata: Metadata = {
   title: "Zone 37 | World",
@@ -20,7 +17,7 @@ export default async function WorldPage() {
   let commanders: Commander[] = [];
   
   try {
-    commanders = await publicApi.getTeam();
+    commanders = await publicApi.getTeam({revalidate: 3600});
   } catch (e) {
     console.error(e);
   }

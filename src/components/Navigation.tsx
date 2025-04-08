@@ -79,7 +79,7 @@ export function UpcomingEventButton({ link }: { link: string }) {
 
 export default async function Navigation() {
   const upcomingEvent: Game | null =
-    (await publicApi.getGames()).upcoming[0] || null;
+    (await publicApi.getGames({ revalidate: 3600 })).upcoming[0] || null;
   const id = upcomingEvent?._id;
 
   return <NavigationClient upcomingEventLink={`/games/${id}`} />;

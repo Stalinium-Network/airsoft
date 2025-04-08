@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default async function FAQPage() {
   // Fetch FAQs from the server
-  const faqs: FAQ[] = await publicApi.getFaqs();
+  const faqs: FAQ[] = await publicApi.getFaqs({revalidate: 3600});
 
   const faqItems = faqs.length > 0 ? faqs : [];
 

@@ -4,9 +4,6 @@ import IntroSection from "./components/IntroSection";
 import FactionDetails from "./components/FactionDetails";
 import { Faction } from "@/services/gameService";
 
-// Enable revalidation every 1 hour (3600 seconds)
-export const revalidate = 3600;
-
 // Metadata for the page
 export const metadata: Metadata = {
   title: "Zone 37 | Checklist",
@@ -19,7 +16,7 @@ export const metadata: Metadata = {
 export default async function WorldPage() {
   let factions: Faction[] = [];
   try {
-    factions = await publicApi.getFactions();
+    factions = await publicApi.getFactions({revalidate: 3600});
   } catch (err) {
     console.error("Ошибка загрузки фракций:", err);
   }

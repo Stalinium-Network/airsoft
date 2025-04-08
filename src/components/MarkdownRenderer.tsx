@@ -162,7 +162,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             if (className === "card") {
               return (
                 <div
-                  className="bg-zone-dark-light rounded-lg px-6 py-2 my-6"
+                  className="bg-zone-dark-light rounded-lg px-6 py-6 my-6"
                   {...props}
                 >
                   {children}

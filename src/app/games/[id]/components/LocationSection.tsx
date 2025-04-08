@@ -49,7 +49,7 @@ export default function LocationSection({ location }: LocationSectionProps) {
 
       {/* Remaining images grid */}
       {remainingImages.length > 0 && (
-        <div className="grid grid-cols-2 gap-8 mt-3 mb-8">
+        <div className="grid grid-cols-2 gap-4 md:gap-6 mt-3 mb-8">
           {remainingImages.map((image, index) => (
             <div
               key={`${location._id}-image-${index}`}

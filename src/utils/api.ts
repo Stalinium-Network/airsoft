@@ -37,68 +37,78 @@ axiosAuthInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+/**
+ * Example: ```await publicApi.getGame(params.id, { revalidate: 3600 }) ```
+ */
+const nativeFetch = async (url: string, options: RequestInit['next'] = {}) => {
+  return fetch(url, { next: options }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  });
+}
+
 // Public API methods - модифицированы для непосредственного возврата .data
 export const publicApi = {
-  getGames: async (): Promise<{ past: Game[], upcoming: Game[] }> => {
-    const response = await axiosInstance.get('/games');
-    return response.data;
+  getGames: async (options?: RequestInit['next']): Promise<{ past: Game[]; upcoming: Game[] }> => {
+    const response = await nativeFetch(`${API_URL}/games`, options);
+    return response;
   },
-  getGame: async (id: string): Promise<Game> => {
-    const response = await axiosInstance.get(`/games/${id}`);
-    return response.data;
+  getGame: async (id: string, options?: RequestInit['next']): Promise<Game> => {
+    const response = await nativeFetch(`${API_URL}/games/${id}`, options);
+    return response;
   },
-  getFactions: async (): Promise<Faction[]> => {
-    const response = await axiosInstance.get('/factions');
-    return response.data || [];
+  getFactions: async (options?: RequestInit['next']): Promise<Faction[]> => {
+    const response = await nativeFetch(`${API_URL}/factions`, options);
+    return response || [];
   },
-  getLocations: async (): Promise<Location[]> => {
-    const response = await axiosInstance.get('/locations');
-    return response.data;
+  getLocations: async (options?: RequestInit['next']): Promise<Location[]> => {
+    const response = await nativeFetch(`${API_URL}/locations`, options);
+    return response;
   },
-  getLocation: async (id: string): Promise<Location> => {
-    const response = await axiosInstance.get(`/locations/${id}`);
-    return response.data;
+  getLocation: async (id: string, options?: RequestInit['next']): Promise<Location> => {
+    const response = await nativeFetch(`${API_URL}/locations/${id}`, options);
+    return response;
   },
-  getNews: async (category?: string): Promise<NewsItem[]> => {
-    const url = category && category !== 'all'
-      ? `/news?category=${category}`
-      : '/news';
-    const response = await axiosInstance.get(url);
-    return response.data;
+  getNews: async (category?: string, options?: RequestInit['next']): Promise<NewsItem[]> => {
+    const url = category && category !== "all" ? `/news?category=${category}` : "/news";
+    const response = await nativeFetch(`${API_URL}${url}`, options);
+    return response;
   },
-  getPinnedNews: async (): Promise<NewsItem[]> => {
-    const response = await axiosInstance.get('/news/pinned');
-    return response.data;
+  getPinnedNews: async (options?: RequestInit['next']): Promise<NewsItem[]> => {
+    const response = await nativeFetch(`${API_URL}/news/pinned`, options);
+    return response;
   },
-  getRecentNews: async (limit = 5): Promise<NewsItem[]> => {
-    const response = await axiosInstance.get(`/news/recent?limit=${limit}`);
-    return response.data;
+  getRecentNews: async (limit = 5, options?: RequestInit['next']): Promise<NewsItem[]> => {
+    const response = await nativeFetch(`${API_URL}/news/recent?limit=${limit}`, options);
+    return response;
   },
-  getNewsItem: async (id: string): Promise<NewsItem> => {
-    const response = await axiosInstance.get(`/news/${id}`);
-    return response.data;
+  getNewsItem: async (id: string, options?: RequestInit['next']): Promise<NewsItem> => {
+    const response = await nativeFetch(`${API_URL}/news/${id}`, options);
+    return response;
   },
-  getNewsCategories: async (): Promise<NewsCategory[]> => {
-    const response = await axiosInstance.get('/news/categories');
-    return response.data;
+  getNewsCategories: async (options?: RequestInit['next']): Promise<NewsCategory[]> => {
+    const response = await nativeFetch(`${API_URL}/news/categories`, options);
+    return response;
   },
   // FAQ endpoints
-  getFaqs: async (): Promise<FAQ[]> => {
-    const response = await axiosInstance.get('/faqs');
-    return response.data;
+  getFaqs: async (options?: RequestInit['next']): Promise<FAQ[]> => {
+    const response = await nativeFetch(`${API_URL}/faqs`, options);
+    return response;
   },
   // Gallery endpoints
-  getGalleryList: async () => {
-    const response = await axiosInstance.get('/gallery/list');
-    return response.data;
+  getGalleryList: async (options?: RequestInit['next']) => {
+    const response = await nativeFetch(`${API_URL}/gallery/list`, options);
+    return response;
   },
-  getImageDetails: async (filename: string) => {
-    const response = await axiosInstance.get(`/gallery/details/${filename}`);
-    return response.data;
+  getImageDetails: async (filename: string, options?: RequestInit['next']) => {
+    const response = await nativeFetch(`${API_URL}/gallery/details/${filename}`, options);
+    return response;
   },
-  getTeam: async (): Promise<Commander[]> => {
-    const response = await axiosInstance.get('/team');
-    return response.data;
+  getTeam: async (options?: RequestInit['next']): Promise<Commander[]> => {
+    const response = await nativeFetch(`${API_URL}/team`, options);
+    return response;
   },
   // AI Assistant
   askAssistant: async (question: string) => {

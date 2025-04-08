@@ -15,18 +15,18 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function NewsPage() {
-  const allNewsResponse = await publicApi.getNews().catch((error) => {
+  const allNewsResponse = await publicApi.getNews(undefined, {revalidate: 3600}).catch((error) => {
     console.error("Error fetching news:", error);
     return [];
   });
 
-  const pinnedNewsResponse = await publicApi.getPinnedNews().catch((error) => {
+  const pinnedNewsResponse = await publicApi.getPinnedNews({revalidate: 3600}).catch((error) => {
     console.error("Error fetching pinned news:", error);
     return [];
   });
 
   const categoriesResponse = await publicApi
-    .getNewsCategories()
+    .getNewsCategories({revalidate: 3600})
     .catch((error) => {
       console.error("Error fetching news categories:", error);
       return [];

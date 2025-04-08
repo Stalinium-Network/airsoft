@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function LionDenCollab() {
   return (
-    <div className="bg-black/80 flex flex-col items-center justify-center p-4 font-sans rounded-xl">
+    <div className="bg-black/80 flex flex-col items-center justify-center p-4 py-10 font-sans rounded-xl">
       <div className="flex items-center justify-center gap-12 md:gap-16 lg:gap-20 mb-8 md:mb-12 overflow-hidden">
         <div className="flex-shrink max-w-[160px] md:max-w-[200px] w-full">
           <Image
@@ -11,7 +11,7 @@ export default function LionDenCollab() {
             alt="Zone 37 Logo"
             width={200}
             height={160}
-            className="object-contain w-full h-auto"
+            className="object-contain h-24 lg:h-32"
             priority
           />
         </div>
@@ -21,7 +21,7 @@ export default function LionDenCollab() {
             alt="The Lion's Den Corporation Logo"
             width={200}
             height={160}
-            className="object-contain w-full h-auto"
+            className="object-contain h-24 lg:h-32"
             priority
           />
         </div>

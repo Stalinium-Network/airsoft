@@ -98,7 +98,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="my-10 border-t border-white/10 pt-6 text-center">
+        <div className="my-10 border-t border-white/10 pt-6 text-center text-gray-400">
           &copy; {currentYear} Zone 37 Inc. California, US
         </div>
       </footer>

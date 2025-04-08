@@ -7,8 +7,6 @@ import GameItemsSection from "./components/GameItemsSection";
 import EventsSection from "@/components/home/EventsSection";
 import { publicApi } from "@/utils/api";
 
-// Enable revalidation every 1 hour (3600 seconds)
-export const revalidate = 3600;
 
 // Metadata for the page
 export const metadata: Metadata = {
@@ -24,13 +22,13 @@ export default async function WorldPage() {
   let games: any = { upcoming: [] };
 
   try {
-    factions = await publicApi.getFactions();
+    factions = await publicApi.getFactions({revalidate: 3600});
   } catch (err) {
     console.error("Ошибка загрузки фракций:", err);
   }
 
   try {
-    games = await publicApi.getGames();
+    games = await publicApi.getGames({revalidate: 3600});
   } catch (err) {
     console.error("Ошибка загрузки игр:", err);
   }
